@@ -1,0 +1,4 @@
+/build
+/res/map/*.json
+/res/map/*.h
+/res/map/*.c
