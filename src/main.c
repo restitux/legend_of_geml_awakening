@@ -2,7 +2,7 @@
 
 #include "wasm4.h"
 
-#include "../res/map/testing.h"
+#include "../res/map/testing.map.h"
 
 const uint8_t smiley[] = {
     0b11000011,

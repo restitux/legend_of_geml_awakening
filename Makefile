@@ -30,7 +30,7 @@ else
 endif
 
 OBJECTS = $(patsubst src/%.c, build/%.o, $(wildcard src/*.c))
-#OBJECTS += $(patsubst res/map/%.tmx, build/%.o, $(wildcard res/map/*.tmx))
+OBJECTS += $(patsubst res/map/%.tmx, build/%.o, $(wildcard res/map/*.tmx))
 OBJECTS += $(patsubst src/%.cpp, build/%.o, $(wildcard src/*.cpp))
 DEPS = $(OBJECTS:.o=.d)
 
@@ -55,31 +55,40 @@ else
 endif
 endif
 
-# Convert tiled maps to json
-res/map/%.json: res/map/%.tmx
-	tiled --export-map json $^ $@
+
+
+# Currently not supported in tool
+#
+# Convert tiled tilesets to json
+res/map/%.set.json: res/map/%.tsx
+	tiled --export-tileset json $^ $@
 
 # Convert tiled tileset json to C header
-#res/map/%.h: res/map/%.tmx.json
-#	w4-tiled-converter tileset $@
+res/map/%.set.c res/map/%.set.h: res/map/%.set.json
+	w4-tiled-converter tileset $^
+res/map/%.set.h: res/map/%.set.c
 
-
+# Convert tiled tilemaps to json
+res/map/%.map.json: res/map/%.tmx
+	tiled --export-map json $^ $@
 
 # Convert tiled tilemap json to C header
-res/map/%.c res/map/%.h: res/map/%.json
+res/map/%.map.c res/map/%.map.h: res/map/%.map.json
 	w4-tiled-converter tilemap $^
-res/map/%.h: res/map/%.c
+res/map/%.map.h: res/map/%.map.c
 
-TILEMAPS = $(patsubst res/map/%.tmx, res/map/%.h, $(wildcard res/map/*.tmx))
+TILEMAPS = $(patsubst res/map/%.tmx, res/map/%.map.h, $(wildcard res/map/*.tmx))
 .SECONDARY: $(TILEMAPS)
 
+TILESETS = $(patsubst res/map/%.tsx, res/map/%.set.h, $(wildcard res/map/*.tsx))
+.SECONDARY: $(TILESETS)
 
 # Compile C sources
-build/%.o: src/%.c $(TILEMAPS)
+build/%.o: src/%.c $(TILEMAPS) $(TILESETS)
 	@$(MKDIR_BUILD)
 	$(CC) -c $< -o $@ $(CFLAGS)
 
-build/%.o: res/map/%.c $(TILEMAPS)
+build/%.o: res/map/%.map.c $(TILEMAPS) $(TILESETS)
 	@$(MKDIR_BUILD)
 	$(CC) -c $< -o $@ $(CFLAGS)
 
