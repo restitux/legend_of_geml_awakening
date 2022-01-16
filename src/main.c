@@ -2,7 +2,7 @@
 
 #include "wasm4.h"
 
-#include "../res/map/testing.map.h"
+#include "tile_renderer.h"
 
 const uint8_t smiley[] = {
     0b11000011,
@@ -54,6 +54,8 @@ const unsigned int SCREEN_W = 160;
 const unsigned int SCREEN_H = 160;
 
 
+// const uint8_t tilemap[] = TILESET_tiles;
+// const uint32_t tilesize = TILESIZE_tiles;
 
 
 struct PlayerData {
@@ -70,6 +72,21 @@ struct PlayerData {
 //
 //bool debounce = false;
 
+
+// int tile_id(int x, int y) {
+//     return x + y * 16;
+// }
+
+// int tile_byte(int id) {
+//     return id * 16;
+// }
+
+// void draw_tile(int x, int y) {
+//     int id = tile_id(x, y);
+//     int byte = tile_byte(id);
+//     blit(tilemap + byte, x*8, y*8, 8, 8, BLIT_2BPP);
+// }
+
 void update () {
     PALETTE[0] = 0x00DDDDD0;
     PALETTE[1] = 0x00000000;
@@ -83,7 +100,14 @@ void update () {
         player_data.x += 2;
     }
 
-    //blit(PLAYER_SPRITE, player_data.x, player_data.y, 8, 9, BLIT_1BPP);
-    //text("Press X to blink", 16, 90);
-    //render_player();
+    draw_map();
+
+    // int i = 0;
+    // for (int y = 0; y < 16; y++) {
+    //     for (int x = 0; x < 16; x++) {
+    //         draw_tile(i, x, y);
+    //         i++;
+    //     }
+    // }
+    
 }
