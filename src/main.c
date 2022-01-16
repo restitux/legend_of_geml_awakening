@@ -57,10 +57,10 @@ struct GameState {
 
 
 void update () {
-    PALETTE[0] = 0x00DDDDD0;
+    PALETTE[0] = 0x00FF0000;
     PALETTE[1] = 0x00000000;
     PALETTE[2] = 0x00444444;
-    PALETTE[3] = 0x00888888;
+    PALETTE[3] = 0x00FFFFFF;
     *DRAW_COLORS = 0x4321;
     //text("Hello from C!", 10, 10);
 
