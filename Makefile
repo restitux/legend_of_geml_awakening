@@ -5,9 +5,11 @@ endif
 CC = "$(WASI_SDK_PATH)/bin/clang" --sysroot="$(WASI_SDK_PATH)/share/wasi-sysroot"
 CXX = "$(WASI_SDK_PATH)/bin/clang++" --sysroot="$(WASI_SDK_PATH)/share/wasi-sysroot"
 
+TILED?=tiled
+
 # Optional dependency from binaryen for smaller builds
 WASM_OPT = wasm-opt
-WASM_OPT_FLAGS = -Oz --zero-filled-memory --strip-producers
+WASM_OPT_FLAGS = -O3 --zero-filled-memory --strip-producers
 
 # Whether to build for debugging instead of release
 DEBUG = 0
@@ -48,33 +50,29 @@ all: build/cart.wasm
 build/cart.wasm: $(OBJECTS)
 	$(CXX) -o $@ $(OBJECTS) $(LDFLAGS)
 ifneq ($(DEBUG), 1)
-ifeq (, $(shell command -v $(WASM_OPT)))
-	@echo Tip: $(WASM_OPT) was not found. Install it from binaryen for smaller builds!
-else
 	$(WASM_OPT) $(WASM_OPT_FLAGS) $@ -o $@
-endif
 endif
 
 
 
 # Currently not supported in tool
 #
-# Convert tiled tilesets to json
+# Convert $(TILED) tilesets to json
 res/map/%.set.json: res/map/%.tsx
-	tiled --export-tileset json $^ $@
+	$(TILED) --export-tileset json $^ $@
 
-# Convert tiled tileset json to C header
+# Convert $(TILED) tileset json to C header
 res/map/%.set.c res/map/%.set.h: res/map/%.set.json
-	w4-tiled-converter tileset $^
+	w4-$(TILED)-converter tileset $^
 res/map/%.set.h: res/map/%.set.c
 
-# Convert tiled tilemaps to json
+# Convert $(TILED) tilemaps to json
 res/map/%.map.json: res/map/%.tmx
-	tiled --export-map json $^ $@
+	$(TILED) --export-map json $^ $@
 
-# Convert tiled tilemap json to C header
+# Convert $(TILED) tilemap json to C header
 res/map/%.map.c res/map/%.map.h: res/map/%.map.json
-	w4-tiled-converter tilemap $^
+	w4-$(TILED)-converter tilemap $^
 res/map/%.map.h: res/map/%.map.c
 
 TILEMAPS = $(patsubst res/map/%.tmx, res/map/%.map.h, $(wildcard res/map/*.tmx))
@@ -91,11 +89,6 @@ build/%.o: src/%.c $(TILEMAPS) $(TILESETS)
 build/%.o: res/map/%.map.c $(TILEMAPS) $(TILESETS)
 	@$(MKDIR_BUILD)
 	$(CC) -c $< -o $@ $(CFLAGS)
-
-# Compile C++ sources
-build/%.o: src/%.cpp
-	@$(MKDIR_BUILD)
-	$(CXX) -c $< -o $@ $(CFLAGS)
 
 .PHONY: clean
 clean:
