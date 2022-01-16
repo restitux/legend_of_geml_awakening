@@ -33,6 +33,7 @@ endif
 
 OBJECTS = $(patsubst src/%.c, build/%.o, $(wildcard src/*.c))
 OBJECTS += $(patsubst res/map/%.tmx, build/%.o, $(wildcard res/map/*.tmx))
+OBJECTS += $(patsubst res/map/%.tsx, build/%.o, $(wildcard res/map/*.tsx))
 OBJECTS += $(patsubst src/%.cpp, build/%.o, $(wildcard src/*.cpp))
 DEPS = $(OBJECTS:.o=.d)
 
@@ -87,6 +88,10 @@ build/%.o: src/%.c $(TILEMAPS) $(TILESETS)
 	$(CC) -c $< -o $@ $(CFLAGS)
 
 build/%.o: res/map/%.map.c $(TILEMAPS) $(TILESETS)
+	@$(MKDIR_BUILD)
+	$(CC) -c $< -o $@ $(CFLAGS)
+
+build/%.o: res/map/%.set.c $(TILEMAPS) $(TILESETS)
 	@$(MKDIR_BUILD)
 	$(CC) -c $< -o $@ $(CFLAGS)
 
