@@ -6,6 +6,7 @@ CC = "$(WASI_SDK_PATH)/bin/clang" --sysroot="$(WASI_SDK_PATH)/share/wasi-sysroot
 CXX = "$(WASI_SDK_PATH)/bin/clang++" --sysroot="$(WASI_SDK_PATH)/share/wasi-sysroot"
 
 TILED?=tiled
+TILED_CONVERTED?=w4-tiled-converter
 
 # Optional dependency from binaryen for smaller builds
 WASM_OPT = wasm-opt
@@ -63,7 +64,7 @@ res/map/%.set.json: res/map/%.tsx
 
 # Convert $(TILED) tileset json to C header
 res/map/%.set.c res/map/%.set.h: res/map/%.set.json
-	w4-$(TILED)-converter tileset $^
+	$(TILED_CONVERTED) tileset $^
 res/map/%.set.h: res/map/%.set.c
 
 # Convert $(TILED) tilemaps to json
@@ -72,7 +73,7 @@ res/map/%.map.json: res/map/%.tmx
 
 # Convert $(TILED) tilemap json to C header
 res/map/%.map.c res/map/%.map.h: res/map/%.map.json
-	w4-$(TILED)-converter tilemap $^
+	$(TILED_CONVERTED) tilemap $^
 res/map/%.map.h: res/map/%.map.c
 
 TILEMAPS = $(patsubst res/map/%.tmx, res/map/%.map.h, $(wildcard res/map/*.tmx))
