@@ -71,6 +71,8 @@ void update () {
 
     draw_map(state.tilemap, state.tileset);
 
+    // draw_tile(1, 0, 0, state.tileset);
+
     // int i = 0;
     // for (int y = 0; y < 16; y++) {
     //     for (int x = 0; x < 16; x++) {
