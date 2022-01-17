@@ -7,6 +7,7 @@
 #include "../../res/map/testing.map.h"
 #include "../../res/map/tiled.h"
 #include "../../res/map/tiles.set.h"
+#include "../../res/data/sprites.h"
 
 #include "player.h"
 #include "room_renderer.h"
@@ -19,7 +20,10 @@ struct PlayerData {
     unsigned int y;
 };
 
-struct Player player = {.loc = {.room = {0, 0}, .screen = {35, 70}}};
+struct Player player = {
+    .loc = {.room = {0, 0}, .screen = {35, 70}}, 
+    .sprite = {.sprite_sheet=sprites, .x=64, .y=32} 
+};
 const struct TileMap *map = &testing_tilemap;
 
 void update() {

@@ -6,7 +6,8 @@
 
 struct Sprite {
     const uint8_t *sprite_sheet;
-    uint8_t index;
+    uint8_t x;
+    uint8_t y;
 };
 
-void draw_sprite(struct Sprite *sprite, struct ScreenCoordinate *loc);
+void draw_sprite(const struct Sprite *sprite, const struct ScreenCoordinate *loc);

@@ -3,6 +3,7 @@
 #include "room_renderer.h"
 #include "types.h"
 #include "wasm4.h"
+#include "sprite.h"
 
 void move_player_if_valid(struct Player *player, enum Direction direction,
                           const struct TileMap_DataLayer *collision_map) {
@@ -75,6 +76,8 @@ void handle_movement(struct Player *player,
 }
 
 void draw_player(const struct Player *player) {
-    // blitSub(player->sprite, player->loc.screen.x, player->loc.screen.y, 16, 16, )
-    text("P", player->loc.screen.x, player->loc.screen.y);
+    // // blitSub(player->sprite, player->loc.screen.x, player->loc.screen.y, 16, 16, )
+    // text("P", player->loc.screen.x, player->loc.screen.y);
+
+    draw_sprite(&player->sprite, &player->loc.screen);
 }
