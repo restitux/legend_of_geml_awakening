@@ -6,7 +6,8 @@
 
 struct Player {
     struct WorldCoordinate loc;
-    struct Sprite sprite;
+    struct CharacterSprite sprite;
+    enum Direction last_movement_dir;
 };
 
 void handle_movement(struct Player *player,

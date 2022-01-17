@@ -53,7 +53,21 @@ void move_player_if_valid(struct Player *player, enum Direction direction,
                room_tile_at_screen_coordinates(&new_loc_br, collision_map);
     // if no corners are colliding update position
     if (!tile) {
+
+        if (new_loc_tl.screen.y < player->loc.screen.y) {
+            player->last_movement_dir=DIRECTION_UP;
+        } else if (new_loc_tl.screen.y > player->loc.screen.y) {
+            player->last_movement_dir=DIRECTION_DOWN;
+        }
+
+        if (new_loc_tl.screen.x < player->loc.screen.x) {
+            player->last_movement_dir=DIRECTION_LEFT;
+        } else if (new_loc_tl.screen.x > player->loc.screen.x) {
+            player->last_movement_dir=DIRECTION_RIGHT;
+        }
+
         player->loc = new_loc_tl;
+        sprite_advance_animation(&player->sprite);
     }
 }
 
@@ -79,5 +93,5 @@ void draw_player(const struct Player *player) {
     // // blitSub(player->sprite, player->loc.screen.x, player->loc.screen.y, 16, 16, )
     // text("P", player->loc.screen.x, player->loc.screen.y);
 
-    draw_sprite(&player->sprite, &player->loc.screen);
+    sprite_draw_character(&player->sprite, &player->loc.screen, player->last_movement_dir);
 }

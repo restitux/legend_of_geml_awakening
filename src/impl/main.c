@@ -7,7 +7,7 @@
 #include "../../res/map/testing.map.h"
 #include "../../res/map/tiled.h"
 #include "../../res/map/tiles.set.h"
-#include "../../res/data/sprites.h"
+#include "../../res/data/player_animation.h"
 
 #include "player.h"
 #include "room_renderer.h"
@@ -22,7 +22,14 @@ struct PlayerData {
 
 struct Player player = {
     .loc = {.room = {0, 0}, .screen = {35, 70}}, 
-    .sprite = {.sprite_sheet=sprites, .x=64, .y=32} 
+    .sprite = {
+        .sprite_sheet=player_animation,
+        .sheet_height=player_animationHeight,
+        .sheet_width=player_animationWidth,
+        .frame_size=player_animationFrameSize,
+        .current_frame=0,
+        .frames_per_animation=10
+    }      
 };
 const struct TileMap *map = &testing_tilemap;
 
@@ -36,7 +43,6 @@ void update() {
     handle_movement(&player, &map->collision_map);
     room_draw_room(player.loc.room.x, player.loc.room.y, &map->static_map);
 
-    *DRAW_COLORS = 0x4901;
     draw_player(&player);
 
     if (player.loc.screen.x > 159) {
