@@ -8,6 +8,9 @@ struct Player {
     struct WorldCoordinate loc;
     struct CharacterSprite sprite;
     enum Direction last_movement_dir;
+
+    uint32_t player_height;
+    uint32_t player_width;
 };
 
 void handle_movement(struct Player *player,

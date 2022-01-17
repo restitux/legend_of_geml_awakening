@@ -9,12 +9,12 @@ void move_player_if_valid(struct Player *player, enum Direction direction,
                           const struct TileMap_DataLayer *collision_map) {
     struct WorldCoordinate new_loc_tl = player->loc;
     struct WorldCoordinate new_loc_tr = player->loc;
-    new_loc_tr.screen.x += 7;
+    new_loc_tr.screen.x += player->player_width - 4;
     struct WorldCoordinate new_loc_bl = player->loc;
-    new_loc_bl.screen.y += 7;
+    new_loc_bl.screen.y += player->player_height - 4;
     struct WorldCoordinate new_loc_br = player->loc;
-    new_loc_br.screen.y += 7;
-    new_loc_br.screen.x += 7;
+    new_loc_br.screen.y += player->player_height - 4;
+    new_loc_br.screen.x += player->player_width - 4;
     struct WorldCoordinate collision_loc = player->loc;
 
     // increment position of all corners based on input direction

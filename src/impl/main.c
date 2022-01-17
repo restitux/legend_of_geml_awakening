@@ -29,7 +29,9 @@ struct Player player = {
         .frame_size=player_animationFrameSize,
         .current_frame=0,
         .frames_per_animation=10
-    }      
+    },
+    .player_height = 16,
+    .player_width = 16      
 };
 const struct TileMap *map = &testing_tilemap;
 
