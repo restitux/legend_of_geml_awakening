@@ -41,20 +41,20 @@ void update() {
     *DRAW_COLORS = 0x4901;
     draw_player(&player);
 
-    if (player.loc.screen.x >= 150) {
-        player.loc.screen.x = 11;
+    if (player.loc.screen.x > 159) {
+        player.loc.screen.x = 1;
         player.loc.room.x += 1;
     }
-    if (player.loc.screen.x <= 10) {
-        player.loc.screen.x = 149;
+    if (player.loc.screen.x < 1) {
+        player.loc.screen.x = 159;
         player.loc.room.x -= 1;
     }
-    if (player.loc.screen.y >= 150) {
-        player.loc.screen.y = 11;
+    if (player.loc.screen.y > 159) {
+        player.loc.screen.y = 1;
         player.loc.room.y += 1;
     }
-    if (player.loc.screen.y <= 10) {
-        player.loc.screen.y = 149;
+    if (player.loc.screen.y < 1) {
+        player.loc.screen.y = 159;
         player.loc.room.y -= 1;
     }
 }
