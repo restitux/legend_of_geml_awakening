@@ -8,14 +8,21 @@
 void move_player_if_valid(struct Player *player, enum Direction direction,
                           const struct TileMap_DataLayer *collision_map) {
     struct WorldCoordinate new_loc_tl = player->loc;
+    new_loc_tl.screen.x += 4;
+    new_loc_tl.screen.y += 4;
+
     struct WorldCoordinate new_loc_tr = player->loc;
     new_loc_tr.screen.x += player->player_width - 4;
+    new_loc_tl.screen.y += 4;
+
     struct WorldCoordinate new_loc_bl = player->loc;
     new_loc_bl.screen.y += player->player_height - 4;
+    new_loc_bl.screen.x += 4;
+
     struct WorldCoordinate new_loc_br = player->loc;
     new_loc_br.screen.y += player->player_height - 4;
     new_loc_br.screen.x += player->player_width - 4;
-    struct WorldCoordinate collision_loc = player->loc;
+    struct WorldCoordinate potential_loc = player->loc;
 
     // increment position of all corners based on input direction
     switch (direction) {
@@ -24,24 +31,28 @@ void move_player_if_valid(struct Player *player, enum Direction direction,
         new_loc_tr.screen.y -= 1;
         new_loc_bl.screen.y -= 1;
         new_loc_br.screen.y -= 1;
+        potential_loc.screen.y -= 1;
         break;
     case DIRECTION_DOWN:
         new_loc_tl.screen.y += 1;
         new_loc_tr.screen.y += 1;
         new_loc_bl.screen.y += 1;
         new_loc_br.screen.y += 1;
+        potential_loc.screen.y += 1;
         break;
     case DIRECTION_LEFT:
         new_loc_tl.screen.x -= 1;
         new_loc_tr.screen.x -= 1;
         new_loc_bl.screen.x -= 1;
         new_loc_br.screen.x -= 1;
+        potential_loc.screen.x -= 1;
         break;
     case DIRECTION_RIGHT:
         new_loc_tl.screen.x += 1;
         new_loc_tr.screen.x += 1;
         new_loc_bl.screen.x += 1;
         new_loc_br.screen.x += 1;
+        potential_loc.screen.x += 1;
         break;
     default:
         break;
@@ -54,19 +65,19 @@ void move_player_if_valid(struct Player *player, enum Direction direction,
     // if no corners are colliding update position
     if (!tile) {
 
-        if (new_loc_tl.screen.y < player->loc.screen.y) {
+        if (potential_loc.screen.y < player->loc.screen.y) {
             player->last_movement_dir=DIRECTION_UP;
-        } else if (new_loc_tl.screen.y > player->loc.screen.y) {
+        } else if (potential_loc.screen.y > player->loc.screen.y) {
             player->last_movement_dir=DIRECTION_DOWN;
         }
 
-        if (new_loc_tl.screen.x < player->loc.screen.x) {
+        if (potential_loc.screen.x < player->loc.screen.x) {
             player->last_movement_dir=DIRECTION_LEFT;
-        } else if (new_loc_tl.screen.x > player->loc.screen.x) {
+        } else if (potential_loc.screen.x > player->loc.screen.x) {
             player->last_movement_dir=DIRECTION_RIGHT;
         }
 
-        player->loc = new_loc_tl;
+        player->loc = potential_loc;
         sprite_advance_animation(&player->sprite);
     }
 }
