@@ -50,8 +50,8 @@ void room_draw_room(uint32_t room_x, uint32_t room_y,
 
 int room_tile_at_screen_coordinates(struct WorldCoordinate *loc,
                                     const struct Datamap *map) {
-    int world_x = (loc->screen.x / 8) + loc->room.x;
-    int world_y = (loc->screen.y / 8) + loc->room.y;
+    int world_x = (loc->screen.x / 8) + (loc->room.x * 20);
+    int world_y = (loc->screen.y / 8) + (loc->room.y * 20);
 
     int index = world_x + (world_y * map->map_width);
     return map->map[index];
