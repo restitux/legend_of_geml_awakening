@@ -14,6 +14,8 @@ void move_player_if_valid(struct Player *player, enum Direction direction,
     new_loc_br.screen.y += 7;
     new_loc_br.screen.x += 7;
     struct WorldCoordinate collision_loc = player->loc;
+
+    // increment position of all corners based on input direction
     switch (direction) {
     case DIRECTION_UP:
         new_loc_tl.screen.y -= 1;
@@ -42,10 +44,12 @@ void move_player_if_valid(struct Player *player, enum Direction direction,
     default:
         break;
     }
+    // collide all corners
     int tile = room_tile_at_screen_coordinates(&new_loc_tl, collision_map) ||
                room_tile_at_screen_coordinates(&new_loc_tr, collision_map) ||
                room_tile_at_screen_coordinates(&new_loc_bl, collision_map) ||
                room_tile_at_screen_coordinates(&new_loc_br, collision_map);
+    // if no corners are colliding update position
     if (!tile) {
         player->loc = new_loc_tl;
     }
