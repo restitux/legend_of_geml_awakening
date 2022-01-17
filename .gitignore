@@ -7,3 +7,4 @@ fix.sh
 src/tiled.h
 .vscode
 compile_commands.json
+.cache
