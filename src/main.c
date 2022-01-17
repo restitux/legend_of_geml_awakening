@@ -5,6 +5,7 @@
 #include "tile_renderer.h"
 
 #include "../res/map/testing.map.h"
+#include "../res/map/tiled.h"
 #include "../res/map/tiles.set.h"
 
 #include "player.h"
@@ -23,10 +24,12 @@ struct PlayerData {
 };
 
 struct Player player = {.loc = {.room = {0, 0}, .screen = {35, 70}}};
-struct Tilemap map = {testing_static_tilemap, testing_static_WIDTH,
-                      testing_static_HEIGHT, tiles_tileset};
-struct Datamap collision_map = {testing_collision_tilemap,
-                                testing_collision_WIDTH, testing_static_HEIGHT};
+const struct TileMap *map = &testing_tilemap;
+// struct Tilemap map = {testing_static_tilemap, testing_static_WIDTH,
+//                       testing_static_HEIGHT, tiles_tileset};
+// struct Datamap collision_map = {testing_collision_tilemap,
+//                                 testing_collision_WIDTH,
+//                                 testing_static_HEIGHT};
 
 void update() {
     PALETTE[0] = 0x00FF0000;
@@ -35,8 +38,8 @@ void update() {
     PALETTE[3] = 0x00FFFFFF;
     *DRAW_COLORS = 0x4321;
 
-    handle_movement(&player, &collision_map);
-    room_draw_room(player.loc.room.x, player.loc.room.y, &map);
+    handle_movement(&player, &map->collision_map);
+    room_draw_room(player.loc.room.x, player.loc.room.y, &map->static_map);
 
     *DRAW_COLORS = 0x4901;
     draw_player(&player);

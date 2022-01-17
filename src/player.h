@@ -1,13 +1,13 @@
-#include <stdint.h>
-#include "wasm4.h"
+#include "../res/map/tiled.h"
 #include "types.h"
-#include "tilemap.h"
+#include "wasm4.h"
+#include <stdint.h>
 
-struct Player{
+struct Player {
     struct WorldCoordinate loc;
 };
 
-
-void handle_movement(struct Player *player, struct Datamap *collision_map);
+void handle_movement(struct Player *player,
+                     const struct TileMap_DataLayer *collision_map);
 
 void draw_player(const struct Player *player);

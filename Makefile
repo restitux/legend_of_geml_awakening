@@ -83,16 +83,22 @@ TILEMAPS = $(patsubst res/map/%.tmx, res/map/%.map.h, $(wildcard res/map/*.tmx))
 TILESETS = $(patsubst res/map/%.tsx, res/map/%.set.h, $(wildcard res/map/*.tsx))
 .SECONDARY: $(TILESETS)
 
+# Generate tiled header
+TILEDHEADER=res/map/tiled.h
+
+$(TILEDHEADER):
+	$(TILED_CONVERTED) header $@
+
 # Compile C sources
-build/%.o: src/%.c $(TILEMAPS) $(TILESETS)
+build/%.o: src/%.c $(TILEMAPS) $(TILESETS) $(TILEDHEADER)
 	@$(MKDIR_BUILD)
 	$(CC) -c $< -o $@ $(CFLAGS)
 
-build/%.o: res/map/%.map.c $(TILEMAPS) $(TILESETS)
+build/%.o: res/map/%.map.c $(TILEMAPS) $(TILESETS) $(TILEDHEADER)
 	@$(MKDIR_BUILD)
 	$(CC) -c $< -o $@ $(CFLAGS)
 
-build/%.o: res/map/%.set.c $(TILEMAPS) $(TILESETS)
+build/%.o: res/map/%.set.c $(TILEMAPS) $(TILESETS) $(TILEDHEADER)
 	@$(MKDIR_BUILD)
 	$(CC) -c $< -o $@ $(CFLAGS)
 

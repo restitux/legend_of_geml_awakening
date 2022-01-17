@@ -1,10 +1,11 @@
 #include "player.h"
+#include "../res/map/tiled.h"
 #include "room_renderer.h"
 #include "types.h"
 #include "wasm4.h"
 
 void move_player_if_valid(struct Player *player, enum Direction direction,
-                          struct Datamap *collision_map) {
+                          const struct TileMap_DataLayer *collision_map) {
     struct WorldCoordinate new_loc_tl = player->loc;
     struct WorldCoordinate new_loc_tr = player->loc;
     new_loc_tr.screen.x += 7;
@@ -55,7 +56,8 @@ void move_player_if_valid(struct Player *player, enum Direction direction,
     }
 }
 
-void handle_movement(struct Player *player, struct Datamap *collision_map) {
+void handle_movement(struct Player *player,
+                     const struct TileMap_DataLayer *collision_map) {
     uint8_t gamepad = *GAMEPAD1;
 
     if (gamepad & BUTTON_UP) {

@@ -2,7 +2,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "tilemap.h"
+#include "../res/map/tiled.h"
 #include "wasm4.h"
 
 void room_draw_tile(uint32_t tile, uint32_t x, uint32_t y,
@@ -36,23 +36,23 @@ void room_draw_tile(uint32_t tile, uint32_t x, uint32_t y,
 }
 
 void room_draw_room(uint32_t room_x, uint32_t room_y,
-                    const struct Tilemap *map) {
+                    const struct TileMap_MapLayer *map) {
     int room_start_y = room_y * 20;
     int room_start_x = room_x * 20;
     for (int x = room_start_x; x < room_start_x + 20; x++) {
         for (int y = room_start_y; y < room_start_y + 20; y++) {
-            int tile_index = x + (y * map->map_width);
+            int tile_index = x + (y * map->width);
             room_draw_tile(map->map[tile_index], x - room_start_x,
-                           y - room_start_y, map->tileset);
+                           y - room_start_y, map->tileset->tileset);
         }
     }
 }
 
 int room_tile_at_screen_coordinates(struct WorldCoordinate *loc,
-                                    const struct Datamap *map) {
+                                    const struct TileMap_DataLayer *map) {
     int world_x = (loc->screen.x / 8) + (loc->room.x * 20);
     int world_y = (loc->screen.y / 8) + (loc->room.y * 20);
 
-    int index = world_x + (world_y * map->map_width);
+    int index = world_x + (world_y * map->width);
     return map->map[index];
 }
