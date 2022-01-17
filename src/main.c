@@ -10,13 +10,9 @@
 
 #include "player.h"
 #include "room_renderer.h"
-#include "tilemap.h"
 
 const unsigned int SCREEN_W = 160;
 const unsigned int SCREEN_H = 160;
-
-// const uint8_t tilemap[] = TILESET_tiles;
-// const uint32_t tilesize = TILESIZE_tiles;
 
 struct PlayerData {
     unsigned int x;
@@ -25,11 +21,6 @@ struct PlayerData {
 
 struct Player player = {.loc = {.room = {0, 0}, .screen = {35, 70}}};
 const struct TileMap *map = &testing_tilemap;
-// struct Tilemap map = {testing_static_tilemap, testing_static_WIDTH,
-//                       testing_static_HEIGHT, tiles_tileset};
-// struct Datamap collision_map = {testing_collision_tilemap,
-//                                 testing_collision_WIDTH,
-//                                 testing_static_HEIGHT};
 
 void update() {
     PALETTE[0] = 0x00FF0000;
