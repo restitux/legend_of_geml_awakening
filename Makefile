@@ -15,6 +15,9 @@ WASM_OPT_FLAGS = -O3 --zero-filled-memory --strip-producers
 # Whether to build for debugging instead of release
 DEBUG = 0
 
+# SRC LOCATIONS
+C_SRC_DIR = "src/impl"
+
 # Compilation flags
 CFLAGS = -W -Wall -Wextra -Werror -Wno-unused -MMD -MP -fno-exceptions
 ifeq ($(DEBUG), 1)
@@ -32,10 +35,9 @@ else
 	LDFLAGS += -Wl,--strip-all,--gc-sections,--lto-O3 -Oz
 endif
 
-OBJECTS = $(patsubst src/%.c, build/%.o, $(wildcard src/*.c))
+OBJECTS = $(patsubst src/impl/%.c, build/%.o, $(wildcard src/impl/*.c))
 OBJECTS += $(patsubst res/map/%.tmx, build/%.o, $(wildcard res/map/*.tmx))
 OBJECTS += $(patsubst res/map/%.tsx, build/%.o, $(wildcard res/map/*.tsx))
-OBJECTS += $(patsubst src/%.cpp, build/%.o, $(wildcard src/*.cpp))
 DEPS = $(OBJECTS:.o=.d)
 
 ifeq ($(OS), Windows_NT)
@@ -90,9 +92,9 @@ $(TILEDHEADER):
 	$(TILED_CONVERTED) header $@
 
 # Compile C sources
-build/%.o: src/%.c $(TILEMAPS) $(TILESETS) $(TILEDHEADER)
+build/%.o: src/impl/%.c $(TILEMAPS) $(TILESETS) $(TILEDHEADER)
 	@$(MKDIR_BUILD)
-	$(CC) -c $< -o $@ $(CFLAGS)
+	$(CC) -c $< -o $@ $(CFLAGS) -Isrc/include
 
 build/%.o: res/map/%.map.c $(TILEMAPS) $(TILESETS) $(TILEDHEADER)
 	@$(MKDIR_BUILD)

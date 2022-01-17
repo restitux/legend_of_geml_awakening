@@ -2,7 +2,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "../res/map/tiled.h"
+#include "../../res/map/tiled.h"
 #include "wasm4.h"
 
 void room_draw_tile(uint32_t tile, uint32_t x, uint32_t y,

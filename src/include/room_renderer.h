@@ -1,4 +1,4 @@
-#include "../res/map/tiled.h"
+#include "../../res/map/tiled.h"
 #include "types.h"
 #include <stdint.h>
 

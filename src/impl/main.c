@@ -4,9 +4,9 @@
 
 #include "tile_renderer.h"
 
-#include "../res/map/testing.map.h"
-#include "../res/map/tiled.h"
-#include "../res/map/tiles.set.h"
+#include "../../res/map/testing.map.h"
+#include "../../res/map/tiled.h"
+#include "../../res/map/tiles.set.h"
 
 #include "player.h"
 #include "room_renderer.h"

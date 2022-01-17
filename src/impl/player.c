@@ -1,5 +1,5 @@
 #include "player.h"
-#include "../res/map/tiled.h"
+#include "../../res/map/tiled.h"
 #include "room_renderer.h"
 #include "types.h"
 #include "wasm4.h"
@@ -75,5 +75,6 @@ void handle_movement(struct Player *player,
 }
 
 void draw_player(const struct Player *player) {
+    // blitSub(player->sprite, player->loc.screen.x, player->loc.screen.y, 16, 16, )
     text("P", player->loc.screen.x, player->loc.screen.y);
 }

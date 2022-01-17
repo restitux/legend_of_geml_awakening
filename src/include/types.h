@@ -23,3 +23,4 @@ enum Direction {
     DIRECTION_LEFT = 2,
     DIRECTION_RIGHT = 3,
 };
+
