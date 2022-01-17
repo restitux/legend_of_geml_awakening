@@ -22,22 +22,18 @@ struct PlayerData {
   unsigned int y;
 };
 
-// struct GameState {
-//   struct PlayerData player_data;
-//   const uint32_t *tilemap;
-//   const uint8_t *tileset;
-// } state = {
-//     .player_data =
-//         {
-//             .x = 0,
-//             .y = 0,
-//         },
-//     .tilemap = testing_tilemap,
-//     .tileset = tiles_tileset,
-// };
-
-struct Player player = {80, 80, 0, 0};
-struct Tilemap map = {testing_tilemap, 40, 20, tiles_tileset};
+struct Player player = {
+  .loc = {
+    .room = {
+      0, 0
+    },
+    .screen = {
+      35, 70
+    }
+  }
+};
+struct Tilemap map = {testing_static_tilemap, testing_static_WIDTH, testing_static_HEIGHT, tiles_tileset};
+struct Datamap collision_map = {testing_collision_tilemap, testing_collision_WIDTH, testing_static_HEIGHT};
 
 void update() {
   PALETTE[0] = 0x00FF0000;
@@ -47,8 +43,28 @@ void update() {
   *DRAW_COLORS = 0x4321;
  
   
-  handle_movement(&player);
-  draw_player(&player);
-  room_draw_room(1, 0, &map);
+  handle_movement(&player, &collision_map);
+  room_draw_room(player.loc.room.x, player.loc.room.y, &map);
 
+  *DRAW_COLORS = 0x4901;
+  draw_player(&player);
+
+
+  if (player.loc.screen.x >= 150) {
+      player.loc.screen.x = 80;
+      player.loc.room.x += 1;
+  }
+  if (player.loc.screen.x <= 10) {
+      player.loc.screen.x = 80;
+      player.loc.room.x -= 1;
+  }
+  if (player.loc.screen.y >= 150) {
+      player.loc.screen.y = 80;
+      player.loc.room.y += 1;
+  }
+  if (player.loc.screen.y <= 10) {
+      player.loc.screen.y = 80;
+      player.loc.room.y -= 1;
+
+  }
 }

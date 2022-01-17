@@ -9,3 +9,9 @@ struct Tilemap {
 
     const uint8_t *tileset;
 };
+
+struct Datamap {
+    const uint32_t *map;
+    uint32_t map_width;
+    uint32_t map_height;
+};
