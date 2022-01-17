@@ -40,27 +40,10 @@ void update() {
     PALETTE[1] = 0x00000000;
     PALETTE[2] = 0x00444444;
     PALETTE[3] = 0x00FFFFFF;
-    *DRAW_COLORS = 0x4321;
+    *DRAW_COLORS = 0x4320;
 
     handle_movement(&player, &map->collision_map);
     room_draw_room(player.loc.room.x, player.loc.room.y, &map->static_map);
-
     draw_player(&player);
-
-    if (player.loc.screen.x > 159) {
-        player.loc.screen.x = 1;
-        player.loc.room.x += 1;
-    }
-    if (player.loc.screen.x < 1) {
-        player.loc.screen.x = 159;
-        player.loc.room.x -= 1;
-    }
-    if (player.loc.screen.y > 159) {
-        player.loc.screen.y = 1;
-        player.loc.room.y += 1;
-    }
-    if (player.loc.screen.y < 1) {
-        player.loc.screen.y = 159;
-        player.loc.room.y -= 1;
-    }
+    room_draw_room(player.loc.room.x, player.loc.room.y, &map->overlay_map);
 }

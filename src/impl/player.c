@@ -71,6 +71,25 @@ void move_player_if_valid(struct Player *player, enum Direction direction,
     }
 }
 
+void check_room_change(struct Player *player) {
+        if (player->loc.screen.x > 159) {
+        player->loc.screen.x = 1;
+        player->loc.room.x += 1;
+    }
+    if (player->loc.screen.x < 1) {
+        player->loc.screen.x = 159;
+        player->loc.room.x -= 1;
+    }
+    if (player->loc.screen.y > 159) {
+        player->loc.screen.y = 1;
+        player->loc.room.y += 1;
+    }
+    if (player->loc.screen.y < 1) {
+        player->loc.screen.y = 159;
+        player->loc.room.y -= 1;
+    }
+}
+
 void handle_movement(struct Player *player,
                      const struct TileMap_DataLayer *collision_map) {
     uint8_t gamepad = *GAMEPAD1;
@@ -87,6 +106,8 @@ void handle_movement(struct Player *player,
     if (gamepad & BUTTON_RIGHT) {
         move_player_if_valid(player, DIRECTION_RIGHT, collision_map);
     }
+ 
+    check_room_change(player);
 }
 
 void draw_player(const struct Player *player) {
