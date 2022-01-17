@@ -16,7 +16,7 @@ void move_player_if_valid(struct Player *player, enum Direction direction,
     new_loc_tl.screen.y += 4;
 
     struct WorldCoordinate new_loc_bl = player->loc;
-    new_loc_bl.screen.y += player->player_height + 4;
+    new_loc_bl.screen.y += player->player_height - 4;
     new_loc_bl.screen.x += 4;
 
     struct WorldCoordinate new_loc_br = player->loc;

@@ -14,6 +14,7 @@ void room_draw_tile(uint32_t tile, uint32_t x, uint32_t y,
 
     bool flipx = rotations & 0b1000;
     bool flipy = rotations & 0b0100;
+    bool rotate = rotations & 0b0010;
 
     if (flipx) {
         flags |= BLIT_FLIP_X;
@@ -21,7 +22,7 @@ void room_draw_tile(uint32_t tile, uint32_t x, uint32_t y,
     if (flipy) {
         flags |= BLIT_FLIP_Y;
     }
-    if (rotations & 0b0010) {
+    if (rotate) {
         flags |= BLIT_ROTATE;
         if (flipy) {
             flags &= ~BLIT_FLIP_Y;

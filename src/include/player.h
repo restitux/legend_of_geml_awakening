@@ -1,3 +1,5 @@
+#pragma once
+
 #include "../../res/map/tiled.h"
 #include "types.h"
 #include "wasm4.h"
