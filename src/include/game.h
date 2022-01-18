@@ -9,4 +9,3 @@ struct GameState {
 };
 
 extern struct GameState game_state;
-

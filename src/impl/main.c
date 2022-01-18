@@ -1,12 +1,11 @@
+#include "game.h" //main must include game.h for the state to be initalized
 #include "hooks.h"
-
-//call out to game hooks
-
-
 void start() {
     on_game_launch();
 }
 
 void update() {
     on_update();
+    
+
 }

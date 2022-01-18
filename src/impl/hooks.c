@@ -22,6 +22,7 @@ void on_update() {
     room_draw_room(game_state.player.loc.room.x, game_state.player.loc.room.y,
                    &game_state.overworld->static_map);
     draw_player(&game_state.player);
+        
     room_draw_room(game_state.player.loc.room.x, game_state.player.loc.room.y,
                    &game_state.overworld->overlay_map);
 }
