@@ -3,9 +3,16 @@
 #include "player.h"
 
 struct GameState {
-    struct Player player;
+  bool valid;
+  struct Player player;
 
-    const struct TileMap *overworld;
+  const struct TileMap *overworld;
 };
 
 extern struct GameState game_state;
+
+void init_game();
+
+void save_game();
+
+void load_game();

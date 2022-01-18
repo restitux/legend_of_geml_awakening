@@ -57,3 +57,4 @@ int room_tile_at_screen_coordinates(struct WorldCoordinate *loc,
     int index = world_x + (world_y * map->width);
     return map->map[index];
 }
+ 

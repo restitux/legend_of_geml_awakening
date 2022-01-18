@@ -50,7 +50,7 @@
 </data>
  </layer>
  <objectgroup id="5" name="entrances">
-  <object id="5" x="64" y="8" width="16" height="8">
+  <object id="5" x="64" y="8" width="16" height="16">
    <properties>
     <property name="is_entrance" type="bool" value="true"/>
     <property name="target_entrance" type="int" value="2"/>

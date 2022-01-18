@@ -3,6 +3,7 @@
 #include "../../res/map/tiled.h"
 #include "game.h"
 #include "player.h"
+#include "../../res/map/dungeon_one.map.h"
 
 void handle_entrances() {
     for (unsigned int i = 0; i < game_state.overworld->entrances.length; i++) {
@@ -18,7 +19,7 @@ void handle_entrances() {
             if (x >= e.x && x <= e.x + e.width && y >= e.y &&
                 y <= e.y + e.height) {
                 // do transition
-                // game_state.overworld = e.target_map;
+                game_state.overworld = e.target_map;
             }
         }
     }
