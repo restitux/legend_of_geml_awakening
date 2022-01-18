@@ -1,7 +1,7 @@
 #include "input.h"
 #include "wasm4.h"
 
-void update_button(struct InputButtonState *b, uint8_t cur_state) {
+void update_button(struct InputButtonState *b, bool cur_state) {
   struct InputButtonState old = *b;
 
   b->justReleased = false;
