@@ -1,9 +1,10 @@
 #include "player.h"
 #include "../../res/map/tiled.h"
+#include "hooks.h"
 #include "room_renderer.h"
+#include "sprite.h"
 #include "types.h"
 #include "wasm4.h"
-#include "sprite.h"
 
 void move_player_if_valid(struct Player *player, enum Direction direction,
                           const struct TileMap_DataLayer *collision_map) {
@@ -66,15 +67,15 @@ void move_player_if_valid(struct Player *player, enum Direction direction,
     if (!tile) {
 
         if (potential_loc.screen.y < player->loc.screen.y) {
-            player->last_movement_dir=DIRECTION_UP;
+            player->last_movement_dir = DIRECTION_UP;
         } else if (potential_loc.screen.y > player->loc.screen.y) {
-            player->last_movement_dir=DIRECTION_DOWN;
+            player->last_movement_dir = DIRECTION_DOWN;
         }
 
         if (potential_loc.screen.x < player->loc.screen.x) {
-            player->last_movement_dir=DIRECTION_LEFT;
+            player->last_movement_dir = DIRECTION_LEFT;
         } else if (potential_loc.screen.x > player->loc.screen.x) {
-            player->last_movement_dir=DIRECTION_RIGHT;
+            player->last_movement_dir = DIRECTION_RIGHT;
         }
 
         player->loc = potential_loc;
@@ -82,23 +83,29 @@ void move_player_if_valid(struct Player *player, enum Direction direction,
     }
 }
 
-void check_room_change(struct Player *player) {
-        if (player->loc.screen.x > 159) {
+bool check_room_change(struct Player *player) {
+    bool room_change = false;
+    if (player->loc.screen.x > 159) {
         player->loc.screen.x = 1;
         player->loc.room.x += 1;
+        room_change = true;
     }
     if (player->loc.screen.x < 1) {
         player->loc.screen.x = 159;
         player->loc.room.x -= 1;
+        room_change = true;
     }
     if (player->loc.screen.y > 159) {
         player->loc.screen.y = 1;
         player->loc.room.y += 1;
+        room_change = true;
     }
     if (player->loc.screen.y < 1) {
         player->loc.screen.y = 159;
         player->loc.room.y -= 1;
+        room_change = true;
     }
+    return room_change;
 }
 
 void handle_movement(struct Player *player,
@@ -117,13 +124,17 @@ void handle_movement(struct Player *player,
     if (gamepad & BUTTON_RIGHT) {
         move_player_if_valid(player, DIRECTION_RIGHT, collision_map);
     }
- 
-    check_room_change(player);
+
+    if (check_room_change(player)) {
+        on_room_exit();
+        on_room_enter();
+    }
 }
 
 void draw_player(const struct Player *player) {
-    // // blitSub(player->sprite, player->loc.screen.x, player->loc.screen.y, 16, 16, )
-    // text("P", player->loc.screen.x, player->loc.screen.y);
+    // // blitSub(player->sprite, player->loc.screen.x, player->loc.screen.y,
+    // 16, 16, ) text("P", player->loc.screen.x, player->loc.screen.y);
 
-    sprite_draw_character(&player->sprite, &player->loc.screen, player->last_movement_dir);
+    sprite_draw_character(&player->sprite, &player->loc.screen,
+                          player->last_movement_dir);
 }

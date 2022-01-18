@@ -1,15 +1,13 @@
 #include "hooks.h"
-#include "wasm4.h"
 #include "game.h"
 #include "room_renderer.h"
+#include "wasm4.h"
 
-void on_room_enter() {
-    
-}
+#include "entrances.h"
 
-void on_room_exit() {
+void on_room_enter() { populate_entrances(); }
 
-}
+void on_room_exit() {}
 
 void on_game_launch() {
     PALETTE[0] = 0x00FF0000;
@@ -21,7 +19,9 @@ void on_game_launch() {
 
 void on_update() {
     handle_movement(&game_state.player, &game_state.overworld->collision_map);
-    room_draw_room(game_state.player.loc.room.x, game_state.player.loc.room.y, &game_state.overworld->static_map);
+    room_draw_room(game_state.player.loc.room.x, game_state.player.loc.room.y,
+                   &game_state.overworld->static_map);
     draw_player(&game_state.player);
-    room_draw_room(game_state.player.loc.room.x, game_state.player.loc.room.y, &game_state.overworld->overlay_map);
+    room_draw_room(game_state.player.loc.room.x, game_state.player.loc.room.y,
+                   &game_state.overworld->overlay_map);
 }
