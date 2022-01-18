@@ -132,9 +132,6 @@ void handle_movement(struct Player *player,
 }
 
 void draw_player(const struct Player *player) {
-    // // blitSub(player->sprite, player->loc.screen.x, player->loc.screen.y,
-    // 16, 16, ) text("P", player->loc.screen.x, player->loc.screen.y);
-
     sprite_draw_character(&player->sprite, &player->loc.screen,
                           player->last_movement_dir);
 }

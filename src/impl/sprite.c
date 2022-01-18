@@ -17,7 +17,7 @@ void sprite_draw_character(const struct CharacterSprite *sprite, const struct Sc
     uint32_t x = dir * sprite->frame_size;
     uint32_t y = (sprite->current_frame / sprite->frames_per_animation) * sprite->frame_size;
     uint16_t old_colors = *DRAW_COLORS;
-    *DRAW_COLORS = 0x4320;
+    *DRAW_COLORS = 0x4320; 
     blitSub(sprite->sprite_sheet, loc->x, loc->y, sprite->frame_size, sprite->frame_size, x, y, sprite->sheet_width, BLIT_2BPP);
-    *DRAW_COLORS = old_colors;    
+    *DRAW_COLORS = old_colors;  
 }

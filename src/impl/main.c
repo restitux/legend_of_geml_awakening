@@ -6,6 +6,4 @@ void start() {
 
 void update() {
     on_update();
-    
-
 }
