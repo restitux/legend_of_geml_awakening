@@ -6,7 +6,7 @@ void sprite_draw_sprite_frame(const struct SpriteFrame *sprite,
   uint16_t old_colors = *DRAW_COLORS;
   *DRAW_COLORS = 0x3204;
   blitSub(sprite->sprite_sheet, loc->x, loc->y, 16, 16, sprite->x, sprite->y,
-          128, BLIT_2BPP);
+          sprite->sheet_width, BLIT_2BPP);
   *DRAW_COLORS = old_colors;
 }
 

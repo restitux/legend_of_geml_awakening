@@ -7,6 +7,7 @@
 // a single sprite with no animation
 struct SpriteFrame {
   const uint8_t *sprite_sheet;
+  uint32_t sheet_width;
   uint8_t x;
   uint8_t y;
 };

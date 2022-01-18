@@ -3,9 +3,15 @@
 #include "room_renderer.h"
 #include "wasm4.h"
 
+#include "block.h"
 #include "entrances.h"
 
-void on_room_enter() {}
+void on_room_enter() {
+  game_state.currentRoom.blocks.b = malloc(sizeof(struct Block) * 1);
+  game_state.currentRoom.blocks.size = 1;
+
+  block_new((struct GridCoordinate){8, 8}, game_state.currentRoom.blocks.b);
+}
 
 void on_room_exit() { save_game(); }
 
@@ -17,12 +23,31 @@ void on_game_launch() {
   *DRAW_COLORS = 0x4320;
 
   load_game();
+
+  on_room_enter();
 }
 
+bool is_animating = false;
+struct BlockPushAnimation animation;
+
 void on_update() {
-  handle_movement(&game_state.player, &game_state.overworld->collision_map);
+  update_input_state(&game_state.inputs);
+
+  handle_movement(&game_state.player, &game_state.overworld->collision_map,
+                  &game_state.inputs);
   room_draw_room(game_state.player.loc.room.x, game_state.player.loc.room.y,
                  &game_state.overworld->static_map);
+
+  for (uint32_t i = 0; i < game_state.currentRoom.blocks.size; i++) {
+    struct Block *b = &game_state.currentRoom.blocks.b[i];
+    if (is_animating) {
+      block_push_step(&animation);
+      block_draw_block_push(&animation);
+    } else {
+      block_push_begin(&game_state.player, b, DIRECTION_UP, &animation);
+      is_animating = true;
+    }
+  }
   draw_player(&game_state.player);
 
   room_draw_room(game_state.player.loc.room.x, game_state.player.loc.room.y,

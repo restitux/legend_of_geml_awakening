@@ -1,18 +1,21 @@
 #pragma once
 
+#include <stdbool.h>
 
 struct InputButtonState {
-    bool isPressed;
-    bool justPressed;
-    bool justReleased;
+  bool isPressed;
+  bool justPressed;
+  bool justReleased;
 };
 
 struct InputState {
-    InputButtonState button_up;
-    InputButtonState button_left;
-    InputButtonState button_right;
-    InputButtonState button_down;
+  struct InputButtonState button_up;
+  struct InputButtonState button_left;
+  struct InputButtonState button_right;
+  struct InputButtonState button_down;
 
-    InputButtonState button_x;
-    InputButtonState button_c;
+  struct InputButtonState button_x;
+  struct InputButtonState button_c;
 };
+
+void update_input_state(struct InputState *inputs);

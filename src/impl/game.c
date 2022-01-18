@@ -19,15 +19,22 @@ void init_game() {
                  .player_height = 16,
                  .player_width = 16},
       .overworld = &testing_tilemap,
-  };
+
+      .currentRoom = {.loc = {.x = 0, .y = 0},
+                      .blocks = {
+                          .size = 0,
+                          .b = NULL,
+                      }}};
 }
 
-void save_game() { diskw(&game_state, sizeof(struct GameState)); }
+void save_game() {
+  // diskw(&game_state, sizeof(struct GameState));
+}
 
 void load_game() {
-  struct GameState temp;
-  diskr(&temp, sizeof(struct GameState));
-  if (temp.valid) {
-    game_state = temp;
-  }
+  // struct GameState temp;
+  // diskr(&temp, sizeof(struct GameState));
+  // if (temp.valid) {
+  //   game_state = temp;
+  // }
 }

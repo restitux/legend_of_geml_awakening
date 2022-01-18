@@ -8,130 +8,131 @@
 
 void move_player_if_valid(struct Player *player, enum Direction direction,
                           const struct TileMap_DataLayer *collision_map) {
-    struct WorldCoordinate new_loc_tl = player->loc;
-    new_loc_tl.screen.x += 4;
-    new_loc_tl.screen.y += 4;
+  struct WorldCoordinate new_loc_tl = player->loc;
+  new_loc_tl.screen.x += 4;
+  new_loc_tl.screen.y += 4;
 
-    struct WorldCoordinate new_loc_tr = player->loc;
-    new_loc_tr.screen.x += player->player_width - 4;
-    new_loc_tl.screen.y += 4;
+  struct WorldCoordinate new_loc_tr = player->loc;
+  new_loc_tr.screen.x += player->player_width - 4;
+  new_loc_tl.screen.y += 4;
 
-    struct WorldCoordinate new_loc_bl = player->loc;
-    new_loc_bl.screen.y += player->player_height - 4;
-    new_loc_bl.screen.x += 4;
+  struct WorldCoordinate new_loc_bl = player->loc;
+  new_loc_bl.screen.y += player->player_height - 4;
+  new_loc_bl.screen.x += 4;
 
-    struct WorldCoordinate new_loc_br = player->loc;
-    new_loc_br.screen.y += player->player_height - 4; 
-    new_loc_br.screen.x += player->player_width - 4;
-    struct WorldCoordinate potential_loc = player->loc;
+  struct WorldCoordinate new_loc_br = player->loc;
+  new_loc_br.screen.y += player->player_height - 4;
+  new_loc_br.screen.x += player->player_width - 4;
+  struct WorldCoordinate potential_loc = player->loc;
 
-    // increment position of all corners based on input direction
-    switch (direction) {
-    case DIRECTION_UP:
-        new_loc_tl.screen.y -= 1;
-        new_loc_tr.screen.y -= 1;
-        new_loc_bl.screen.y -= 1;
-        new_loc_br.screen.y -= 1;
-        potential_loc.screen.y -= 1;
-        break;
-    case DIRECTION_DOWN:
-        new_loc_tl.screen.y += 1;
-        new_loc_tr.screen.y += 1;
-        new_loc_bl.screen.y += 1;
-        new_loc_br.screen.y += 1;
-        potential_loc.screen.y += 1;
-        break;
-    case DIRECTION_LEFT:
-        new_loc_tl.screen.x -= 1;
-        new_loc_tr.screen.x -= 1;
-        new_loc_bl.screen.x -= 1;
-        new_loc_br.screen.x -= 1;
-        potential_loc.screen.x -= 1;
-        break;
-    case DIRECTION_RIGHT:
-        new_loc_tl.screen.x += 1;
-        new_loc_tr.screen.x += 1;
-        new_loc_bl.screen.x += 1;
-        new_loc_br.screen.x += 1;
-        potential_loc.screen.x += 1;
-        break;
-    default:
-        break;
+  // increment position of all corners based on input direction
+  switch (direction) {
+  case DIRECTION_UP:
+    new_loc_tl.screen.y -= 1;
+    new_loc_tr.screen.y -= 1;
+    new_loc_bl.screen.y -= 1;
+    new_loc_br.screen.y -= 1;
+    potential_loc.screen.y -= 1;
+    break;
+  case DIRECTION_DOWN:
+    new_loc_tl.screen.y += 1;
+    new_loc_tr.screen.y += 1;
+    new_loc_bl.screen.y += 1;
+    new_loc_br.screen.y += 1;
+    potential_loc.screen.y += 1;
+    break;
+  case DIRECTION_LEFT:
+    new_loc_tl.screen.x -= 1;
+    new_loc_tr.screen.x -= 1;
+    new_loc_bl.screen.x -= 1;
+    new_loc_br.screen.x -= 1;
+    potential_loc.screen.x -= 1;
+    break;
+  case DIRECTION_RIGHT:
+    new_loc_tl.screen.x += 1;
+    new_loc_tr.screen.x += 1;
+    new_loc_bl.screen.x += 1;
+    new_loc_br.screen.x += 1;
+    potential_loc.screen.x += 1;
+    break;
+  default:
+    break;
+  }
+  // collide all corners
+  int tile = room_tile_at_screen_coordinates(&new_loc_tl, collision_map) ||
+             room_tile_at_screen_coordinates(&new_loc_tr, collision_map) ||
+             room_tile_at_screen_coordinates(&new_loc_bl, collision_map) ||
+             room_tile_at_screen_coordinates(&new_loc_br, collision_map);
+  // if no corners are colliding update position
+  if (!tile) {
+
+    if (potential_loc.screen.y < player->loc.screen.y) {
+      player->last_movement_dir = DIRECTION_UP;
+    } else if (potential_loc.screen.y > player->loc.screen.y) {
+      player->last_movement_dir = DIRECTION_DOWN;
     }
-    // collide all corners
-    int tile = room_tile_at_screen_coordinates(&new_loc_tl, collision_map) ||
-               room_tile_at_screen_coordinates(&new_loc_tr, collision_map) ||
-               room_tile_at_screen_coordinates(&new_loc_bl, collision_map) ||
-               room_tile_at_screen_coordinates(&new_loc_br, collision_map);
-    // if no corners are colliding update position
-    if (!tile) {
 
-        if (potential_loc.screen.y < player->loc.screen.y) {
-            player->last_movement_dir = DIRECTION_UP;
-        } else if (potential_loc.screen.y > player->loc.screen.y) {
-            player->last_movement_dir = DIRECTION_DOWN;
-        }
-
-        if (potential_loc.screen.x < player->loc.screen.x) {
-            player->last_movement_dir = DIRECTION_LEFT;
-        } else if (potential_loc.screen.x > player->loc.screen.x) {
-            player->last_movement_dir = DIRECTION_RIGHT;
-        }
-
-        player->loc = potential_loc;
-        sprite_advance_animation(&player->sprite);
+    if (potential_loc.screen.x < player->loc.screen.x) {
+      player->last_movement_dir = DIRECTION_LEFT;
+    } else if (potential_loc.screen.x > player->loc.screen.x) {
+      player->last_movement_dir = DIRECTION_RIGHT;
     }
+
+    player->loc = potential_loc;
+    sprite_advance_animation(&player->sprite);
+  }
 }
 
 bool check_room_change(struct Player *player) {
-    bool room_change = false;
-    if (player->loc.screen.x > 159) {
-        player->loc.screen.x = 1;
-        player->loc.room.x += 1;
-        room_change = true;
-    }
-    if (player->loc.screen.x < 1) {
-        player->loc.screen.x = 159;
-        player->loc.room.x -= 1;
-        room_change = true;
-    }
-    if (player->loc.screen.y > 159) {
-        player->loc.screen.y = 1;
-        player->loc.room.y += 1;
-        room_change = true;
-    }
-    if (player->loc.screen.y < 1) {
-        player->loc.screen.y = 159;
-        player->loc.room.y -= 1;
-        room_change = true;
-    }
-    return room_change;
+  bool room_change = false;
+  if (player->loc.screen.x > 159) {
+    player->loc.screen.x = 1;
+    player->loc.room.x += 1;
+    room_change = true;
+  }
+  if (player->loc.screen.x < 1) {
+    player->loc.screen.x = 159;
+    player->loc.room.x -= 1;
+    room_change = true;
+  }
+  if (player->loc.screen.y > 159) {
+    player->loc.screen.y = 1;
+    player->loc.room.y += 1;
+    room_change = true;
+  }
+  if (player->loc.screen.y < 1) {
+    player->loc.screen.y = 159;
+    player->loc.room.y -= 1;
+    room_change = true;
+  }
+  return room_change;
 }
 
 void handle_movement(struct Player *player,
-                     const struct TileMap_DataLayer *collision_map) {
-    uint8_t gamepad = *GAMEPAD1;
+                     const struct TileMap_DataLayer *collision_map,
+                     const struct InputState *inputs) {
+  uint8_t gamepad = *GAMEPAD1;
 
-    if (gamepad & BUTTON_UP) {
-        move_player_if_valid(player, DIRECTION_UP, collision_map);
-    }
-    if (gamepad & BUTTON_DOWN) {
-        move_player_if_valid(player, DIRECTION_DOWN, collision_map);
-    }
-    if (gamepad & BUTTON_LEFT) {
-        move_player_if_valid(player, DIRECTION_LEFT, collision_map);
-    }
-    if (gamepad & BUTTON_RIGHT) {
-        move_player_if_valid(player, DIRECTION_RIGHT, collision_map);
-    }
+  if (inputs->button_up.isPressed) {
+    move_player_if_valid(player, DIRECTION_UP, collision_map);
+  }
+  if (inputs->button_down.isPressed) {
+    move_player_if_valid(player, DIRECTION_DOWN, collision_map);
+  }
+  if (inputs->button_left.isPressed) {
+    move_player_if_valid(player, DIRECTION_LEFT, collision_map);
+  }
+  if (inputs->button_right.isPressed) {
+    move_player_if_valid(player, DIRECTION_RIGHT, collision_map);
+  }
 
-    if (check_room_change(player)) {
-        on_room_exit();
-        on_room_enter();
-    }
+  if (check_room_change(player)) {
+    on_room_exit();
+    on_room_enter();
+  }
 }
 
 void draw_player(const struct Player *player) {
-    sprite_draw_character(&player->sprite, &player->loc.screen,
-                          player->last_movement_dir);
+  sprite_draw_character(&player->sprite, &player->loc.screen,
+                        player->last_movement_dir);
 }
