@@ -5,6 +5,8 @@
 struct GameState {
     struct Player player;
 
+    const struct TileMap *overworld;
 };
 
-extern struct GameState global_game_state;
+extern struct GameState game_state;
+

@@ -1,7 +1,9 @@
 #include "game.h"
 #include "../../res/data/player_animation.h"
+#include "../../res/map/testing.map.h"
+#include "../../res/map/tiled.h"
 
-struct GameState global_game_state = {
+struct GameState game_state = {
     .player = {
         .loc = {.room = {0, 0}, .screen = {35, 70}}, 
         .sprite = {
@@ -15,5 +17,7 @@ struct GameState global_game_state = {
         .player_height = 16,
         .player_width = 16      
     },
+
+    .overworld = &testing_tilemap,
 };
 
