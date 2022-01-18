@@ -5,7 +5,7 @@
 
 #include "entrances.h"
 
-void on_room_enter() { populate_entrances(); }
+void on_room_enter() {}
 
 void on_room_exit() {}
 
@@ -25,4 +25,5 @@ void on_update() {
         
     room_draw_room(game_state.player.loc.room.x, game_state.player.loc.room.y,
                    &game_state.overworld->overlay_map);
+    // handle_entrances();
 }
