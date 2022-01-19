@@ -94,19 +94,13 @@ bool check_room_change(struct Player *player) {
 void handle_movement(struct Player *player,
                      const struct TileMap_DataLayer *collision_map,
                      const struct InputState *inputs) {
-    uint8_t gamepad = *GAMEPAD1;
 
-    if (inputs->button_up.isPressed) {
-        move_player_if_valid2(player, DIRECTION_UP, collision_map);
+    enum Direction d;
+    if (input_get_pressed_direction(inputs, INPUT_AXIS_VERTICAL, &d)) {
+        move_player_if_valid2(player, d, collision_map);
     }
-    if (inputs->button_down.isPressed) {
-        move_player_if_valid2(player, DIRECTION_DOWN, collision_map);
-    }
-    if (inputs->button_left.isPressed) {
-        move_player_if_valid2(player, DIRECTION_LEFT, collision_map);
-    }
-    if (inputs->button_right.isPressed) {
-        move_player_if_valid2(player, DIRECTION_RIGHT, collision_map);
+    if (input_get_pressed_direction(inputs, INPUT_AXIS_HORIZONTAL, &d)) {
+        move_player_if_valid2(player, d, collision_map);
     }
 
     if (check_room_change(player)) {
