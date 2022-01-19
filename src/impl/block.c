@@ -44,16 +44,16 @@ void block_push_begin(struct Player *player, struct Block *block,
 
     if (push_dir == DIRECTION_UP) {
         target_loc.y -= 1;
-        player_snap.y += 1;
+        player_snap.y += 2;
     } else if (push_dir == DIRECTION_DOWN) {
         target_loc.y += 1;
-        player_snap.y -= 1;
+        player_snap.y -= 2;
     } else if (push_dir == DIRECTION_LEFT) {
         target_loc.x -= 1;
-        player_snap.x += 1;
+        player_snap.x += 2;
     } else if (push_dir == DIRECTION_RIGHT) {
         target_loc.x += 1;
-        player_snap.x -= 1;
+        player_snap.x -= 2;
     }
 
     player->loc.screen = coordinate_grid_to_screen(&player_snap);

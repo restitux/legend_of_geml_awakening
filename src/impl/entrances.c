@@ -3,6 +3,7 @@
 #include "../../res/map/dungeon_one.map.h"
 #include "../../res/map/tiled.h"
 #include "game.h"
+#include "hooks.h"
 #include "player.h"
 
 void handle_entrances() {
@@ -39,6 +40,8 @@ void handle_entrances() {
                         break;
                     }
                 }
+                on_room_exit();
+                on_room_enter();
             }
         }
     }
