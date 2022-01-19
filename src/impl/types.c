@@ -17,6 +17,22 @@ coordinate_grid_to_screen(const struct GridCoordinate *c) {
     };
 }
 
+struct WorldCoordinate coordinate_global_to_world(uint32_t x, uint32_t y) {
+    struct RoomCoordinate room = {
+        .x = x / 400,
+        .y = y / 400,
+    };
+
+    struct ScreenCoordinate screen = {
+        .x = x % 400,
+        .y = y % 400,
+    };
+    return (struct WorldCoordinate){
+        .room = room,
+        .screen = screen,
+    };
+}
+
 void coordinate_align_to_grid(struct ScreenCoordinate *c) {
     c->x = (c->x / 8) * 8;
     c->y = (c->y / 8) * 8;

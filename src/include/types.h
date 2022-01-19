@@ -45,6 +45,8 @@ coordinate_screen_to_grid(const struct ScreenCoordinate *c);
 struct ScreenCoordinate
 coordinate_grid_to_screen(const struct GridCoordinate *c);
 
+struct WorldCoordinate coordinate_global_to_world(uint32_t x, uint32_t y);
+
 void coordinate_align_to_grid(struct ScreenCoordinate *c);
 
 struct ScreenCoordinate coordinate_screen_add(struct ScreenCoordinate a,

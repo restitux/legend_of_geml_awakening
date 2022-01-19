@@ -7,18 +7,52 @@
 #include "entrances.h"
 
 void on_room_enter() {
-    game_state.currentRoom.blocks.b = malloc(sizeof(struct Block) * 1);
-    game_state.currentRoom.blocks.size = 1;
+    struct Room *new_room = &game_state.currentRoom;
 
-    block_new((struct GridCoordinate){8, 8}, game_state.currentRoom.blocks.b);
+    uint32_t spawn_count = 0;
+
+    for (uint32_t i = 0; i < game_state.overworld->block_spawns.length; i++) {
+        struct TileMap_BlockSpawn s =
+            game_state.overworld->block_spawns.block_spawns[i];
+
+        struct WorldCoordinate block_location =
+            coordinate_global_to_world(s.x, s.y);
+
+        if (block_location.room.x == new_room->loc.x &&
+            block_location.room.y == new_room->loc.y) {
+            spawn_count += 1;
+        }
+    }
+
+    game_state.currentRoom.blocks.size = spawn_count;
+    game_state.currentRoom.blocks.b =
+        malloc(sizeof(struct Block) * spawn_count);
+    uint32_t index = 0;
+
+    for (uint32_t i = 0; i < game_state.overworld->block_spawns.length; i++) {
+        struct TileMap_BlockSpawn s =
+            game_state.overworld->block_spawns.block_spawns[i];
+
+        struct WorldCoordinate block_location =
+            coordinate_global_to_world(s.x, s.y);
+
+        if (block_location.room.x == new_room->loc.x &&
+            block_location.room.y == new_room->loc.y) {
+            struct GridCoordinate g =
+                coordinate_screen_to_grid(&block_location.screen);
+            block_new(g, &game_state.currentRoom.blocks.b[index]);
+        }
+        index += 1;
+    }
 }
 
 void on_room_exit() {
-
     free(game_state.currentRoom.blocks.b);
     game_state.currentRoom.blocks.size = 0;
 
     save_game();
+
+    game_state.currentRoom.loc = game_state.player.loc.room;
 }
 
 void on_game_launch() {
