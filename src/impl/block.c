@@ -46,7 +46,7 @@ void block_push_begin(struct Player *player, struct Block *block,
     target_loc.x -= 1;
     player_snap.x += 1;
   } else if (push_dir == DIRECTION_RIGHT) {
-    target_loc.y += 1;
+    target_loc.x += 1;
     player_snap.x -= 1;
   }
 
