@@ -32,7 +32,7 @@
 ---------BLOCK-----------
 */
 // number of frames to move a block one pixel
-#define FRAMES_PER_MOVE 2
+#define BLOCK_FRAMES_PER_MOVE 2
 // are blocks walkable when loaded from the map
 #define BLOCK_WALKABLE_ON_CREATE false
 // width and height of block in pixels

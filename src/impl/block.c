@@ -57,7 +57,7 @@ void block_push_begin(struct Player *player, struct Block *block,
       .block = block,
       .target_loc = target_loc,
       .block_screen_coordinate = coordinate_grid_to_screen(&block->loc),
-      .remainingFrames = 8 * FRAMES_PER_MOVE,
+      .remainingFrames = 8 * BLOCK_FRAMES_PER_MOVE,
       .dir = push_dir,
   };
 }
@@ -72,7 +72,7 @@ bool block_push_step(struct BlockPushAnimation *push) {
     return false;
   }
 
-  if (push->remainingFrames % FRAMES_PER_MOVE == 0) {
+  if (push->remainingFrames % BLOCK_FRAMES_PER_MOVE == 0) {
     if (push->dir == DIRECTION_UP) {
       push->block_screen_coordinate.y -= 1;
       push->player->loc.screen.y += BLOCK_SIZE - 1;
