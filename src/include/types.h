@@ -53,4 +53,7 @@ struct BoundingBox bounding_box_new(struct ScreenCoordinate top_left,
 bool bounding_box_intersect(const struct BoundingBox *a,
                             const struct BoundingBox *b);
 
+void bounding_box_corners(const struct BoundingBox *b,
+                          struct ScreenCoordinate out[4]);
+
 void debug_bb_draw(const struct BoundingBox *b);

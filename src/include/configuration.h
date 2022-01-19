@@ -18,11 +18,26 @@
   } while (0)
 #endif
 
-// Block
+/*
+---------PLAYER-----------
+*/
+// margin that player can overlap collidable objects in pixels
+#define PLAYER_COLLISION_BUFFER 2
 
+/*
+---------------------------
+*/
+
+/*
+---------BLOCK-----------
+*/
+// number of frames to move a block one pixel
 #define FRAMES_PER_MOVE 2
+// are blocks walkable when loaded from the map
 #define BLOCK_WALKABLE_ON_CREATE false
-
-#define BLOCK_RAISED_SPRITE block_sprite
-#define BLOCK_LOWERED_SPRITE
+// width and height of block in pixels
 #define BLOCK_SIZE 16
+
+/*
+---------------------------
+*/

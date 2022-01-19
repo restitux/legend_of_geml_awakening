@@ -61,6 +61,21 @@ bool bounding_box_intersect(const struct BoundingBox *a,
   return x_overlap && y_overlap;
 }
 
+void bounding_box_corners(const struct BoundingBox *b,
+                          struct ScreenCoordinate out[4]) {
+  out[0] = b->tl; // top left
+
+  out[1] = b->tl; // top right
+  out[1].x += b->width;
+
+  out[2] = b->tl; // bottom left
+  out[2].y += b->height;
+
+  out[3] = b->tl; // bottom right
+  out[3].x += b->width;
+  out[3].y += b->height;
+}
+
 void debug_bb_draw(const struct BoundingBox *b) {
   uint16_t old_colors = *DRAW_COLORS;
   *DRAW_COLORS = 0x0030;

@@ -1,69 +1,55 @@
 #include "player.h"
 #include "../../res/map/tiled.h"
+#include "configuration.h"
 #include "hooks.h"
 #include "room_renderer.h"
 #include "sprite.h"
 #include "types.h"
 #include "wasm4.h"
 
-void move_player_if_valid(struct Player *player, enum Direction direction,
-                          const struct TileMap_DataLayer *collision_map) {
-  struct WorldCoordinate new_loc_tl = player->loc;
-  new_loc_tl.screen.x += 4;
-  new_loc_tl.screen.y += 4;
+void move_player_if_valid2(struct Player *player, enum Direction direction,
+                           const struct TileMap_DataLayer *collision_map) {
+  struct BoundingBox bb =
+      bounding_box_new(player->loc.screen, 16 - PLAYER_COLLISION_BUFFER * 2,
+                       16 - PLAYER_COLLISION_BUFFER * 2);
 
-  struct WorldCoordinate new_loc_tr = player->loc;
-  new_loc_tr.screen.x += player->player_width - 4;
-  new_loc_tl.screen.y += 4;
-
-  struct WorldCoordinate new_loc_bl = player->loc;
-  new_loc_bl.screen.y += player->player_height - 4;
-  new_loc_bl.screen.x += 4;
-
-  struct WorldCoordinate new_loc_br = player->loc;
-  new_loc_br.screen.y += player->player_height - 4;
-  new_loc_br.screen.x += player->player_width - 4;
+  bb.tl.x += PLAYER_COLLISION_BUFFER;
+  bb.tl.y += PLAYER_COLLISION_BUFFER;
   struct WorldCoordinate potential_loc = player->loc;
-
-  // increment position of all corners based on input direction
   switch (direction) {
   case DIRECTION_UP:
-    new_loc_tl.screen.y -= 1;
-    new_loc_tr.screen.y -= 1;
-    new_loc_bl.screen.y -= 1;
-    new_loc_br.screen.y -= 1;
+    bb.tl.y -= 1;
     potential_loc.screen.y -= 1;
     break;
+
   case DIRECTION_DOWN:
-    new_loc_tl.screen.y += 1;
-    new_loc_tr.screen.y += 1;
-    new_loc_bl.screen.y += 1;
-    new_loc_br.screen.y += 1;
+    bb.tl.y += 1;
     potential_loc.screen.y += 1;
     break;
+
   case DIRECTION_LEFT:
-    new_loc_tl.screen.x -= 1;
-    new_loc_tr.screen.x -= 1;
-    new_loc_bl.screen.x -= 1;
-    new_loc_br.screen.x -= 1;
+    bb.tl.x -= 1;
     potential_loc.screen.x -= 1;
     break;
+
   case DIRECTION_RIGHT:
-    new_loc_tl.screen.x += 1;
-    new_loc_tr.screen.x += 1;
-    new_loc_bl.screen.x += 1;
-    new_loc_br.screen.x += 1;
+    bb.tl.x += 1;
     potential_loc.screen.x += 1;
     break;
   default:
     break;
   }
-  // collide all corners
-  int tile = room_tile_at_screen_coordinates(&new_loc_tl, collision_map) ||
-             room_tile_at_screen_coordinates(&new_loc_tr, collision_map) ||
-             room_tile_at_screen_coordinates(&new_loc_bl, collision_map) ||
-             room_tile_at_screen_coordinates(&new_loc_br, collision_map);
-  // if no corners are colliding update position
+  struct ScreenCoordinate bb_corners[4];
+  bounding_box_corners(&bb, bb_corners);
+  int tile = 0;
+  for (int i = 0; i < 4; i++) {
+    struct WorldCoordinate w = (struct WorldCoordinate){
+        .screen = bb_corners[i],
+        .room = potential_loc.room,
+    };
+    tile |= room_tile_at_screen_coordinates(&w, collision_map);
+  }
+
   if (!tile) {
 
     if (potential_loc.screen.y < player->loc.screen.y) {
@@ -114,16 +100,16 @@ void handle_movement(struct Player *player,
   uint8_t gamepad = *GAMEPAD1;
 
   if (inputs->button_up.isPressed) {
-    move_player_if_valid(player, DIRECTION_UP, collision_map);
+    move_player_if_valid2(player, DIRECTION_UP, collision_map);
   }
   if (inputs->button_down.isPressed) {
-    move_player_if_valid(player, DIRECTION_DOWN, collision_map);
+    move_player_if_valid2(player, DIRECTION_DOWN, collision_map);
   }
   if (inputs->button_left.isPressed) {
-    move_player_if_valid(player, DIRECTION_LEFT, collision_map);
+    move_player_if_valid2(player, DIRECTION_LEFT, collision_map);
   }
   if (inputs->button_right.isPressed) {
-    move_player_if_valid(player, DIRECTION_RIGHT, collision_map);
+    move_player_if_valid2(player, DIRECTION_RIGHT, collision_map);
   }
 
   if (check_room_change(player)) {
