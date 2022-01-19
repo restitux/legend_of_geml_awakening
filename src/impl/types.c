@@ -27,24 +27,36 @@ struct BoundingBox bounding_box_new(struct ScreenCoordinate top_left,
   struct BoundingBox bb;
 
   bb.tl = top_left;
-  bb.tr = top_left;
-  bb.bl = top_left;
-  bb.br = top_left;
-
-  bb.tr.x += width;
-
-  bb.bl.y -= height;
-
-  bb.br.x += width;
-  bb.br.y -= height;
+  bb.width = width;
+  bb.height = height;
 
   return bb;
 }
 
+bool bounding_box_axis_overlap(uint8_t a_max_x, uint8_t a_min_x,
+                               uint8_t b_max_x, uint8_t b_min_x) {
+  return (a_max_x > b_min_x) && (b_max_x > a_min_x);
+}
+
 bool bounding_box_intersect(const struct BoundingBox *a,
                             const struct BoundingBox *b) {
-  bool x_overlap = (a->tr.x > b->tl.x) && (b->tr.x > a->tl.x);
-  bool y_overlap = (a->bl.y > b->tl.y) && (b->tr.y > a->tl.y);
+
+  uint8_t a_min_x = a->tl.x;
+  uint8_t a_max_x = a->tl.x + a->width;
+
+  uint8_t a_min_y = a->tl.y;
+  uint8_t a_max_y = a->tl.y + a->height;
+
+  uint8_t b_min_x = b->tl.x;
+  uint8_t b_max_x = b->tl.x + b->width;
+
+  uint8_t b_min_y = b->tl.y;
+  uint8_t b_max_y = b->tl.y + b->height;
+
+  bool x_overlap =
+      bounding_box_axis_overlap(a_max_x, a_min_x, b_max_x, b_min_x);
+  bool y_overlap =
+      bounding_box_axis_overlap(a_max_y, a_min_y, b_max_y, b_min_y);
 
   return x_overlap && y_overlap;
 }
@@ -52,6 +64,6 @@ bool bounding_box_intersect(const struct BoundingBox *a,
 void debug_bb_draw(const struct BoundingBox *b) {
   uint16_t old_colors = *DRAW_COLORS;
   *DRAW_COLORS = 0x0030;
-  rect(b->tl.x, b->tl.y, 16, 16);
+  rect(b->tl.x - 1, b->tl.y - 1, b->width + 2, b->height + 2);
   *DRAW_COLORS = old_colors;
 }

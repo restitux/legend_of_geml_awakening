@@ -12,9 +12,6 @@
 //----------------------------------
 //  CONFIGURATION
 //---------------------------------
-#define FRAMES_PER_MOVE 2
-#define BLOCK_WALKABLE_ON_CREATE false
-
 #define BLOCK_RAISED_SPRITE block_sprite
 #define BLOCK_LOWERED_SPRITE
 
@@ -74,20 +71,32 @@ bool block_push_step(struct BlockPushAnimation *push) {
     block_push_end(push);
     return false;
   }
+
   if (push->remainingFrames % FRAMES_PER_MOVE == 0) {
     if (push->dir == DIRECTION_UP) {
-      push->player->loc.screen.y -= 1;
       push->block_screen_coordinate.y -= 1;
+      push->player->loc.screen.y += BLOCK_SIZE - 1;
     } else if (push->dir == DIRECTION_DOWN) {
-      push->player->loc.screen.y += 1;
+      push->player->loc.screen.y -= BLOCK_SIZE + 1;
       push->block_screen_coordinate.y += 1;
     } else if (push->dir == DIRECTION_LEFT) {
-      push->player->loc.screen.x -= 1;
+      push->player->loc.screen.x += BLOCK_SIZE - 1;
       push->block_screen_coordinate.x -= 1;
     } else if (push->dir == DIRECTION_RIGHT) {
-      push->player->loc.screen.x += 1;
+      push->player->loc.screen.x -= BLOCK_SIZE + 1;
       push->block_screen_coordinate.x += 1;
     }
+  }
+
+  push->player->loc.screen = push->block_screen_coordinate;
+  if (push->dir == DIRECTION_UP) {
+    push->player->loc.screen.y += BLOCK_SIZE;
+  } else if (push->dir == DIRECTION_DOWN) {
+    push->player->loc.screen.y -= BLOCK_SIZE;
+  } else if (push->dir == DIRECTION_LEFT) {
+    push->player->loc.screen.x += BLOCK_SIZE;
+  } else if (push->dir == DIRECTION_RIGHT) {
+    push->player->loc.screen.x -= BLOCK_SIZE;
   }
 
   push->remainingFrames -= 1;
@@ -117,13 +126,12 @@ bool block_is_push_attempted(const struct Player *p, const struct Block *b,
 
   ONLY_DEBUG(debug_bb_draw(&box_bb));
   ONLY_DEBUG(debug_bb_draw(&player_bb));
-
-  if (bounding_box_intersect(&box_bb, &player_bb)) {
+  if (bounding_box_intersect(&box_bb, &player_bb) && input_any_dir_pressed(i)) {
     if (i->button_up.isPressed) {
       *d = DIRECTION_UP;
     }
     if (i->button_down.isPressed) {
-      *d = DIRECTION_LEFT;
+      *d = DIRECTION_DOWN;
     }
     if (i->button_left.isPressed) {
       *d = DIRECTION_LEFT;

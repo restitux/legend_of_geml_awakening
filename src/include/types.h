@@ -28,9 +28,8 @@ struct WorldCoordinate {
 
 struct BoundingBox {
   struct ScreenCoordinate tl;
-  struct ScreenCoordinate tr;
-  struct ScreenCoordinate bl;
-  struct ScreenCoordinate br;
+  uint8_t width;
+  uint8_t height;
 };
 
 enum Direction {

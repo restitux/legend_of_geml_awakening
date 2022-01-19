@@ -19,3 +19,5 @@ struct InputState {
 };
 
 void update_input_state(struct InputState *inputs);
+
+bool input_any_dir_pressed(const struct InputState *inputs);

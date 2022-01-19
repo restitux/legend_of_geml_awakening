@@ -3,6 +3,8 @@
 //-------------------------//
 // GAME CONFIGURATION FLAGS//
 //-------------------------//
+
+// DEBUG
 #define DEBUG_DRAWS
 
 #ifdef DEBUG_DRAWS
@@ -15,3 +17,12 @@
   do {                                                                         \
   } while (0)
 #endif
+
+// Block
+
+#define FRAMES_PER_MOVE 2
+#define BLOCK_WALKABLE_ON_CREATE false
+
+#define BLOCK_RAISED_SPRITE block_sprite
+#define BLOCK_LOWERED_SPRITE
+#define BLOCK_SIZE 16

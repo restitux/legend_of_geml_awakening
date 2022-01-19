@@ -35,3 +35,8 @@ void update_input_state(struct InputState *inputs) {
 
   update_button(&inputs->button_c, gamepad & BUTTON_2);
 }
+
+bool input_any_dir_pressed(const struct InputState *inputs) {
+  return (inputs->button_up.isPressed || inputs->button_down.isPressed ||
+          inputs->button_left.isPressed || inputs->button_right.isPressed);
+}

@@ -42,14 +42,15 @@ void on_update() {
     struct Block *b = &game_state.currentRoom.blocks.b[i];
 
     enum Direction d;
-    if (block_is_push_attempted(&game_state.player, b, &game_state.inputs,
-                                &d)) {
+    if (!is_animating && block_is_push_attempted(&game_state.player, b,
+                                                 &game_state.inputs, &d)) {
+      tracef("starting block push in %d", d);
       block_push_begin(&game_state.player, b, d, &animation);
       is_animating = true;
     }
 
     if (is_animating) {
-      block_push_step(&animation);
+      is_animating = block_push_step(&animation);
       block_draw_block_push(&animation);
     } else {
       block_draw_block_static(b);
