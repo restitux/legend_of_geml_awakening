@@ -1,9 +1,9 @@
 #include "entrances.h"
 
+#include "../../res/map/dungeon_one.map.h"
 #include "../../res/map/tiled.h"
 #include "game.h"
 #include "player.h"
-#include "../../res/map/dungeon_one.map.h"
 
 void handle_entrances() {
     for (unsigned int i = 0; i < game_state.overworld->entrances.length; i++) {
@@ -20,6 +20,25 @@ void handle_entrances() {
                 y <= e.y + e.height) {
                 // do transition
                 game_state.overworld = e.target_map;
+                for (unsigned int i = 0;
+                     i < game_state.overworld->entrances.length; i++) {
+                    if (game_state.overworld->entrances.entrances[i].id ==
+                        e.target_entrance) {
+                        game_state.player.loc.room.x =
+                            game_state.overworld->entrances.entrances[i].x /
+                            160;
+                        game_state.player.loc.room.y =
+                            game_state.overworld->entrances.entrances[i].y /
+                            160;
+                        game_state.player.loc.screen.x =
+                            game_state.overworld->entrances.entrances[i].x %
+                            160;
+                        game_state.player.loc.screen.y =
+                            game_state.overworld->entrances.entrances[i].y %
+                            160;
+                        break;
+                    }
+                }
             }
         }
     }
