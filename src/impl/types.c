@@ -19,13 +19,13 @@ coordinate_grid_to_screen(const struct GridCoordinate *c) {
 
 struct WorldCoordinate coordinate_global_to_world(uint32_t x, uint32_t y) {
     struct RoomCoordinate room = {
-        .x = x / 400,
-        .y = y / 400,
+        .x = x / 160,
+        .y = y / 160,
     };
 
     struct ScreenCoordinate screen = {
-        .x = x % 400,
-        .y = y % 400,
+        .x = x % 160,
+        .y = y % 160,
     };
     return (struct WorldCoordinate){
         .room = room,

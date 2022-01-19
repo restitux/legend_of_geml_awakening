@@ -54,8 +54,8 @@ void room_draw_room(uint32_t room_x, uint32_t room_y,
     }
 }
 
-int room_tile_at_screen_coordinates(struct WorldCoordinate *loc,
-                                    const struct TileMap_DataLayer *map) {
+bool room_tile_at_screen_coordinates(struct WorldCoordinate *loc,
+                                     const struct TileMap_DataLayer *map) {
 
     int world_x = (loc->screen.x / 8) + (loc->room.x * 20);
     int world_y = (loc->screen.y / 8) + (loc->room.y * 20);
@@ -65,7 +65,7 @@ int room_tile_at_screen_coordinates(struct WorldCoordinate *loc,
     int bit_offset = bit_index % 8;
     uint8_t byte = map->map[byte_index];
     int mask = 0x1 << bit_offset;
-    return byte & mask;
+    return (byte & mask);
 }
 
 void room_draw_room_debug_map(uint32_t room_x, uint32_t room_y,
@@ -86,18 +86,49 @@ void room_draw_room_debug_map(uint32_t room_x, uint32_t room_y,
     }
 }
 
+void room_draw_room_special_tiles(uint32_t room_x, uint32_t room_y,
+                                  const struct TileMap_DataLayer *map) {
+    int room_start_y = room_y * 20;
+    int room_start_x = room_x * 20;
+    for (int x = room_start_x; x < room_start_x + 20; x++) {
+        for (int y = room_start_y; y < room_start_y + 20; y++) {
+            int bit_index = x + (y * map->width);
+            int byte_index = bit_index / 8;
+            int bit_offset = (bit_index) % 8;
+            uint8_t byte = map->map[byte_index];
+            int mask = 0x1 << (bit_offset);
+            if (mask & byte) {
+                uint32_t pix_x = (x - room_start_x) * 8;
+                uint32_t pix_y = (y - room_start_y) * 8;
+                uint16_t old_draw_colors = *DRAW_COLORS;
+                *DRAW_COLORS = 0x0011;
+                rect(pix_x, pix_y, 8, 8);
+                *DRAW_COLORS = old_draw_colors;
+            }
+        }
+    }
+}
+
 int room_is_tile_present_at_bb_corners(const struct BoundingBox *bb,
                                        const struct TileMap_DataLayer *map,
-                                       struct RoomCoordinate room) {
+                                       struct RoomCoordinate room,
+                                       enum CollisionType type) {
     struct ScreenCoordinate bb_corners[4];
     bounding_box_corners(bb, bb_corners);
     int tile = 0;
+    if (type == COLLISION_TYPE_ALL) {
+        tile = 1;
+    }
     for (int i = 0; i < 4; i++) {
         struct WorldCoordinate w = (struct WorldCoordinate){
             .screen = bb_corners[i],
             .room = room,
         };
-        tile |= room_tile_at_screen_coordinates(&w, map);
+        if (type == COLLISION_TYPE_ANY) {
+            tile |= room_tile_at_screen_coordinates(&w, map);
+        } else {
+            tile &= room_tile_at_screen_coordinates(&w, map);
+        }
     }
     return tile;
 }

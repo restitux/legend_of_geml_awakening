@@ -25,6 +25,10 @@ void on_room_enter() {
         }
     }
 
+    tracef("entering room (%d, %d) with %d (of %d) blocks", new_room->loc.x,
+           new_room->loc.y, spawn_count,
+           game_state.overworld->block_spawns.length);
+
     game_state.currentRoom.blocks.size = spawn_count;
     game_state.currentRoom.blocks.b =
         malloc(sizeof(struct Block) * spawn_count);
@@ -41,6 +45,8 @@ void on_room_enter() {
             block_location.room.y == new_room->loc.y) {
             struct GridCoordinate g =
                 coordinate_screen_to_grid(&block_location.screen);
+            g.x += 1;
+            g.y += 1;
             block_new(g, &game_state.currentRoom.blocks.b[index]);
         }
         index += 1;
@@ -57,9 +63,9 @@ void on_room_exit() {
 }
 
 void on_game_launch() {
-    PALETTE[0] = 0x00FF0000;
+    PALETTE[0] = 0x000099CC;
     PALETTE[1] = 0x00000000;
-    PALETTE[2] = 0x00666666;
+    PALETTE[2] = 0x00999999;
     PALETTE[3] = 0x00FFFFFF;
     *DRAW_COLORS = 0x4320;
 
@@ -74,11 +80,14 @@ struct BlockPushAnimation animation;
 void on_update() {
     update_input_state(&game_state.inputs);
 
-    handle_movement(&game_state.player, &game_state.overworld->collision_map,
+    handle_movement(&game_state.player, game_state.overworld,
                     &game_state.inputs);
     room_draw_room(game_state.player.loc.room.x, game_state.player.loc.room.y,
                    &game_state.overworld->static_map);
 
+    room_draw_room_special_tiles(game_state.player.loc.room.x,
+                                 game_state.player.loc.room.y,
+                                 &game_state.overworld->special_map);
     for (uint32_t i = 0; i < game_state.currentRoom.blocks.size; i++) {
         struct Block *b = &game_state.currentRoom.blocks.b[i];
 
@@ -91,10 +100,12 @@ void on_update() {
         }
         if (is_animating) {
             is_animating = block_push_step(&animation);
-            block_draw_block_push(&animation);
-        } else {
-            block_draw_block_static(b);
         }
+        if (!is_animating) {
+            block_update_layer(b, &game_state.overworld->special_map,
+                               game_state.currentRoom.loc);
+        }
+        block_draw_block(b);
     }
     draw_player(&game_state.player);
 
@@ -103,5 +114,9 @@ void on_update() {
     ONLY_DEBUG(room_draw_room_debug_map(game_state.player.loc.room.x,
                                         game_state.player.loc.room.y,
                                         &game_state.overworld->collision_map));
+
+    ONLY_DEBUG(room_draw_room_debug_map(game_state.player.loc.room.x,
+                                        game_state.player.loc.room.y,
+                                        &game_state.overworld->special_map));
     handle_entrances();
 }

@@ -9,8 +9,9 @@
 
 // a block for puzzles which can be pushed by the player
 struct Block {
-    bool is_walkable; // player can path over block
+    uint8_t layer;
     struct GridCoordinate loc;
+    struct ScreenCoordinate draw_loc;
 
     struct SpriteFrame raised_sprite;
     struct SpriteFrame lowered_sprite;
@@ -21,8 +22,6 @@ struct BlockPushAnimation {
     struct Block *block;
 
     struct GridCoordinate target_loc;
-
-    struct ScreenCoordinate block_screen_coordinate;
 
     uint8_t pixels_per_frame;
 
@@ -43,9 +42,11 @@ void block_push_begin(struct Player *player, struct Block *block,
 // step the block push. If animation is complete, returns false
 bool block_push_step(struct BlockPushAnimation *push);
 
-void block_draw_block_push(const struct BlockPushAnimation *push);
-
-void block_draw_block_static(struct Block *block);
+void block_draw_block(struct Block *block);
 
 bool block_is_push_attempted(const struct Player *p, const struct Block *b,
                              const struct InputState *i, enum Direction *d);
+
+void block_update_layer(struct Block *b,
+                        const struct TileMap_DataLayer *special_map,
+                        struct RoomCoordinate room);

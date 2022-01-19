@@ -39,6 +39,8 @@ enum Direction {
     DIRECTION_RIGHT = 3,
 };
 
+enum CollisionType { COLLISION_TYPE_ALL = 0, COLLISION_TYPE_ANY = 1 };
+
 struct GridCoordinate
 coordinate_screen_to_grid(const struct ScreenCoordinate *c);
 

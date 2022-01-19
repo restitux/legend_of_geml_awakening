@@ -8,16 +8,17 @@
 #include <stdint.h>
 
 struct Player {
-  struct WorldCoordinate loc;
-  struct CharacterSprite sprite;
-  enum Direction last_movement_dir;
+    uint8_t layer;
 
-  uint32_t player_height;
-  uint32_t player_width;
+    struct WorldCoordinate loc;
+    struct CharacterSprite sprite;
+    enum Direction last_movement_dir;
+
+    uint32_t player_height;
+    uint32_t player_width;
 };
 
-void handle_movement(struct Player *player,
-                     const struct TileMap_DataLayer *collision_map,
+void handle_movement(struct Player *player, const struct TileMap *map,
                      const struct InputState *inputs);
 
 void draw_player(const struct Player *player);
