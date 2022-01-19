@@ -2,6 +2,7 @@
 
 #include <stdbool.h>
 
+#include "input.h"
 #include "player.h"
 #include "sprite.h"
 #include "types.h"
@@ -43,3 +44,6 @@ bool block_push_step(struct BlockPushAnimation *push);
 void block_draw_block_push(const struct BlockPushAnimation *push);
 
 void block_draw_block_static(struct Block *block);
+
+bool block_is_push_attempted(const struct Player *p, const struct Block *b,
+                             const struct InputState *i, enum Direction *d);

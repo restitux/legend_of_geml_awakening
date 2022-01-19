@@ -40,12 +40,19 @@ void on_update() {
 
   for (uint32_t i = 0; i < game_state.currentRoom.blocks.size; i++) {
     struct Block *b = &game_state.currentRoom.blocks.b[i];
+
+    enum Direction d;
+    if (block_is_push_attempted(&game_state.player, b, &game_state.inputs,
+                                &d)) {
+      block_push_begin(&game_state.player, b, d, &animation);
+      is_animating = true;
+    }
+
     if (is_animating) {
       block_push_step(&animation);
       block_draw_block_push(&animation);
     } else {
-      block_push_begin(&game_state.player, b, DIRECTION_UP, &animation);
-      is_animating = true;
+      block_draw_block_static(b);
     }
   }
   draw_player(&game_state.player);

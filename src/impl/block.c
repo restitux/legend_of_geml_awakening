@@ -1,6 +1,9 @@
 #include "block.h"
 #include "../../res/data/block_sprite.h"
 
+#include "configuration.h"
+
+#include "input.h"
 #include "player.h"
 #include "sprite.h"
 #include "types.h"
@@ -103,4 +106,34 @@ void block_draw_block_static(struct Block *block) {
   // text("B", s.x, s.y);
   // blit(block->raised_sprite.sprite_sheet, s.x, s.y, 16, 16, BLIT_2BPP);
   sprite_draw_sprite_frame(&block->raised_sprite, &s);
+}
+
+bool block_is_push_attempted(const struct Player *p, const struct Block *b,
+                             const struct InputState *i, enum Direction *d) {
+  struct BoundingBox box_bb =
+      bounding_box_new(coordinate_grid_to_screen(&b->loc), 16, 16);
+
+  struct BoundingBox player_bb = bounding_box_new(p->loc.screen, 16, 16);
+
+  ONLY_DEBUG(debug_bb_draw(&box_bb));
+  ONLY_DEBUG(debug_bb_draw(&player_bb));
+
+  if (bounding_box_intersect(&box_bb, &player_bb)) {
+    if (i->button_up.isPressed) {
+      *d = DIRECTION_UP;
+    }
+    if (i->button_down.isPressed) {
+      *d = DIRECTION_LEFT;
+    }
+    if (i->button_left.isPressed) {
+      *d = DIRECTION_LEFT;
+    }
+    if (i->button_right.isPressed) {
+      *d = DIRECTION_RIGHT;
+    }
+    return true;
+  }
+
+  return false;
+  // struct S
 }
