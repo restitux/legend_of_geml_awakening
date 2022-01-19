@@ -81,7 +81,7 @@ void on_update() {
     update_input_state(&game_state.inputs);
 
     handle_movement(&game_state.player, game_state.overworld,
-                    &game_state.inputs);
+                    &game_state.inputs, &game_state.currentRoom);
     room_draw_room(game_state.player.loc.room.x, game_state.player.loc.room.y,
                    &game_state.overworld->static_map);
 

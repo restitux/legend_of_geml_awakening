@@ -113,3 +113,9 @@ void debug_bb_draw(const struct BoundingBox *b) {
     rect(b->tl.x - 1, b->tl.y - 1, b->width + 2, b->height + 2);
     *DRAW_COLORS = old_colors;
 }
+
+bool bounding_box_contains_point(struct BoundingBox *b,
+                                 struct ScreenCoordinate p) {
+    return p.x > b->tl.x && p.x < b->tl.x + b->width && p.y > b->tl.y &&
+           p.y < b->tl.y + b->height;
+}

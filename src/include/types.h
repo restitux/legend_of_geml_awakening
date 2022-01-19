@@ -66,3 +66,6 @@ void bounding_box_corners(const struct BoundingBox *b,
 void bounding_box_uniform_shrink(struct BoundingBox *b, uint8_t amount);
 
 void debug_bb_draw(const struct BoundingBox *b);
+
+bool bounding_box_contains_point(struct BoundingBox *b,
+                                 struct ScreenCoordinate p);
