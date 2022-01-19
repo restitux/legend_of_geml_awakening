@@ -62,3 +62,19 @@ int room_tile_at_screen_coordinates(struct WorldCoordinate *loc,
     int index = world_x + (world_y * map->width);
     return map->map[index];
 }
+
+int room_is_tile_present_at_bb_corners(const struct BoundingBox *bb,
+                                       const struct TileMap_DataLayer *map,
+                                       struct RoomCoordinate room) {
+    struct ScreenCoordinate bb_corners[4];
+    bounding_box_corners(bb, bb_corners);
+    int tile = 0;
+    for (int i = 0; i < 4; i++) {
+        struct WorldCoordinate w = (struct WorldCoordinate){
+            .screen = bb_corners[i],
+            .room = room,
+        };
+        tile |= room_tile_at_screen_coordinates(&w, map);
+    }
+    return tile;
+}

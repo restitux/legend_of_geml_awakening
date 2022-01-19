@@ -51,7 +51,8 @@ void on_update() {
         if (!is_animating && block_is_push_attempted(&game_state.player, b,
                                                      &game_state.inputs, &d)) {
             tracef("starting block push in %d", d);
-            block_push_begin(&game_state.player, b, d, &animation);
+            block_push_begin(&game_state.player, b, d,
+                             &game_state.overworld->collision_map, &animation);
             is_animating = true;
         }
 

@@ -1,4 +1,6 @@
 #include "block.h"
+#include "../../res/map/tiled.h"
+
 #include "../../res/data/block_sprite.h"
 
 #include "configuration.h"
@@ -7,6 +9,8 @@
 #include "player.h"
 #include "sprite.h"
 #include "types.h"
+
+#include "room_renderer.h"
 
 #include "wasm4.h"
 //----------------------------------
@@ -30,7 +34,9 @@ void block_new(struct GridCoordinate loc, struct Block *block) {
 }
 
 void block_push_begin(struct Player *player, struct Block *block,
-                      enum Direction push_dir, struct BlockPushAnimation *out) {
+                      enum Direction push_dir,
+                      const struct TileMap_DataLayer *collision_map,
+                      struct BlockPushAnimation *out) {
 
     struct GridCoordinate player_snap = block->loc;
 
@@ -51,19 +57,48 @@ void block_push_begin(struct Player *player, struct Block *block,
     }
 
     player->loc.screen = coordinate_grid_to_screen(&player_snap);
+    struct ScreenCoordinate block_target_screen_loc =
+        coordinate_grid_to_screen(&target_loc);
+
+    struct BoundingBox target_bb =
+        bounding_box_new(block_target_screen_loc, BLOCK_SIZE, BLOCK_SIZE);
+
+    ONLY_DEBUG(debug_bb_draw(&target_bb));
+
+    uint8_t animation_time = 8 * BLOCK_FRAMES_PER_MOVE;
+    if (room_is_tile_present_at_bb_corners(&target_bb, collision_map,
+                                           player->loc.room)) {
+        // move is not valid
+        animation_time = 0;
+        target_loc = block->loc;
+    }
 
     *out = (struct BlockPushAnimation){
         .player = player,
         .block = block,
         .target_loc = target_loc,
         .block_screen_coordinate = coordinate_grid_to_screen(&block->loc),
-        .remainingFrames = 8 * BLOCK_FRAMES_PER_MOVE,
+        .remainingFrames = animation_time,
         .dir = push_dir,
     };
 }
 
+void block_push_snap_player(struct BlockPushAnimation *push) {
+    push->player->loc.screen = push->block_screen_coordinate;
+    if (push->dir == DIRECTION_UP) {
+        push->player->loc.screen.y += BLOCK_SIZE;
+    } else if (push->dir == DIRECTION_DOWN) {
+        push->player->loc.screen.y -= BLOCK_SIZE;
+    } else if (push->dir == DIRECTION_LEFT) {
+        push->player->loc.screen.x += BLOCK_SIZE;
+    } else if (push->dir == DIRECTION_RIGHT) {
+        push->player->loc.screen.x -= BLOCK_SIZE;
+    }
+}
+
 void block_push_end(struct BlockPushAnimation *push) {
     push->block->loc = push->target_loc;
+    block_push_snap_player(push);
 }
 
 bool block_push_step(struct BlockPushAnimation *push) {
@@ -88,16 +123,7 @@ bool block_push_step(struct BlockPushAnimation *push) {
         }
     }
 
-    push->player->loc.screen = push->block_screen_coordinate;
-    if (push->dir == DIRECTION_UP) {
-        push->player->loc.screen.y += BLOCK_SIZE;
-    } else if (push->dir == DIRECTION_DOWN) {
-        push->player->loc.screen.y -= BLOCK_SIZE;
-    } else if (push->dir == DIRECTION_LEFT) {
-        push->player->loc.screen.x += BLOCK_SIZE;
-    } else if (push->dir == DIRECTION_RIGHT) {
-        push->player->loc.screen.x -= BLOCK_SIZE;
-    }
+    block_push_snap_player(push);
 
     push->remainingFrames -= 1;
     return true;

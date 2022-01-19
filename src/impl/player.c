@@ -36,17 +36,8 @@ void move_player_if_valid2(struct Player *player, enum Direction direction,
     default:
         break;
     }
-    struct ScreenCoordinate bb_corners[4];
-    bounding_box_corners(&bb, bb_corners);
-    int tile = 0;
-    for (int i = 0; i < 4; i++) {
-        struct WorldCoordinate w = (struct WorldCoordinate){
-            .screen = bb_corners[i],
-            .room = potential_loc.room,
-        };
-        tile |= room_tile_at_screen_coordinates(&w, collision_map);
-    }
-
+    int tile = room_is_tile_present_at_bb_corners(&bb, collision_map,
+                                                  potential_loc.room);
     if (!tile) {
 
         if (potential_loc.screen.y < player->loc.screen.y) {

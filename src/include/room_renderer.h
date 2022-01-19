@@ -6,14 +6,14 @@
 #include <stdint.h>
 
 struct RoomBlocks {
-  struct Block *b;
-  uint32_t size;
+    struct Block *b;
+    uint32_t size;
 };
 
 struct Room {
-  struct RoomCoordinate loc;
+    struct RoomCoordinate loc;
 
-  struct RoomBlocks blocks;
+    struct RoomBlocks blocks;
 };
 
 void room_draw_room(uint32_t room_x, uint32_t room_y,
@@ -21,3 +21,7 @@ void room_draw_room(uint32_t room_x, uint32_t room_y,
 
 int room_tile_at_screen_coordinates(struct WorldCoordinate *loc,
                                     const struct TileMap_DataLayer *map);
+
+int room_is_tile_present_at_bb_corners(const struct BoundingBox *bb,
+                                       const struct TileMap_DataLayer *map,
+                                       struct RoomCoordinate room);
