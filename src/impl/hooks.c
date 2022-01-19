@@ -4,6 +4,7 @@
 #include "wasm4.h"
 
 #include "block.h"
+#include "configuration.h"
 #include "entrances.h"
 
 void on_room_enter() {
@@ -99,5 +100,8 @@ void on_update() {
 
     room_draw_room(game_state.player.loc.room.x, game_state.player.loc.room.y,
                    &game_state.overworld->overlay_map);
+    ONLY_DEBUG(room_draw_room_debug_map(game_state.player.loc.room.x,
+                                        game_state.player.loc.room.y,
+                                        &game_state.overworld->collision_map));
     handle_entrances();
 }

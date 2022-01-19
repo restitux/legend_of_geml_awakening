@@ -56,11 +56,34 @@ void room_draw_room(uint32_t room_x, uint32_t room_y,
 
 int room_tile_at_screen_coordinates(struct WorldCoordinate *loc,
                                     const struct TileMap_DataLayer *map) {
+
     int world_x = (loc->screen.x / 8) + (loc->room.x * 20);
     int world_y = (loc->screen.y / 8) + (loc->room.y * 20);
 
-    int index = world_x + (world_y * map->width);
-    return map->map[index];
+    int bit_index = world_x + (world_y * map->width);
+    int byte_index = bit_index / 8;
+    int bit_offset = bit_index % 8;
+    uint8_t byte = map->map[byte_index];
+    int mask = 0x1 << bit_offset;
+    return byte & mask;
+}
+
+void room_draw_room_debug_map(uint32_t room_x, uint32_t room_y,
+                              const struct TileMap_DataLayer *map) {
+    int room_start_y = room_y * 20;
+    int room_start_x = room_x * 20;
+    for (int x = room_start_x; x < room_start_x + 20; x++) {
+        for (int y = room_start_y; y < room_start_y + 20; y++) {
+            int bit_index = x + (y * map->width);
+            int byte_index = bit_index / 8;
+            int bit_offset = (bit_index) % 8;
+            uint8_t byte = map->map[byte_index];
+            int mask = 0x1 << (bit_offset);
+            if (mask & byte) {
+                text("X", (x - room_start_x) * 8, (y - room_start_y) * 8);
+            }
+        }
+    }
 }
 
 int room_is_tile_present_at_bb_corners(const struct BoundingBox *bb,
