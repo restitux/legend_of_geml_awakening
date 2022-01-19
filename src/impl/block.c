@@ -129,21 +129,25 @@ bool block_is_push_attempted(const struct Player *p, const struct Block *b,
     ONLY_DEBUG(debug_bb_draw(&player_bb));
     if (bounding_box_intersect(&box_bb, &player_bb) &&
         input_any_dir_pressed(i)) {
-        if (i->button_up.isPressed) {
-            *d = DIRECTION_UP;
+
+        enum Direction vertical;
+        enum Direction horizontal;
+        bool v = input_get_pressed_direction(i, INPUT_AXIS_VERTICAL, &vertical);
+        bool h =
+            input_get_pressed_direction(i, INPUT_AXIS_HORIZONTAL, &horizontal);
+
+        if (v && h) {
+            return false;
         }
-        if (i->button_down.isPressed) {
-            *d = DIRECTION_DOWN;
+        if (v) {
+            *d = vertical;
+            return true;
         }
-        if (i->button_left.isPressed) {
-            *d = DIRECTION_LEFT;
+        if (h) {
+            *d = horizontal;
+            return true;
         }
-        if (i->button_right.isPressed) {
-            *d = DIRECTION_RIGHT;
-        }
-        return true;
     }
 
     return false;
-    // struct S
 }
