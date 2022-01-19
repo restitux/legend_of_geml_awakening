@@ -5,10 +5,15 @@
 #include "../../res/map/tiled.h"
 #include "wasm4.h"
 
-void room_draw_tile(uint32_t tile, uint32_t x, uint32_t y,
+void room_draw_tile(uint16_t tile, uint32_t x, uint32_t y,
                     const uint8_t *tileset) {
-    uint32_t tile_id = (tile & 0xFF);
-    uint32_t rotations = ((tile & (0xF << 28)) >> 28);
+    uint16_t tile_id = (tile & 0xFF);
+    // uint32_t rotations = ((tile & (0xF << 28)) >> 28);
+    // uint32_t rotations = ((tile & (0xF << 12)) >> 12);
+    uint16_t rotations = ((tile & (0xF << ((sizeof(tile) * 8) - 4))) >>
+                          ((sizeof(tile) * 8) - 4));
+    //  uint32_t rotations = ((tile & (0xF << ((sizeof(tile) * 8) - 4))) >>
+    //                      ((sizeof(tile) * 8) - 4));
 
     uint32_t flags = BLIT_2BPP;
 
@@ -57,4 +62,3 @@ int room_tile_at_screen_coordinates(struct WorldCoordinate *loc,
     int index = world_x + (world_y * map->width);
     return map->map[index];
 }
- 
