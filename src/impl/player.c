@@ -38,7 +38,6 @@ void move_player_if_valid(struct Player *player, enum Direction direction,
     default:
         break;
     }
-    debug_bb_draw(&bb);
 
     struct ScreenCoordinate corners[4];
     bounding_box_corners(&bb, corners);

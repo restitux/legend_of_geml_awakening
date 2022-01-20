@@ -76,7 +76,6 @@ void terrain_map_update(struct TerrainMap *t, struct RoomBlocks *blocks,
 uint8_t terrain_at_point(const struct TerrainMap *t,
                          struct ScreenCoordinate p) {
     struct GridCoordinate g = coordinate_screen_to_grid(&p);
-    rect(g.x * 8, g.y * 8, 1, 1);
     if (g.x >= 20 || g.y >= 20) {
         return 0;
     }

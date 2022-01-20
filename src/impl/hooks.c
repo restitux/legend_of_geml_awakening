@@ -81,9 +81,8 @@ struct BlockPushAnimation animation;
 struct TerrainMap terrain;
 
 void on_update() {
-    // room_draw_room(game_state.player.loc.room.x,
-    // game_state.player.loc.room.y,
-    //                &game_state.overworld->static_map);
+    room_draw_room(game_state.player.loc.room.x, game_state.player.loc.room.y,
+                   &game_state.overworld->static_map);
     terrain_map_update(&terrain, &game_state.currentRoom.blocks,
                        game_state.currentRoom.loc, game_state.overworld);
 
@@ -125,6 +124,5 @@ void on_update() {
                                         game_state.player.loc.room.y,
                                         &game_state.overworld->special_map));
 
-    terrain_debug_draw(&terrain);
     handle_entrances();
 }
