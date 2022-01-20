@@ -44,6 +44,9 @@
 // margin between block bounding box and edge of sprite
 #define BLOCK_BOUNDING_BOX_BUFFER 2
 
+// block push animation distance in grid coords
+#define BLOCK_PUSH_DISTANCE 1
+
 /*
 ---------------------------
 */

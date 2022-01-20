@@ -99,8 +99,7 @@ void on_update() {
         enum Direction d;
         if (!is_animating && block_is_push_attempted(&game_state.player, b,
                                                      &game_state.inputs, &d)) {
-            block_push_begin(&game_state.player, b, d,
-                             &game_state.overworld->collision_map, &animation);
+            block_push_begin(&game_state.player, b, d, &terrain, &animation);
             is_animating = true;
         }
         if (is_animating) {

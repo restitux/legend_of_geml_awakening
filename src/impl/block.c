@@ -5,6 +5,7 @@
 
 #include "configuration.h"
 
+#include "collision.h"
 #include "input.h"
 #include "player.h"
 #include "sprite.h"
@@ -34,27 +35,94 @@ void block_new(struct GridCoordinate loc, struct Block *block) {
     };
 }
 
+bool block_is_terrain_passable(const struct Block *b, Terrain t) {
+    enum TerrianType type = terrain_type(t);
+    enum TerrainLayer layer = terrain_layer(t);
+    bool valid_move = true;
+    if (type == TERRAIN_WALL && layer == b->layer) { // wall on same layer
+        valid_move = false;
+    }
+
+    if (type == TERRAIN_BLOCK && layer == b->layer) { // block on same layer
+        valid_move = false;
+    }
+
+    if (layer < b->layer) { // block on lower layer
+        valid_move = false;
+    }
+    return valid_move;
+}
+
+bool block_move_target_valid(struct Block *b,
+                             struct ScreenCoordinate target_loc,
+                             const struct TerrainMap *terrain_map) {
+    struct BoundingBox current_bb =
+        bounding_box_new(b->draw_loc, BLOCK_SIZE, BLOCK_SIZE);
+    struct BoundingBox target_bb =
+        bounding_box_new(target_loc, BLOCK_SIZE, BLOCK_SIZE);
+    bounding_box_uniform_shrink(&target_bb, 1);
+
+    struct ScreenCoordinate target_corners[4];
+    bounding_box_corners(&target_bb, target_corners);
+
+    debug_bb_draw(&current_bb);
+    debug_bb_draw(&target_bb);
+
+    bool valid_move = true;
+    for (int i = 0; i < 4; i++) {
+        if (!bounding_box_contains_point(&current_bb, target_corners[i])) {
+            Terrain t = terrain_at_point(terrain_map, target_corners[i]);
+            valid_move &= block_is_terrain_passable(b, t);
+        }
+    }
+
+    return valid_move;
+}
+
 void block_push_begin(struct Player *player, struct Block *block,
                       enum Direction push_dir,
-                      const struct TileMap_DataLayer *collision_map,
+                      const struct TerrainMap *terrain_map,
                       struct BlockPushAnimation *out) {
 
     struct GridCoordinate player_snap = block->loc;
 
     struct GridCoordinate target_loc = block->loc;
 
+    struct GridCoordinate target_points[2];
+
     if (push_dir == DIRECTION_UP) {
-        target_loc.y -= 1;
+        target_loc.y -= BLOCK_PUSH_DISTANCE;
         player_snap.y += 2;
+
+        target_points[0] = target_loc; // top left
+        target_points[1] = target_loc;
+        target_points[1].x += 1; // top right
     } else if (push_dir == DIRECTION_DOWN) {
-        target_loc.y += 1;
+        target_loc.y += BLOCK_PUSH_DISTANCE;
         player_snap.y -= 2;
+
+        target_points[0] = target_loc;
+        target_points[0].y += 1; // bottom left
+
+        target_points[1] = target_loc;
+        target_points[1].x += 1;
+        target_points[1].y += 1; // bottom right
     } else if (push_dir == DIRECTION_LEFT) {
-        target_loc.x -= 1;
+        target_loc.x -= BLOCK_PUSH_DISTANCE;
         player_snap.x += 2;
+
+        target_points[0] = target_loc; // top left
+        target_points[0] = target_loc;
+        target_points[0].y += 1; // bottom left
+
     } else if (push_dir == DIRECTION_RIGHT) {
-        target_loc.x += 1;
+        target_loc.x += BLOCK_PUSH_DISTANCE;
         player_snap.x -= 2;
+
+        target_points[1] = target_loc;
+        target_points[1].x += 1; // top right
+        target_points[1].x += 1;
+        target_points[1].y += 1; // bottom right
     }
 
     player->loc.screen = coordinate_grid_to_screen(&player_snap);
@@ -67,8 +135,7 @@ void block_push_begin(struct Player *player, struct Block *block,
     ONLY_DEBUG(debug_bb_draw(&target_bb));
 
     uint8_t animation_time = 8 * BLOCK_FRAMES_PER_MOVE;
-    if (room_is_tile_present_at_bb_corners(
-            &target_bb, collision_map, player->loc.room, COLLISION_TYPE_ANY)) {
+    if (!block_move_target_valid(block, block_target_screen_loc, terrain_map)) {
         // move is not valid
         animation_time = 0;
         target_loc = block->loc;

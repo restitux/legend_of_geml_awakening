@@ -2,10 +2,13 @@
 
 #include <stdbool.h>
 
+#include "collision.h"
 #include "input.h"
 #include "player.h"
 #include "sprite.h"
 #include "types.h"
+
+struct TerrainMap;
 
 // a block for puzzles which can be pushed by the player
 struct Block {
@@ -36,7 +39,7 @@ void block_new(struct GridCoordinate loc, struct Block *block);
 // start a block push. Aligns player to nearest grid
 void block_push_begin(struct Player *player, struct Block *block,
                       enum Direction push_dir,
-                      const struct TileMap_DataLayer *collision_map,
+                      const struct TerrainMap *terrain_map,
                       struct BlockPushAnimation *out);
 
 // step the block push. If animation is complete, returns false
