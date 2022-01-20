@@ -1,4 +1,5 @@
 #include "block.h"
+
 #include "../../res/map/tiled.h"
 
 #include "../../res/data/block_sprite.h"
@@ -197,31 +198,54 @@ bool block_push_step(struct BlockPushAnimation *push) {
 }
 
 void block_draw_block(struct Block *block) {
+#ifndef BLOCK_DEBUG_DRAW_ID
     if (block->layer == 0) {
         sprite_draw_sprite_frame(&block->raised_sprite, &block->draw_loc);
-
     } else {
         text("B", block->draw_loc.x, block->draw_loc.y);
         text("B", block->draw_loc.x + 8, block->draw_loc.y);
         text("B", block->draw_loc.x, block->draw_loc.y + 8);
         text("B", block->draw_loc.x + 8, block->draw_loc.y + 8);
     }
+#else
+    char str[3];
+    str[1] = '0' + block->id % 10;
+    str[0] = '0' + block->id / 10;
+
+    str[2] = 0;
+
+    text(str, block->draw_loc.x, block->draw_loc.y);
+#endif
 }
 
-void block_update_layer(struct Block *b,
-                        const struct TileMap_DataLayer *special_map,
-                        struct RoomCoordinate room) {
+int block_decide_layer(Terrain t, uint8_t cur_layer) {
+    enum TerrianType type = terrain_type(t);
+    enum TerrainLayer layer = terrain_layer(t);
+
+    if (type == TERRAIN_BLOCK && layer > cur_layer) {
+        return cur_layer;
+    }
+
+    return layer;
+}
+
+void block_update_layer(struct Block *b, const struct TerrainMap *terrain_map) {
 
     struct BoundingBox bb =
         bounding_box_new(b->draw_loc, BLOCK_SIZE - 1, BLOCK_SIZE - 1);
 
-    int tile = room_is_tile_present_at_bb_corners(&bb, special_map, room,
-                                                  COLLISION_TYPE_ALL);
+    struct ScreenCoordinate corners[4];
+    bounding_box_corners(&bb, corners);
+    int layer = 0;
+    for (int i = 0; i < 4; i++) {
+        layer += block_decide_layer(terrain_at_point(terrain_map, corners[i]),
+                                    b->layer);
+    }
 
-    if (tile) {
-        b->layer = 1; // fall to 1
-    } else {
-        b->layer = 0; // forced up to 0
+    if (layer == 4) {
+        b->layer = 1;
+    } else if (layer == 0) {
+        b->layer = 0;
     }
 }
 

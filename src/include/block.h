@@ -12,6 +12,7 @@ struct TerrainMap;
 
 // a block for puzzles which can be pushed by the player
 struct Block {
+    uint16_t id;
     uint8_t layer;
     struct GridCoordinate loc;
     struct ScreenCoordinate draw_loc;
@@ -50,6 +51,4 @@ void block_draw_block(struct Block *block);
 bool block_is_push_attempted(const struct Player *p, const struct Block *b,
                              const struct InputState *i, enum Direction *d);
 
-void block_update_layer(struct Block *b,
-                        const struct TileMap_DataLayer *special_map,
-                        struct RoomCoordinate room);
+void block_update_layer(struct Block *b, const struct TerrainMap *terrain_map);

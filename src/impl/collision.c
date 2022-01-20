@@ -62,7 +62,7 @@ void terrain_map_update(struct TerrainMap *t, struct RoomBlocks *blocks,
 
         enum TerrainLayer layer = block->layer;
 
-        Terrain terrain = 4;
+        Terrain terrain = (layer << 4) | TERRAIN_BLOCK;
 
         for (int x = block->loc.x; x < block->loc.x + 2; x++) {
             for (int y = block->loc.y; y < block->loc.y + 2; y++) {

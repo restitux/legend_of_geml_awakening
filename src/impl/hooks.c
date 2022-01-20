@@ -49,15 +49,27 @@ void on_room_enter() {
                 coordinate_screen_to_grid(&block_location.screen);
 
             block_new(g, &game_state.currentRoom.blocks.b[index]);
+            game_state.currentRoom.blocks.b[index].id = s.id;
+            tracef("loaded block %d at (%d, %d)", s.id, block_location.screen.x,
+                   block_location.screen.y);
+            index += 1;
         }
-        index += 1;
+    }
+    tracef("finished loading the following blocks:");
+    for (uint32_t i = 0; i < game_state.currentRoom.blocks.size; i++) {
+        struct Block *b = &game_state.currentRoom.blocks.b[i];
+
+        tracef("id: %d (index: %d); grid: %d, %d;", b->id, i, b->loc.x,
+               b->loc.y);
     }
 }
 
 void on_room_exit() {
+    tracef("freeing %d block(s) as I leave room %d %d",
+           game_state.currentRoom.blocks.size, game_state.player.loc.room.x,
+           game_state.player.loc.room.y);
     free(game_state.currentRoom.blocks.b);
     game_state.currentRoom.blocks.size = 0;
-
     save_game();
 
     game_state.currentRoom.loc = game_state.player.loc.room;
@@ -106,8 +118,7 @@ void on_update() {
             is_animating = block_push_step(&animation);
         }
         if (!is_animating) {
-            block_update_layer(b, &game_state.overworld->special_map,
-                               game_state.currentRoom.loc);
+            block_update_layer(b, &terrain);
         }
         block_draw_block(b);
     }

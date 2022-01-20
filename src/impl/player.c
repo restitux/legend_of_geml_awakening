@@ -52,7 +52,7 @@ void move_player_if_valid(struct Player *player, enum Direction direction,
         if (layer == player->layer && type == TERRAIN_WALL) {
             can_pass = false;
         }
-        if (layer != player->layer) {
+        if (layer != player->layer && type != TERRAIN_BLOCK) {
             can_pass = false;
         }
     }
