@@ -5,15 +5,15 @@
 struct GridCoordinate
 coordinate_screen_to_grid(const struct ScreenCoordinate *c) {
     return (struct GridCoordinate){
-        .x = c->x / 8,
-        .y = c->y / 8,
+        .x = (c->x / 8),
+        .y = (c->y / 8),
     };
 }
 struct ScreenCoordinate
 coordinate_grid_to_screen(const struct GridCoordinate *c) {
     return (struct ScreenCoordinate){
-        .x = (c->x - 1) * 8,
-        .y = (c->y - 1) * 8,
+        .x = (c->x) * 8,
+        .y = (c->y) * 8,
     };
 }
 

@@ -7,6 +7,8 @@
 #include "configuration.h"
 #include "entrances.h"
 
+#include "collision.h"
+
 void on_room_enter() {
     struct Room *new_room = &game_state.currentRoom;
 
@@ -45,8 +47,7 @@ void on_room_enter() {
             block_location.room.y == new_room->loc.y) {
             struct GridCoordinate g =
                 coordinate_screen_to_grid(&block_location.screen);
-            g.x += 1;
-            g.y += 1;
+
             block_new(g, &game_state.currentRoom.blocks.b[index]);
         }
         index += 1;
@@ -77,13 +78,18 @@ void on_game_launch() {
 bool is_animating = false;
 struct BlockPushAnimation animation;
 
+struct TerrainMap terrain;
+
 void on_update() {
+    // room_draw_room(game_state.player.loc.room.x,
+    // game_state.player.loc.room.y,
+    //                &game_state.overworld->static_map);
+    terrain_map_update(&terrain, &game_state.currentRoom.blocks,
+                       game_state.currentRoom.loc, game_state.overworld);
+
     update_input_state(&game_state.inputs);
 
-    handle_movement(&game_state.player, game_state.overworld,
-                    &game_state.inputs, &game_state.currentRoom);
-    room_draw_room(game_state.player.loc.room.x, game_state.player.loc.room.y,
-                   &game_state.overworld->static_map);
+    handle_movement(&game_state.player, &terrain, &game_state.inputs);
 
     room_draw_room_special_tiles(game_state.player.loc.room.x,
                                  game_state.player.loc.room.y,
@@ -118,5 +124,7 @@ void on_update() {
     ONLY_DEBUG(room_draw_room_debug_map(game_state.player.loc.room.x,
                                         game_state.player.loc.room.y,
                                         &game_state.overworld->special_map));
+
+    terrain_debug_draw(&terrain);
     handle_entrances();
 }

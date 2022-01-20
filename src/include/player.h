@@ -1,13 +1,14 @@
 #pragma once
 
 #include "../../res/map/tiled.h"
+#include "collision.h"
 #include "input.h"
-#include "room_renderer.h"
 #include "sprite.h"
 #include "types.h"
 #include "wasm4.h"
 #include <stdint.h>
-struct Room;
+
+struct TerrainMap;
 
 struct Player {
     uint8_t layer;
@@ -20,7 +21,8 @@ struct Player {
     uint32_t player_width;
 };
 
-void handle_movement(struct Player *player, const struct TileMap *map,
-                     const struct InputState *inputs, const struct Room *room);
+void handle_movement(struct Player *player,
+                     const struct TerrainMap *terrain_map,
+                     const struct InputState *inputs);
 
 void draw_player(const struct Player *player);

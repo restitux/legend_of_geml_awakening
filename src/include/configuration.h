@@ -22,6 +22,7 @@
 ---------PLAYER-----------
 */
 // margin that player can overlap collidable objects in pixels
+#define PLAYER_SIZE 16
 #define PLAYER_COLLISION_BUFFER 2
 
 /*
