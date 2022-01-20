@@ -46,13 +46,15 @@ void move_player_if_valid(struct Player *player, enum Direction direction,
     for (int i = 0; i < 4; i++) {
         Terrain t = terrain_at_point(terrain_map, corners[i]);
 
-        enum TerrianType type = terrain_type(t);
-        enum TerrainLayer layer = terrain_layer(t);
+        // enum TerrianType cur_layer = terrain_type(t, player->layer);
+        // // enum TerrainLayer layer = terrain_type(t);
+        enum TerrianType cur_layer = terrain_type(t, player->layer);
+        enum TerrianType lower_layer = terrain_type(t, player->layer + 1);
 
-        if (layer == player->layer && type == TERRAIN_WALL) {
+        if (cur_layer == TERRAIN_WALL) {
             can_pass = false;
         }
-        if (layer != player->layer && type != TERRAIN_BLOCK) {
+        if (cur_layer == TERRAIN_INVALID && lower_layer != TERRAIN_BLOCK) {
             can_pass = false;
         }
     }

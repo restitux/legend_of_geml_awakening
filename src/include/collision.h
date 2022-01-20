@@ -13,6 +13,8 @@ enum TerrianType {
     TERRAIN_WALL = 1,
     TERRAIN_SLIPPERY = 2,
     TERRAIN_BLOCK = 4,
+
+    TERRAIN_INVALID = 0x0F,
 };
 
 enum TerrainLayer {
@@ -29,8 +31,8 @@ void terrain_map_update(struct TerrainMap *t, struct RoomBlocks *blocks,
 
 uint8_t terrain_at_point(const struct TerrainMap *t, struct ScreenCoordinate p);
 
-uint8_t terrain_type(Terrain terrain);
+uint8_t terrain_type(Terrain terrain, enum TerrainLayer layer);
 
-uint8_t terrain_layer(Terrain terrain);
+Terrain terrain_create(enum TerrianType t, enum TerrainLayer l);
 
 void terrain_debug_draw(const struct TerrainMap *t);

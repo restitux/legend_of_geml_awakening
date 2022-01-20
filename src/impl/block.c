@@ -37,21 +37,11 @@ void block_new(struct GridCoordinate loc, struct Block *block) {
 }
 
 bool block_is_terrain_passable(const struct Block *b, Terrain t) {
-    enum TerrianType type = terrain_type(t);
-    enum TerrainLayer layer = terrain_layer(t);
-    bool valid_move = true;
-    if (type == TERRAIN_WALL && layer == b->layer) { // wall on same layer
-        valid_move = false;
-    }
+    enum TerrianType cur_layer = terrain_type(t, b->layer);
+    enum TerrianType lower_layer = terrain_type(t, b->layer + 1);
 
-    if (type == TERRAIN_BLOCK && layer == b->layer) { // block on same layer
-        valid_move = false;
-    }
-
-    if (layer < b->layer) { // block on lower layer
-        valid_move = false;
-    }
-    return valid_move;
+    return cur_layer == TERRAIN_NORMAL || lower_layer == TERRAIN_NORMAL ||
+           lower_layer == TERRAIN_BLOCK;
 }
 
 bool block_move_target_valid(struct Block *b,
@@ -218,15 +208,23 @@ void block_draw_block(struct Block *block) {
 #endif
 }
 
-int block_decide_layer(Terrain t, uint8_t cur_layer) {
-    enum TerrianType type = terrain_type(t);
-    enum TerrainLayer layer = terrain_layer(t);
+int block_decide_layer(Terrain t, int cur_layer) {
+    enum TerrianType main = terrain_type(t, LAYER_MAIN);
+    enum TerrianType lower = terrain_type(t, LAYER_LOWER);
 
-    if (type == TERRAIN_BLOCK && layer > cur_layer) {
-        return cur_layer;
+    if (cur_layer == LAYER_MAIN) {
+        if ((main == TERRAIN_INVALID || main == TERRAIN_BLOCK)) {
+            if (lower == TERRAIN_NORMAL) {
+                return LAYER_LOWER;
+            }
+        }
+        return LAYER_MAIN;
+    } else {
+        if (main == TERRAIN_NORMAL) {
+            return LAYER_MAIN;
+        }
+        return LAYER_LOWER;
     }
-
-    return layer;
 }
 
 void block_update_layer(struct Block *b, const struct TerrainMap *terrain_map) {

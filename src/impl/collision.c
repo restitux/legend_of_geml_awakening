@@ -3,7 +3,7 @@
 
 void clear_terrain(struct TerrainMap *t) {
     for (int i = 0; i < 400; i++) {
-        t->terrain[i] = 0;
+        t->terrain[i] = (TERRAIN_INVALID << 4);
     }
 }
 
@@ -13,13 +13,19 @@ void terrain_debug_draw(const struct TerrainMap *t) {
     for (uint32_t x = 0; x < 20; x++) {
         for (uint32_t y = 0; y < 20; y++) {
             uint32_t index = compute_terrain_index(x, y);
-            enum TerrianType type = terrain_type(t->terrain[index]);
-            enum TerrainLayer layer = terrain_layer(t->terrain[index]);
 
-            if (type == TERRAIN_WALL && layer == LAYER_MAIN) {
-                text("X", x * 8, y * 8);
-            } else if (type == TERRAIN_BLOCK && layer == LAYER_MAIN) {
-                text("b", x * 8, y * 8);
+            enum TerrianType main = terrain_type(t->terrain[index], LAYER_MAIN);
+            enum TerrianType lower =
+                terrain_type(t->terrain[index], LAYER_LOWER);
+
+            if (main == TERRAIN_WALL) {
+                text("W", x * 8, y * 8);
+            }
+            if (main == TERRAIN_INVALID) {
+                text("G", x * 8, y * 8);
+            }
+            if (main == TERRAIN_INVALID && lower == TERRAIN_BLOCK) {
+                text("S", x * 8, y * 8);
             }
         }
     }
@@ -44,10 +50,16 @@ void copy_tilemap_state(struct TerrainMap *t, struct RoomCoordinate loc,
             uint8_t special_byte = map->special_map.map[byte_index];
             uint8_t special_bit = (special_byte >> bit_offset) & 0x1;
 
-            t->terrain[terrain_index] |=
-                ((special_bit << 4) | (special_bit << 1));
-
-            t->terrain[terrain_index] |= collision_bit;
+            if (special_bit) {
+                t->terrain[terrain_index] = TERRAIN_INVALID;
+                // terrain_create(TERRAIN_NORMAL, LAYER_LOWER) |
+                // terrain_create(TERRAIN_INVALID, LAYER_MAIN);
+            }
+            if (collision_bit) {
+                t->terrain[terrain_index] =
+                    terrain_create(TERRAIN_WALL, LAYER_MAIN) |
+                    terrain_create(TERRAIN_INVALID, LAYER_LOWER);
+            }
         }
     }
 }
@@ -62,12 +74,21 @@ void terrain_map_update(struct TerrainMap *t, struct RoomBlocks *blocks,
 
         enum TerrainLayer layer = block->layer;
 
-        Terrain terrain = (layer << 4) | TERRAIN_BLOCK;
+        Terrain terrain = terrain_create(TERRAIN_BLOCK, layer);
 
         for (int x = block->loc.x; x < block->loc.x + 2; x++) {
             for (int y = block->loc.y; y < block->loc.y + 2; y++) {
                 int terrain_index = compute_terrain_index(x, y);
-                t->terrain[terrain_index] = terrain;
+                Terrain cur_terrain = t->terrain[terrain_index];
+
+                Terrain new_terrain = (cur_terrain & ~(0xF << layer)) | terrain;
+
+                t->terrain[terrain_index] = new_terrain;
+                if (layer == LAYER_LOWER) {
+                    t->terrain[terrain_index] =
+                        terrain_type(cur_terrain, LAYER_MAIN) |
+                        terrain_create(TERRAIN_BLOCK, LAYER_LOWER);
+                }
             }
         }
     }
@@ -82,6 +103,13 @@ uint8_t terrain_at_point(const struct TerrainMap *t,
     return t->terrain[compute_terrain_index(g.x, g.y)];
 }
 
-uint8_t terrain_type(Terrain terrain) { return (terrain & 0x0F); }
+uint8_t terrain_type(Terrain terrain, enum TerrainLayer layer) {
+    if (layer > 1) {
+        return TERRAIN_INVALID;
+    }
+    return (terrain >> (layer * 4)) & 0xF;
+}
 
-uint8_t terrain_layer(Terrain terrain) { return (terrain >> 4) & 0x0F; }
+Terrain terrain_create(enum TerrianType t, enum TerrainLayer l) {
+    return (t << (l * 4));
+}
