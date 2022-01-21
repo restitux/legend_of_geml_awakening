@@ -6,21 +6,23 @@
 
 // a single sprite with no animation
 struct SpriteFrame {
-  const uint8_t *sprite_sheet;
-  uint32_t sheet_width;
-  uint8_t x;
-  uint8_t y;
+    const uint8_t *sprite_sheet;
+    uint32_t sheet_width;
+    uint8_t x;
+    uint8_t y;
+
+    uint16_t draw_colors;
 };
 
 // character sprite is encoded with a sheet of 4 frames x n animation frames
 struct CharacterSprite {
-  const uint8_t *sprite_sheet;
-  uint32_t sheet_width;
-  uint32_t sheet_height;
-  uint32_t frame_size;
-  uint32_t frames_per_animation;
+    const uint8_t *sprite_sheet;
+    uint32_t sheet_width;
+    uint32_t sheet_height;
+    uint32_t frame_size;
+    uint32_t frames_per_animation;
 
-  uint32_t current_frame;
+    uint32_t current_frame;
 };
 
 void sprite_draw_sprite_frame(const struct SpriteFrame *sprite,
