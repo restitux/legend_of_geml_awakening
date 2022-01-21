@@ -24,7 +24,6 @@ void init_game() {
         .currentRoom = {.loc = {.x = 0, .y = 0},
                         .blocks = {
                             .size = 0,
-                            .b = NULL,
                         }}};
 }
 

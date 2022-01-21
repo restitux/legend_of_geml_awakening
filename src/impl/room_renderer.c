@@ -1,4 +1,5 @@
 #include "room_renderer.h"
+#include "room.h"
 #include <stdbool.h>
 #include <stdint.h>
 

@@ -2,10 +2,10 @@
 
 #include <stdbool.h>
 
-#include "collision.h"
 #include "input.h"
 #include "player.h"
 #include "sprite.h"
+#include "terrain_map.h"
 #include "types.h"
 
 struct TerrainMap;

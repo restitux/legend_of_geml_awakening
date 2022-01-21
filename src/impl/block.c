@@ -12,8 +12,6 @@
 #include "sprite.h"
 #include "types.h"
 
-#include "room_renderer.h"
-
 #include "wasm4.h"
 //----------------------------------
 //  CONFIGURATION
@@ -79,8 +77,6 @@ void block_push_begin(struct Player *player, struct Block *block,
 
     struct GridCoordinate target_loc = block->loc;
 
-    struct GridCoordinate target_points[2];
-
     if (push_dir == DIRECTION_UP) {
         target_loc.y -= BLOCK_PUSH_DISTANCE;
         player_snap.y += 2;
@@ -125,11 +121,11 @@ void block_push_snap_player(struct BlockPushAnimation *push) {
     if (push->dir == DIRECTION_UP) {
         push->player->loc.screen.y += BLOCK_SIZE - 8 - PLAYER_COLLISION_BUFFER;
     } else if (push->dir == DIRECTION_DOWN) {
-        push->player->loc.screen.y -= BLOCK_SIZE;
+        push->player->loc.screen.y -= BLOCK_SIZE - PLAYER_COLLISION_BUFFER;
     } else if (push->dir == DIRECTION_LEFT) {
-        push->player->loc.screen.x += BLOCK_SIZE;
+        push->player->loc.screen.x += BLOCK_SIZE + PLAYER_COLLISION_BUFFER;
     } else if (push->dir == DIRECTION_RIGHT) {
-        push->player->loc.screen.x -= BLOCK_SIZE;
+        push->player->loc.screen.x -= BLOCK_SIZE - PLAYER_COLLISION_BUFFER;
     }
 }
 
@@ -143,7 +139,7 @@ bool block_push_step(struct BlockPushAnimation *push, struct InputState *i) {
     if (!input_any_dir_pressed(i) &&
         push->remainingFrames > ((8 * BLOCK_FRAMES_PER_MOVE) - 2)) {
         push->target_loc = push->block->loc;
-        push->remainingFrames == 0; // cancel
+        push->remainingFrames = 0; // cancel
     }
     if (push->remainingFrames == 0) {
         block_push_end(push);

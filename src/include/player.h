@@ -1,9 +1,9 @@
 #pragma once
 
 #include "../../res/map/tiled.h"
-#include "collision.h"
 #include "input.h"
 #include "sprite.h"
+#include "terrain_map.h"
 #include "types.h"
 #include "wasm4.h"
 #include <stdint.h>

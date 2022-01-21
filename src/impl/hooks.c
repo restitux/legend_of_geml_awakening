@@ -12,28 +12,6 @@
 void on_room_enter() {
     struct Room *new_room = &game_state.currentRoom;
 
-    uint32_t spawn_count = 0;
-
-    for (uint32_t i = 0; i < game_state.overworld->block_spawns.length; i++) {
-        struct TileMap_BlockSpawn s =
-            game_state.overworld->block_spawns.block_spawns[i];
-
-        struct WorldCoordinate block_location =
-            coordinate_global_to_world(s.x, s.y);
-
-        if (block_location.room.x == new_room->loc.x &&
-            block_location.room.y == new_room->loc.y) {
-            spawn_count += 1;
-        }
-    }
-
-    tracef("entering room (%d, %d) with %d (of %d) blocks", new_room->loc.x,
-           new_room->loc.y, spawn_count,
-           game_state.overworld->block_spawns.length);
-
-    game_state.currentRoom.blocks.size = spawn_count;
-    game_state.currentRoom.blocks.b =
-        malloc(sizeof(struct Block) * spawn_count);
     uint32_t index = 0;
 
     for (uint32_t i = 0; i < game_state.overworld->block_spawns.length; i++) {
@@ -55,6 +33,7 @@ void on_room_enter() {
             index += 1;
         }
     }
+    game_state.currentRoom.blocks.size = index;
     tracef("finished loading the following blocks:");
     for (uint32_t i = 0; i < game_state.currentRoom.blocks.size; i++) {
         struct Block *b = &game_state.currentRoom.blocks.b[i];
@@ -68,7 +47,6 @@ void on_room_exit() {
     tracef("freeing %d block(s) as I leave room %d %d",
            game_state.currentRoom.blocks.size, game_state.player.loc.room.x,
            game_state.player.loc.room.y);
-    free(game_state.currentRoom.blocks.b);
     game_state.currentRoom.blocks.size = 0;
     save_game();
 
