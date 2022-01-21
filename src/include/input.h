@@ -31,3 +31,6 @@ bool input_any_dir_pressed(const struct InputState *inputs);
 
 bool input_get_pressed_direction(const struct InputState *inputs,
                                  enum InputAxis axis, enum Direction *out);
+
+bool input_get_just_pressed_direction(const struct InputState *inputs,
+                                      enum InputAxis axis, enum Direction *out);

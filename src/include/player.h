@@ -26,3 +26,5 @@ void handle_movement(struct Player *player,
                      const struct InputState *inputs);
 
 void draw_player(const struct Player *player);
+
+struct BoundingBox player_make_bb(const struct Player *player);

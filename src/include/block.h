@@ -44,7 +44,7 @@ void block_push_begin(struct Player *player, struct Block *block,
                       struct BlockPushAnimation *out);
 
 // step the block push. If animation is complete, returns false
-bool block_push_step(struct BlockPushAnimation *push);
+bool block_push_step(struct BlockPushAnimation *push, struct InputState *i);
 
 void block_draw_block(struct Block *block);
 

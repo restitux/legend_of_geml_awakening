@@ -84,36 +84,15 @@ void block_push_begin(struct Player *player, struct Block *block,
     if (push_dir == DIRECTION_UP) {
         target_loc.y -= BLOCK_PUSH_DISTANCE;
         player_snap.y += 2;
-
-        target_points[0] = target_loc; // top left
-        target_points[1] = target_loc;
-        target_points[1].x += 1; // top right
     } else if (push_dir == DIRECTION_DOWN) {
         target_loc.y += BLOCK_PUSH_DISTANCE;
         player_snap.y -= 2;
-
-        target_points[0] = target_loc;
-        target_points[0].y += 1; // bottom left
-
-        target_points[1] = target_loc;
-        target_points[1].x += 1;
-        target_points[1].y += 1; // bottom right
     } else if (push_dir == DIRECTION_LEFT) {
         target_loc.x -= BLOCK_PUSH_DISTANCE;
         player_snap.x += 2;
-
-        target_points[0] = target_loc; // top left
-        target_points[0] = target_loc;
-        target_points[0].y += 1; // bottom left
-
     } else if (push_dir == DIRECTION_RIGHT) {
         target_loc.x += BLOCK_PUSH_DISTANCE;
         player_snap.x -= 2;
-
-        target_points[1] = target_loc;
-        target_points[1].x += 1; // top right
-        target_points[1].x += 1;
-        target_points[1].y += 1; // bottom right
     }
 
     player->loc.screen = coordinate_grid_to_screen(&player_snap);
@@ -144,7 +123,7 @@ void block_push_begin(struct Player *player, struct Block *block,
 void block_push_snap_player(struct BlockPushAnimation *push) {
     push->player->loc.screen = push->block->draw_loc;
     if (push->dir == DIRECTION_UP) {
-        push->player->loc.screen.y += BLOCK_SIZE;
+        push->player->loc.screen.y += BLOCK_SIZE - 8 - PLAYER_COLLISION_BUFFER;
     } else if (push->dir == DIRECTION_DOWN) {
         push->player->loc.screen.y -= BLOCK_SIZE;
     } else if (push->dir == DIRECTION_LEFT) {
@@ -156,10 +135,16 @@ void block_push_snap_player(struct BlockPushAnimation *push) {
 
 void block_push_end(struct BlockPushAnimation *push) {
     push->block->loc = push->target_loc;
+    push->block->draw_loc = coordinate_grid_to_screen(&push->block->loc);
     block_push_snap_player(push);
 }
 
-bool block_push_step(struct BlockPushAnimation *push) {
+bool block_push_step(struct BlockPushAnimation *push, struct InputState *i) {
+    if (!input_any_dir_pressed(i) &&
+        push->remainingFrames > ((8 * BLOCK_FRAMES_PER_MOVE) - 2)) {
+        push->target_loc = push->block->loc;
+        push->remainingFrames == 0; // cancel
+    }
     if (push->remainingFrames == 0) {
         block_push_end(push);
         return false;
@@ -168,15 +153,11 @@ bool block_push_step(struct BlockPushAnimation *push) {
     if (push->remainingFrames % BLOCK_FRAMES_PER_MOVE == 0) {
         if (push->dir == DIRECTION_UP) {
             push->block->draw_loc.y -= 1;
-            push->player->loc.screen.y += BLOCK_SIZE - 1;
         } else if (push->dir == DIRECTION_DOWN) {
-            push->player->loc.screen.y -= BLOCK_SIZE + 1;
             push->block->draw_loc.y += 1;
         } else if (push->dir == DIRECTION_LEFT) {
-            push->player->loc.screen.x += BLOCK_SIZE - 1;
             push->block->draw_loc.x -= 1;
         } else if (push->dir == DIRECTION_RIGHT) {
-            push->player->loc.screen.x -= BLOCK_SIZE + 1;
             push->block->draw_loc.x += 1;
         }
     }
@@ -253,7 +234,7 @@ bool block_is_push_attempted(const struct Player *p, const struct Block *b,
         bounding_box_new(coordinate_grid_to_screen(&b->loc), 16, 16);
     bounding_box_uniform_shrink(&box_bb, BLOCK_BOUNDING_BOX_BUFFER);
 
-    struct BoundingBox player_bb = bounding_box_new(p->loc.screen, 16, 16);
+    struct BoundingBox player_bb = player_make_bb(p);
 
     ONLY_DEBUG(debug_bb_draw(&box_bb));
     ONLY_DEBUG(debug_bb_draw(&player_bb));

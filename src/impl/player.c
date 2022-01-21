@@ -8,12 +8,19 @@
 #include "types.h"
 #include "wasm4.h"
 
-void move_player_if_valid(struct Player *player, enum Direction direction,
-                          const struct TerrainMap *terrain_map) {
+struct BoundingBox player_make_bb(const struct Player *player) {
     struct BoundingBox bb =
-        bounding_box_new(player->loc.screen, PLAYER_SIZE, PLAYER_SIZE);
+        bounding_box_new(player->loc.screen, PLAYER_SIZE, PLAYER_SIZE / 2);
     bounding_box_uniform_shrink(&bb, PLAYER_COLLISION_BUFFER);
 
+    bb.tl.y += PLAYER_SIZE / 2;
+    return bb;
+}
+
+void move_player_if_valid(struct Player *player, enum Direction direction,
+                          const struct TerrainMap *terrain_map) {
+
+    struct BoundingBox bb = player_make_bb(player);
     struct WorldCoordinate potential_loc = player->loc;
     switch (direction) {
     case DIRECTION_UP:

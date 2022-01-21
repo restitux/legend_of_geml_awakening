@@ -7,6 +7,8 @@
 // DEBUG
 // #define DEBUG_DRAWS
 
+// #define BLOCK_DEBUG_DRAW_ID
+
 #ifdef DEBUG_DRAWS
 #define ONLY_DEBUG(expr)                                                       \
     do {                                                                       \

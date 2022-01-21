@@ -115,7 +115,7 @@ void on_update() {
             is_animating = true;
         }
         if (is_animating) {
-            is_animating = block_push_step(&animation);
+            is_animating = block_push_step(&animation, &game_state.inputs);
         }
         if (!is_animating) {
             block_update_layer(b, &terrain);

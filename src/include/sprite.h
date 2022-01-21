@@ -10,8 +10,6 @@ struct SpriteFrame {
     uint32_t sheet_width;
     uint8_t x;
     uint8_t y;
-
-    uint16_t draw_colors;
 };
 
 // character sprite is encoded with a sheet of 4 frames x n animation frames

@@ -83,3 +83,47 @@ bool input_get_pressed_direction(const struct InputState *inputs,
     }
     return false;
 }
+
+bool input_get_just_pressed_direction(const struct InputState *inputs,
+                                      enum InputAxis axis,
+                                      enum Direction *out) {
+    if (axis == INPUT_AXIS_VERTICAL) {
+        bool button_up = inputs->button_up.justPressed;
+        bool button_down = inputs->button_down.justPressed;
+
+        if (button_up && button_down) {
+            return false;
+        }
+        if (!button_up && !button_down) {
+            return false;
+        }
+
+        if (button_up) {
+            *out = DIRECTION_UP;
+        }
+        if (button_down) {
+            *out = DIRECTION_DOWN;
+        }
+        return true;
+    }
+    if (axis == INPUT_AXIS_HORIZONTAL) {
+        bool button_left = inputs->button_left.justPressed;
+        bool button_right = inputs->button_right.justPressed;
+
+        if (button_left && button_right) {
+            return false;
+        }
+        if (!button_left && !button_right) {
+            return false;
+        }
+
+        if (button_left) {
+            *out = DIRECTION_LEFT;
+        }
+        if (button_right) {
+            *out = DIRECTION_RIGHT;
+        }
+        return true;
+    }
+    return false;
+}
