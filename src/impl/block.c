@@ -178,10 +178,6 @@ void block_draw_block(struct Block *block) {
         sprite_draw_sprite_frame(&block->raised_sprite, &block->draw_loc);
     } else {
         sprite_draw_sprite_frame(&block->lowered_sprite, &block->draw_loc);
-        // text("B", block->draw_loc.x, block->draw_loc.y);
-        // text("B", block->draw_loc.x + 8, block->draw_loc.y);
-        // text("B", block->draw_loc.x, block->draw_loc.y + 8);
-        // text("B", block->draw_loc.x + 8, block->draw_loc.y + 8);
     }
 #else
     char str[3];
@@ -192,6 +188,19 @@ void block_draw_block(struct Block *block) {
 
     text(str, block->draw_loc.x, block->draw_loc.y);
 #endif
+}
+
+void block_draw_all_blocks(struct Block *blocks, uint32_t size) {
+    for (uint32_t i = 0; i < size; i++) {
+        if (blocks[i].layer == LAYER_LOWER) {
+            block_draw_block(&blocks[i]);
+        }
+    }
+    for (uint32_t i = 0; i < size; i++) {
+        if (blocks[i].layer == LAYER_MAIN) {
+            block_draw_block(&blocks[i]);
+        }
+    }
 }
 
 int block_decide_layer(Terrain t, int cur_layer) {

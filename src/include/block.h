@@ -8,8 +8,6 @@
 #include "terrain_map.h"
 #include "types.h"
 
-struct TerrainMap;
-
 // a block for puzzles which can be pushed by the player
 struct Block {
     uint16_t id;
@@ -52,3 +50,5 @@ bool block_is_push_attempted(const struct Player *p, const struct Block *b,
                              const struct InputState *i, enum Direction *d);
 
 void block_update_layer(struct Block *b, const struct TerrainMap *terrain_map);
+
+void block_draw_all_blocks(struct Block *blocks, uint32_t size);

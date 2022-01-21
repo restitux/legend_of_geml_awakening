@@ -98,8 +98,11 @@ void on_update() {
         if (!is_animating) {
             block_update_layer(b, &terrain);
         }
-        block_draw_block(b);
     }
+
+    block_draw_all_blocks(game_state.currentRoom.blocks.b,
+                          game_state.currentRoom.blocks.size);
+
     draw_player(&game_state.player);
 
     room_draw_room(game_state.player.loc.room.x, game_state.player.loc.room.y,
