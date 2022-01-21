@@ -2,6 +2,7 @@
 
 #include "../../res/map/tiled.h"
 
+#include "../../res/data/block_lower_sprite.h"
 #include "../../res/data/block_sprite.h"
 
 #include "configuration.h"
@@ -17,7 +18,7 @@
 //  CONFIGURATION
 //---------------------------------
 #define BLOCK_RAISED_SPRITE block_sprite
-#define BLOCK_LOWERED_SPRITE
+#define BLOCK_LOWERED_SPRITE block3
 
 void block_new(struct GridCoordinate loc, struct Block *block) {
     *block = (struct Block){
@@ -26,7 +27,14 @@ void block_new(struct GridCoordinate loc, struct Block *block) {
         .draw_loc = coordinate_grid_to_screen(&loc),
         .raised_sprite =
             {
-                .sprite_sheet = block_sprite,
+                .sprite_sheet = BLOCK_RAISED_SPRITE,
+                .x = 0,
+                .y = 0,
+                .sheet_width = 16,
+            },
+        .lowered_sprite =
+            {
+                .sprite_sheet = BLOCK_LOWERED_SPRITE,
                 .x = 0,
                 .y = 0,
                 .sheet_width = 16,
@@ -169,10 +177,11 @@ void block_draw_block(struct Block *block) {
     if (block->layer == 0) {
         sprite_draw_sprite_frame(&block->raised_sprite, &block->draw_loc);
     } else {
-        text("B", block->draw_loc.x, block->draw_loc.y);
-        text("B", block->draw_loc.x + 8, block->draw_loc.y);
-        text("B", block->draw_loc.x, block->draw_loc.y + 8);
-        text("B", block->draw_loc.x + 8, block->draw_loc.y + 8);
+        sprite_draw_sprite_frame(&block->lowered_sprite, &block->draw_loc);
+        // text("B", block->draw_loc.x, block->draw_loc.y);
+        // text("B", block->draw_loc.x + 8, block->draw_loc.y);
+        // text("B", block->draw_loc.x, block->draw_loc.y + 8);
+        // text("B", block->draw_loc.x + 8, block->draw_loc.y + 8);
     }
 #else
     char str[3];
