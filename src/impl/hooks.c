@@ -89,11 +89,12 @@ void on_update() {
         enum Direction d;
         if (!is_animating && block_is_push_attempted(&game_state.player, b,
                                                      &game_state.inputs, &d)) {
-            block_push_begin(&game_state.player, b, d, &terrain, &animation);
+            block_push_begin(&game_state.player, b, d, &terrain,
+                             &game_state.inputs, &animation);
             is_animating = true;
         }
         if (is_animating) {
-            is_animating = block_push_step(&animation, &game_state.inputs);
+            is_animating = block_push_step(&animation);
         }
         if (!is_animating) {
             block_update_layer(b, &terrain);

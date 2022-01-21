@@ -39,10 +39,11 @@ void block_new(struct GridCoordinate loc, struct Block *block);
 void block_push_begin(struct Player *player, struct Block *block,
                       enum Direction push_dir,
                       const struct TerrainMap *terrain_map,
+                      const struct InputState *i,
                       struct BlockPushAnimation *out);
 
 // step the block push. If animation is complete, returns false
-bool block_push_step(struct BlockPushAnimation *push, struct InputState *i);
+bool block_push_step(struct BlockPushAnimation *push);
 
 void block_draw_block(struct Block *block);
 

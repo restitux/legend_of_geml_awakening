@@ -62,9 +62,6 @@ bool block_move_target_valid(struct Block *b,
     struct ScreenCoordinate target_corners[4];
     bounding_box_corners(&target_bb, target_corners);
 
-    debug_bb_draw(&current_bb);
-    debug_bb_draw(&target_bb);
-
     bool valid_move = true;
     for (int i = 0; i < 4; i++) {
         if (!bounding_box_contains_point(&current_bb, target_corners[i])) {
@@ -76,9 +73,37 @@ bool block_move_target_valid(struct Block *b,
     return valid_move;
 }
 
+bool block_push_input_just_pressed(const struct InputState *i,
+                                   enum Direction d) {
+    switch (d) {
+    case DIRECTION_UP:
+        return i->button_up.justPressed;
+    case DIRECTION_DOWN:
+        return i->button_down.justPressed;
+    case DIRECTION_LEFT:
+        return i->button_left.justPressed;
+    case DIRECTION_RIGHT:
+        return i->button_right.justPressed;
+    default:
+        break;
+    }
+}
+void block_push_snap_player(struct BlockPushAnimation *push) {
+    push->player->loc.screen = push->block->draw_loc;
+    if (push->dir == DIRECTION_UP) {
+        push->player->loc.screen.y += (BLOCK_PLAYER_SNAP_DIST - 8);
+    } else if (push->dir == DIRECTION_DOWN) {
+        push->player->loc.screen.y -= BLOCK_PLAYER_SNAP_DIST;
+    } else if (push->dir == DIRECTION_LEFT) {
+        push->player->loc.screen.x += BLOCK_PLAYER_SNAP_DIST;
+    } else if (push->dir == DIRECTION_RIGHT) {
+        push->player->loc.screen.x -= BLOCK_PLAYER_SNAP_DIST;
+    }
+}
 void block_push_begin(struct Player *player, struct Block *block,
                       enum Direction push_dir,
                       const struct TerrainMap *terrain_map,
+                      const struct InputState *i,
                       struct BlockPushAnimation *out) {
 
     struct GridCoordinate player_snap = block->loc;
@@ -99,7 +124,7 @@ void block_push_begin(struct Player *player, struct Block *block,
         player_snap.x -= 2;
     }
 
-    player->loc.screen = coordinate_grid_to_screen(&player_snap);
+    // player->loc.screen = coordinate_grid_to_screen(&player_snap);
     struct ScreenCoordinate block_target_screen_loc =
         coordinate_grid_to_screen(&target_loc);
 
@@ -109,7 +134,8 @@ void block_push_begin(struct Player *player, struct Block *block,
     ONLY_DEBUG(debug_bb_draw(&target_bb));
 
     uint8_t animation_time = 8 * BLOCK_FRAMES_PER_MOVE;
-    if (!block_move_target_valid(block, block_target_screen_loc, terrain_map)) {
+    if (!block_move_target_valid(block, block_target_screen_loc, terrain_map) ||
+        !block_push_input_just_pressed(i, push_dir)) {
         // move is not valid
         animation_time = 0;
         target_loc = block->loc;
@@ -122,19 +148,8 @@ void block_push_begin(struct Player *player, struct Block *block,
         .remainingFrames = animation_time,
         .dir = push_dir,
     };
-}
 
-void block_push_snap_player(struct BlockPushAnimation *push) {
-    push->player->loc.screen = push->block->draw_loc;
-    if (push->dir == DIRECTION_UP) {
-        push->player->loc.screen.y += BLOCK_SIZE - 8 - PLAYER_COLLISION_BUFFER;
-    } else if (push->dir == DIRECTION_DOWN) {
-        push->player->loc.screen.y -= BLOCK_SIZE - PLAYER_COLLISION_BUFFER;
-    } else if (push->dir == DIRECTION_LEFT) {
-        push->player->loc.screen.x += BLOCK_SIZE + PLAYER_COLLISION_BUFFER;
-    } else if (push->dir == DIRECTION_RIGHT) {
-        push->player->loc.screen.x -= BLOCK_SIZE - PLAYER_COLLISION_BUFFER;
-    }
+    block_push_snap_player(out);
 }
 
 void block_push_end(struct BlockPushAnimation *push) {
@@ -143,12 +158,7 @@ void block_push_end(struct BlockPushAnimation *push) {
     block_push_snap_player(push);
 }
 
-bool block_push_step(struct BlockPushAnimation *push, struct InputState *i) {
-    if (!input_any_dir_pressed(i) &&
-        push->remainingFrames > ((8 * BLOCK_FRAMES_PER_MOVE) - 2)) {
-        push->target_loc = push->block->loc;
-        push->remainingFrames = 0; // cancel
-    }
+bool block_push_step(struct BlockPushAnimation *push) {
     if (push->remainingFrames == 0) {
         block_push_end(push);
         return false;
