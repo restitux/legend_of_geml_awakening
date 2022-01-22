@@ -49,8 +49,16 @@ bool block_is_terrain_passable(const struct Block *b, Terrain t) {
     enum TerrianType cur_layer = terrain_type(t, b->layer);
     enum TerrianType lower_layer = terrain_type(t, b->layer + 1);
 
-    return cur_layer == TERRAIN_NORMAL || lower_layer == TERRAIN_NORMAL ||
-           lower_layer == TERRAIN_BLOCK || cur_layer == TERRAIN_SLIPPERY;
+    bool normal_ground = cur_layer == TERRAIN_NORMAL;
+    bool ice_ground =
+        (lower_layer == TERRAIN_SLIPPERY) && (cur_layer == TERRAIN_INVALID);
+
+    bool pit_ground = (lower_layer == TERRAIN_NORMAL);
+
+    bool block_ground =
+        (lower_layer == TERRAIN_BLOCK) && (cur_layer == TERRAIN_INVALID);
+
+    return normal_ground || ice_ground || pit_ground || block_ground;
 }
 
 bool block_move_target_valid(struct Block *b,
@@ -239,7 +247,7 @@ int block_decide_layer(Terrain t, int cur_layer) {
         }
         return LAYER_MAIN;
     } else {
-        if (main == TERRAIN_NORMAL || main == TERRAIN_SLIPPERY) {
+        if (main == TERRAIN_NORMAL || lower == TERRAIN_SLIPPERY) {
             return LAYER_MAIN;
         }
         return LAYER_LOWER;

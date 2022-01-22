@@ -61,7 +61,8 @@ void move_player_if_valid(struct Player *player, enum Direction direction,
         if (cur_layer == TERRAIN_WALL) {
             can_pass = false;
         }
-        if (cur_layer == TERRAIN_INVALID && lower_layer != TERRAIN_BLOCK) {
+        if (cur_layer == TERRAIN_INVALID && lower_layer != TERRAIN_BLOCK &&
+            lower_layer != TERRAIN_SLIPPERY) {
             can_pass = false;
         }
     }

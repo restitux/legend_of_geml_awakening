@@ -21,8 +21,8 @@ void terrain_debug_draw(const struct TerrainMap *t) {
             if (main == TERRAIN_WALL) {
                 text("W", x * 8, y * 8);
             }
-            if (main == TERRAIN_SLIPPERY) {
-                text("G", x * 8, y * 8);
+            if (lower == TERRAIN_SLIPPERY && main == TERRAIN_INVALID) {
+                text("I", x * 8, y * 8);
             }
             if (main == TERRAIN_INVALID && lower == TERRAIN_BLOCK) {
                 text("S", x * 8, y * 8);
@@ -55,8 +55,8 @@ void copy_tilemap_state(struct TerrainMap *t, struct RoomCoordinate loc,
                     t->terrain[terrain_index] = TERRAIN_INVALID;
                 } else if (state == ROOM_ICE) {
                     t->terrain[terrain_index] =
-                        terrain_create(TERRAIN_SLIPPERY, LAYER_MAIN) |
-                        terrain_create(TERRAIN_INVALID, LAYER_LOWER);
+                        terrain_create(TERRAIN_INVALID, LAYER_MAIN) |
+                        terrain_create(TERRAIN_SLIPPERY, LAYER_LOWER);
                 }
             }
             if (collision_bit) {
