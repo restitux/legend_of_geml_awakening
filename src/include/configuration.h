@@ -21,6 +21,16 @@
 #endif
 
 /*
+--------GRID--------------
+*/
+
+#define GRID_SIZE 8
+
+/*
+---------------------------
+*/
+
+/*
 ---------PLAYER-----------
 */
 // margin that player can overlap collidable objects in pixels
@@ -47,7 +57,7 @@
 #define BLOCK_BOUNDING_BOX_BUFFER 3
 
 // block push animation distance in grid coords
-#define BLOCK_PUSH_DISTANCE 1
+#define BLOCK_PUSH_DISTANCE 2
 
 #define BLOCK_PLAYER_SNAP_DIST                                                 \
     (BLOCK_SIZE - BLOCK_BOUNDING_BOX_BUFFER - PLAYER_COLLISION_BUFFER)

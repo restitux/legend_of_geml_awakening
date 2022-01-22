@@ -6,6 +6,7 @@
 #include "block.h"
 #include "configuration.h"
 #include "entrances.h"
+#include "special_tile.h"
 
 #include "collision.h"
 
@@ -34,13 +35,6 @@ void on_room_enter() {
         }
     }
     game_state.currentRoom.blocks.size = index;
-    tracef("finished loading the following blocks:");
-    for (uint32_t i = 0; i < game_state.currentRoom.blocks.size; i++) {
-        struct Block *b = &game_state.currentRoom.blocks.b[i];
-
-        tracef("id: %d (index: %d); grid: %d, %d;", b->id, i, b->loc.x,
-               b->loc.y);
-    }
 }
 
 void on_room_exit() {
@@ -54,11 +48,6 @@ void on_room_exit() {
 }
 
 void on_game_launch() {
-    PALETTE[0] = 0x000099CC;
-    PALETTE[1] = 0x00000000;
-    PALETTE[2] = 0x00999999;
-    PALETTE[3] = 0x00FFFFFF;
-    *DRAW_COLORS = 0x4320;
 
     load_game();
 
@@ -71,12 +60,16 @@ struct BlockPushAnimation animation;
 struct TerrainMap terrain;
 
 void on_update() {
+    set_palette(game_state.currentRoom.state);
     room_draw_room(game_state.player.loc.room.x, game_state.player.loc.room.y,
                    &game_state.overworld->static_map);
-    terrain_map_update(&terrain, &game_state.currentRoom.blocks,
-                       game_state.currentRoom.loc, game_state.overworld);
+    terrain_map_update(&terrain, &game_state.currentRoom, game_state.overworld);
 
     update_input_state(&game_state.inputs);
+    if (game_state.inputs.button_x.justPressed) {
+        game_state.currentRoom.state += 1;
+        game_state.currentRoom.state %= 3;
+    }
 
     handle_movement(&game_state.player, &terrain, &game_state.inputs);
 
@@ -94,7 +87,7 @@ void on_update() {
             is_animating = true;
         }
         if (is_animating) {
-            is_animating = block_push_step(&animation);
+            is_animating = block_push_step(&animation, &terrain);
         }
         if (!is_animating) {
             block_update_layer(b, &terrain);

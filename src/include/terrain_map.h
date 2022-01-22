@@ -6,7 +6,8 @@ enum TerrianType {
     TERRAIN_NORMAL = 0,
     TERRAIN_WALL = 1,
     TERRAIN_SLIPPERY = 2,
-    TERRAIN_BLOCK = 4,
+    TERRAIN_BLOCK = 3,
+    TERRAIN_LAVA = 4,
 
     TERRAIN_INVALID = 0x0F,
 };

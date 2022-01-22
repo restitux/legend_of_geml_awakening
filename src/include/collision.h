@@ -7,8 +7,8 @@
 
 struct Block;
 
-void terrain_map_update(struct TerrainMap *t, struct RoomBlocks *blocks,
-                        struct RoomCoordinate loc, const struct TileMap *map);
+void terrain_map_update(struct TerrainMap *t, struct Room *room,
+                        const struct TileMap *map);
 
 uint8_t terrain_at_point(const struct TerrainMap *t, struct ScreenCoordinate p);
 

@@ -21,7 +21,7 @@ void terrain_debug_draw(const struct TerrainMap *t) {
             if (main == TERRAIN_WALL) {
                 text("W", x * 8, y * 8);
             }
-            if (main == TERRAIN_INVALID) {
+            if (main == TERRAIN_SLIPPERY) {
                 text("G", x * 8, y * 8);
             }
             if (main == TERRAIN_INVALID && lower == TERRAIN_BLOCK) {
@@ -32,7 +32,7 @@ void terrain_debug_draw(const struct TerrainMap *t) {
 }
 
 void copy_tilemap_state(struct TerrainMap *t, struct RoomCoordinate loc,
-                        const struct TileMap *map) {
+                        const struct TileMap *map, enum RoomState state) {
     uint32_t map_width = map->static_map.width;
     int room_start_x = loc.x * 20;
     int room_start_y = loc.y * 20;
@@ -51,9 +51,13 @@ void copy_tilemap_state(struct TerrainMap *t, struct RoomCoordinate loc,
             uint8_t special_bit = (special_byte >> bit_offset) & 0x1;
 
             if (special_bit) {
-                t->terrain[terrain_index] = TERRAIN_INVALID;
-                // terrain_create(TERRAIN_NORMAL, LAYER_LOWER) |
-                // terrain_create(TERRAIN_INVALID, LAYER_MAIN);
+                if (state == ROOM_WATER || state == ROOM_LAVA) {
+                    t->terrain[terrain_index] = TERRAIN_INVALID;
+                } else if (state == ROOM_ICE) {
+                    t->terrain[terrain_index] =
+                        terrain_create(TERRAIN_SLIPPERY, LAYER_MAIN) |
+                        terrain_create(TERRAIN_INVALID, LAYER_LOWER);
+                }
             }
             if (collision_bit) {
                 t->terrain[terrain_index] =
@@ -64,20 +68,20 @@ void copy_tilemap_state(struct TerrainMap *t, struct RoomCoordinate loc,
     }
 }
 
-void terrain_map_update(struct TerrainMap *t, struct RoomBlocks *blocks,
-                        struct RoomCoordinate loc, const struct TileMap *map) {
+void terrain_map_update(struct TerrainMap *t, struct Room *room,
+                        const struct TileMap *map) {
     clear_terrain(t);
-    copy_tilemap_state(t, loc, map);
+    copy_tilemap_state(t, room->loc, map, room->state);
 
-    for (uint32_t i = 0; i < blocks->size; i++) {
-        struct Block *block = &blocks->b[i];
+    for (uint32_t i = 0; i < room->blocks.size; i++) {
+        struct Block *block = &room->blocks.b[i];
 
         enum TerrainLayer layer = block->layer;
 
         Terrain terrain = terrain_create(TERRAIN_BLOCK, layer);
-
-        for (int x = block->loc.x; x < block->loc.x + 2; x++) {
-            for (int y = block->loc.y; y < block->loc.y + 2; y++) {
+        struct GridCoordinate block_loc = block_grid_loc(block);
+        for (int x = block_loc.x; x < block_loc.x + 2; x++) {
+            for (int y = block_loc.y; y < block_loc.y + 2; y++) {
                 int terrain_index = compute_terrain_index(x, y);
                 Terrain cur_terrain = t->terrain[terrain_index];
 
@@ -100,6 +104,7 @@ uint8_t terrain_at_point(const struct TerrainMap *t,
     if (g.x >= 20 || g.y >= 20) {
         return 0;
     }
+    rect(g.x * 8, g.y * 8, 8, 8);
     return t->terrain[compute_terrain_index(g.x, g.y)];
 }
 

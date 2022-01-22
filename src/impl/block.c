@@ -23,8 +23,8 @@
 void block_new(struct GridCoordinate loc, struct Block *block) {
     *block = (struct Block){
         .layer = 0,
-        .loc = loc,
-        .draw_loc = coordinate_grid_to_screen(&loc),
+        // .loc = loc,
+        // .draw_loc = coordinate_grid_to_screen(&loc),
         .raised_sprite =
             {
                 .sprite_sheet = BLOCK_RAISED_SPRITE,
@@ -39,7 +39,10 @@ void block_new(struct GridCoordinate loc, struct Block *block) {
                 .y = 0,
                 .sheet_width = 16,
             },
+        .movable = movable_object_new(coordinate_grid_to_screen(&loc),
+                                      BLOCK_SIZE - 1, BLOCK_SIZE - 1),
     };
+    // bounding_box_uniform_shrink(&block->movable.bb, 1);
 }
 
 bool block_is_terrain_passable(const struct Block *b, Terrain t) {
@@ -47,17 +50,15 @@ bool block_is_terrain_passable(const struct Block *b, Terrain t) {
     enum TerrianType lower_layer = terrain_type(t, b->layer + 1);
 
     return cur_layer == TERRAIN_NORMAL || lower_layer == TERRAIN_NORMAL ||
-           lower_layer == TERRAIN_BLOCK;
+           lower_layer == TERRAIN_BLOCK || cur_layer == TERRAIN_SLIPPERY;
 }
 
 bool block_move_target_valid(struct Block *b,
                              struct ScreenCoordinate target_loc,
                              const struct TerrainMap *terrain_map) {
-    struct BoundingBox current_bb =
-        bounding_box_new(b->draw_loc, BLOCK_SIZE, BLOCK_SIZE);
+    struct BoundingBox current_bb = b->movable.bb;
     struct BoundingBox target_bb =
-        bounding_box_new(target_loc, BLOCK_SIZE, BLOCK_SIZE);
-    bounding_box_uniform_shrink(&target_bb, 1);
+        bounding_box_new(target_loc, BLOCK_SIZE - 1, BLOCK_SIZE - 1);
 
     struct ScreenCoordinate target_corners[4];
     bounding_box_corners(&target_bb, target_corners);
@@ -89,13 +90,13 @@ bool block_push_input_just_pressed(const struct InputState *i,
     }
 }
 void block_push_snap_player(struct BlockPushAnimation *push) {
-    push->player->loc.screen = push->block->draw_loc;
+    push->player->loc.screen = push->block->movable.bb.tl;
     if (push->dir == DIRECTION_UP) {
-        push->player->loc.screen.y += (BLOCK_PLAYER_SNAP_DIST - 8);
+        push->player->loc.screen.y += (BLOCK_PLAYER_SNAP_DIST - 8 - 1);
     } else if (push->dir == DIRECTION_DOWN) {
         push->player->loc.screen.y -= BLOCK_PLAYER_SNAP_DIST;
     } else if (push->dir == DIRECTION_LEFT) {
-        push->player->loc.screen.x += BLOCK_PLAYER_SNAP_DIST;
+        push->player->loc.screen.x += BLOCK_PLAYER_SNAP_DIST - 1;
     } else if (push->dir == DIRECTION_RIGHT) {
         push->player->loc.screen.x -= BLOCK_PLAYER_SNAP_DIST;
     }
@@ -106,9 +107,10 @@ void block_push_begin(struct Player *player, struct Block *block,
                       const struct InputState *i,
                       struct BlockPushAnimation *out) {
 
-    struct GridCoordinate player_snap = block->loc;
+    struct GridCoordinate player_snap =
+        coordinate_screen_to_grid(&block->movable.bb.tl);
 
-    struct GridCoordinate target_loc = block->loc;
+    struct GridCoordinate target_loc = player_snap;
 
     if (push_dir == DIRECTION_UP) {
         target_loc.y -= BLOCK_PUSH_DISTANCE;
@@ -133,12 +135,14 @@ void block_push_begin(struct Player *player, struct Block *block,
 
     ONLY_DEBUG(debug_bb_draw(&target_bb));
 
-    uint8_t animation_time = 8 * BLOCK_FRAMES_PER_MOVE;
+    uint8_t animation_time = 8 * BLOCK_FRAMES_PER_MOVE * BLOCK_PUSH_DISTANCE;
     if (!block_move_target_valid(block, block_target_screen_loc, terrain_map) ||
         !block_push_input_just_pressed(i, push_dir)) {
         // move is not valid
         animation_time = 0;
-        target_loc = block->loc;
+        target_loc = coordinate_screen_to_grid(&block->movable.bb.tl);
+    } else {
+        block->movable.last_moved_dir = push_dir;
     }
 
     *out = (struct BlockPushAnimation){
@@ -152,31 +156,41 @@ void block_push_begin(struct Player *player, struct Block *block,
     block_push_snap_player(out);
 }
 
-void block_push_end(struct BlockPushAnimation *push) {
-    push->block->loc = push->target_loc;
-    push->block->draw_loc = coordinate_grid_to_screen(&push->block->loc);
+void block_push_end(struct BlockPushAnimation *push,
+                    const struct TerrainMap *terrain_map) {
+    push->block->movable.bb.tl = coordinate_grid_to_screen(&push->target_loc);
+    // push->block->movable.bb.tl =
+    // coordinate_grid_to_screen(&push->block->loc);
     block_push_snap_player(push);
+
+    if (terrain_map) {
+    }
+    tracef("%d is checking slide", push->block->id);
+    movable_check_slide(&push->block->movable, terrain_map);
 }
 
-bool block_push_step(struct BlockPushAnimation *push) {
+bool block_push_step(struct BlockPushAnimation *push,
+                     const struct TerrainMap *terrain_map) {
     if (push->remainingFrames == 0) {
-        block_push_end(push);
+        block_push_end(push, terrain_map);
         return false;
     }
 
     if (push->remainingFrames % BLOCK_FRAMES_PER_MOVE == 0) {
         if (push->dir == DIRECTION_UP) {
-            push->block->draw_loc.y -= 1;
+            push->block->movable.bb.tl.y -= 1;
         } else if (push->dir == DIRECTION_DOWN) {
-            push->block->draw_loc.y += 1;
+            push->block->movable.bb.tl.y += 1;
         } else if (push->dir == DIRECTION_LEFT) {
-            push->block->draw_loc.x -= 1;
+            push->block->movable.bb.tl.x -= 1;
         } else if (push->dir == DIRECTION_RIGHT) {
-            push->block->draw_loc.x += 1;
+            push->block->movable.bb.tl.x += 1;
         }
     }
 
     block_push_snap_player(push);
+
+    push->block->movable.bb.tl = push->block->movable.bb.tl;
 
     push->remainingFrames -= 1;
     return true;
@@ -185,9 +199,9 @@ bool block_push_step(struct BlockPushAnimation *push) {
 void block_draw_block(struct Block *block) {
 #ifndef BLOCK_DEBUG_DRAW_ID
     if (block->layer == 0) {
-        sprite_draw_sprite_frame(&block->raised_sprite, &block->draw_loc);
+        sprite_draw_sprite_frame(&block->raised_sprite, &block->movable.bb.tl);
     } else {
-        sprite_draw_sprite_frame(&block->lowered_sprite, &block->draw_loc);
+        sprite_draw_sprite_frame(&block->lowered_sprite, &block->movable.bb.tl);
     }
 #else
     char str[3];
@@ -196,7 +210,7 @@ void block_draw_block(struct Block *block) {
 
     str[2] = 0;
 
-    text(str, block->draw_loc.x, block->draw_loc.y);
+    text(str, block->movable.bb.tl.x, block->movable.bb.tl.y);
 #endif
 }
 
@@ -225,7 +239,7 @@ int block_decide_layer(Terrain t, int cur_layer) {
         }
         return LAYER_MAIN;
     } else {
-        if (main == TERRAIN_NORMAL) {
+        if (main == TERRAIN_NORMAL || main == TERRAIN_SLIPPERY) {
             return LAYER_MAIN;
         }
         return LAYER_LOWER;
@@ -235,7 +249,7 @@ int block_decide_layer(Terrain t, int cur_layer) {
 void block_update_layer(struct Block *b, const struct TerrainMap *terrain_map) {
 
     struct BoundingBox bb =
-        bounding_box_new(b->draw_loc, BLOCK_SIZE - 1, BLOCK_SIZE - 1);
+        bounding_box_new(b->movable.bb.tl, BLOCK_SIZE - 1, BLOCK_SIZE - 1);
 
     struct ScreenCoordinate corners[4];
     bounding_box_corners(&bb, corners);
@@ -250,12 +264,13 @@ void block_update_layer(struct Block *b, const struct TerrainMap *terrain_map) {
     } else if (layer == 0) {
         b->layer = 0;
     }
+
+    movable_update_slide(&b->movable, terrain_map);
 }
 
 bool block_is_push_attempted(const struct Player *p, const struct Block *b,
                              const struct InputState *i, enum Direction *d) {
-    struct BoundingBox box_bb =
-        bounding_box_new(coordinate_grid_to_screen(&b->loc), 16, 16);
+    struct BoundingBox box_bb = b->movable.bb;
     bounding_box_uniform_shrink(&box_bb, BLOCK_BOUNDING_BOX_BUFFER);
 
     struct BoundingBox player_bb = player_make_bb(p);
@@ -284,4 +299,8 @@ bool block_is_push_attempted(const struct Player *p, const struct Block *b,
     }
 
     return false;
+}
+
+struct GridCoordinate block_grid_loc(const struct Block *b) {
+    return coordinate_screen_to_grid(&b->movable.bb.tl);
 }

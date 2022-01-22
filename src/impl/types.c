@@ -17,6 +17,29 @@ coordinate_grid_to_screen(const struct GridCoordinate *c) {
     };
 }
 
+struct ScreenCoordinate
+coordinate_screen_add_direction(struct ScreenCoordinate a, enum Direction dir,
+                                uint8_t amount) {
+    switch (dir) {
+    case DIRECTION_UP:
+        a.y -= amount;
+        break;
+    case DIRECTION_DOWN:
+        a.y += amount;
+        break;
+    case DIRECTION_LEFT:
+        a.x -= amount;
+        break;
+    case DIRECTION_RIGHT:
+        a.x += amount;
+        break;
+    default:
+        break;
+    }
+
+    return a;
+}
+
 struct WorldCoordinate coordinate_global_to_world(uint32_t x, uint32_t y) {
     struct RoomCoordinate room = {
         .x = x / 160,

@@ -3,6 +3,7 @@
 #include <stdbool.h>
 
 #include "input.h"
+#include "movable.h"
 #include "player.h"
 #include "sprite.h"
 #include "terrain_map.h"
@@ -12,11 +13,13 @@
 struct Block {
     uint16_t id;
     uint8_t layer;
-    struct GridCoordinate loc;
-    struct ScreenCoordinate draw_loc;
+    // struct GridCoordinate loc;
+    // struct ScreenCoordinate draw_loc;
 
     struct SpriteFrame raised_sprite;
     struct SpriteFrame lowered_sprite;
+
+    struct MovableObject movable;
 };
 
 struct BlockPushAnimation {
@@ -43,7 +46,8 @@ void block_push_begin(struct Player *player, struct Block *block,
                       struct BlockPushAnimation *out);
 
 // step the block push. If animation is complete, returns false
-bool block_push_step(struct BlockPushAnimation *push);
+bool block_push_step(struct BlockPushAnimation *push,
+                     const struct TerrainMap *terrain_map);
 
 void block_draw_block(struct Block *block);
 
@@ -53,3 +57,5 @@ bool block_is_push_attempted(const struct Player *p, const struct Block *b,
 void block_update_layer(struct Block *b, const struct TerrainMap *terrain_map);
 
 void block_draw_all_blocks(struct Block *blocks, uint32_t size);
+
+struct GridCoordinate block_grid_loc(const struct Block *b);

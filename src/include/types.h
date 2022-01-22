@@ -54,6 +54,10 @@ void coordinate_align_to_grid(struct ScreenCoordinate *c);
 struct ScreenCoordinate coordinate_screen_add(struct ScreenCoordinate a,
                                               struct ScreenCoordinate b);
 
+struct ScreenCoordinate
+coordinate_screen_add_direction(struct ScreenCoordinate a, enum Direction dir,
+                                uint8_t amount);
+
 struct BoundingBox bounding_box_new(struct ScreenCoordinate top_left,
                                     uint32_t width, uint32_t height);
 
