@@ -6,15 +6,15 @@
 #include "../../res/map/tiled.h"
 #include "wasm4.h"
 
-void room_draw_tile(uint16_t tile, uint32_t x, uint32_t y,
+void room_draw_tile(uint8_t tile_id, uint8_t rotations, uint32_t x, uint32_t y,
                     const uint8_t *tileset) {
-    uint16_t tile_id = (tile & 0xFF);
-    // uint32_t rotations = ((tile & (0xF << 28)) >> 28);
-    // uint32_t rotations = ((tile & (0xF << 12)) >> 12);
-    uint16_t rotations = ((tile & (0xF << ((sizeof(tile) * 8) - 4))) >>
-                          ((sizeof(tile) * 8) - 4));
-    //  uint32_t rotations = ((tile & (0xF << ((sizeof(tile) * 8) - 4))) >>
-    //                      ((sizeof(tile) * 8) - 4));
+    // uint16_t tile_id = (tile & 0xFF);
+    //  uint32_t rotations = ((tile & (0xF << 28)) >> 28);
+    //  uint32_t rotations = ((tile & (0xF << 12)) >> 12);
+    //  uint16_t rotations = ((tile & (0xF << ((sizeof(tile) * 8) - 4))) >>
+    //                       ((sizeof(tile) * 8) - 4));
+    //   uint32_t rotations = ((tile & (0xF << ((sizeof(tile) * 8) - 4))) >>
+    //                       ((sizeof(tile) * 8) - 4));
 
     uint32_t flags = BLIT_2BPP;
 
@@ -42,14 +42,22 @@ void room_draw_tile(uint16_t tile, uint32_t x, uint32_t y,
     blit(tileset + byte, x * 8, y * 8, 8, 8, flags);
 }
 
+uint8_t get_tile_rotations(const struct TileMap_MapLayer *tilemap,
+                           int tile_index) {
+    int shift_len = (tile_index % 2) * 4;
+    return (tilemap->map_rotations[tile_index / 2] >> shift_len);
+}
+
 void room_draw_room(uint32_t room_x, uint32_t room_y,
                     const struct TileMap_MapLayer *map) {
     int room_start_y = room_y * 20;
     int room_start_x = room_x * 20;
     for (int x = room_start_x; x < room_start_x + 20; x++) {
         for (int y = room_start_y; y < room_start_y + 20; y++) {
+
             int tile_index = x + (y * map->width);
-            room_draw_tile(map->map[tile_index], x - room_start_x,
+            uint8_t rotations = get_tile_rotations(map, tile_index);
+            room_draw_tile(map->map[tile_index], rotations, x - room_start_x,
                            y - room_start_y, map->tileset->tileset);
         }
     }
