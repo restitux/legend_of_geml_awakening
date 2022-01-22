@@ -41,6 +41,12 @@ bool input_any_dir_pressed(const struct InputState *inputs) {
             inputs->button_left.isPressed || inputs->button_right.isPressed);
 }
 
+bool input_any_dir_just_pressed(const struct InputState *inputs) {
+    return (inputs->button_up.justPressed || inputs->button_down.justPressed ||
+            inputs->button_left.justPressed ||
+            inputs->button_right.justPressed);
+}
+
 bool input_get_pressed_direction(const struct InputState *inputs,
                                  enum InputAxis axis, enum Direction *out) {
     if (axis == INPUT_AXIS_VERTICAL) {

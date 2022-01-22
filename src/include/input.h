@@ -29,6 +29,8 @@ void update_input_state(struct InputState *inputs);
 
 bool input_any_dir_pressed(const struct InputState *inputs);
 
+bool input_any_dir_just_pressed(const struct InputState *inputs);
+
 bool input_get_pressed_direction(const struct InputState *inputs,
                                  enum InputAxis axis, enum Direction *out);
 
