@@ -97,5 +97,5 @@ void on_update() {
                                         &game_state.overworld->special_map));
 
     handle_entrances();
-    terrain_debug_draw(&terrain);
+    // terrain_debug_draw(&terrain);
 }

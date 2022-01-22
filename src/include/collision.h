@@ -25,6 +25,7 @@ bool terrain_is_slide_target(const struct BoundingBox *target_box,
 
 uint8_t terrain_calc_slide_distance(struct BoundingBox moved, enum Direction d,
                                     const struct TerrainMap *tm,
+                                    uint8_t step_size,
                                     TerrainPointCheck slide_over_check);
 
 bool terrain_is_check_all_target(const struct BoundingBox *target_box,

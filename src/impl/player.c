@@ -56,10 +56,64 @@ bool player_is_point_walkable(Terrain t) {
     return not_wall || sunk_block;
 }
 
+void player_do_slide(struct BoundingBox slide_check, struct Player *player,
+                     const struct TerrainMap *terrain_map,
+                     enum Direction direction) {
+    // slide_check.width = GRID_SIZE - 1;
+    coordinate_align_to_grid(&slide_check.tl);
+    debug_bb_draw(&slide_check);
+    // slide_check.tl.x = ((slide_check.tl.x / 2) * 2) + (slide_check.tl.x % 2);
+    // slide_check.tl.y = ((slide_check.tl.y / 2) * 2) + +(slide_check.tl.y %
+    // 2);
+    uint8_t start_move_amount = GRID_SIZE * 2;
+    uint8_t step_size = GRID_SIZE * 2;
+    if (direction == DIRECTION_LEFT || direction == DIRECTION_RIGHT ||
+        direction == DIRECTION_UP) {
+        step_size = GRID_SIZE * 2;
+    }
+    if (direction == DIRECTION_LEFT || direction == DIRECTION_RIGHT) {
+        start_move_amount = GRID_SIZE * 2;
+    }
+    slide_check.tl = coordinate_screen_add_direction(slide_check.tl, direction,
+                                                     start_move_amount);
+    if (terrain_is_slide_target(&slide_check, terrain_map)) {
+        // player->loc.screen = slide_check.tl;
+        // player->loc.screen.y -= PLAYER_SIZE / 2;
+        uint8_t slide_distance =
+            terrain_calc_slide_distance(slide_check, direction, terrain_map,
+                                        step_size, player_is_point_walkable);
+
+        // coordinate_align_to_grid(&player->loc.screen);
+        player->is_animating = true;
+
+        struct ScreenCoordinate target_top_left = player->loc.screen;
+        coordinate_align_to_grid(&target_top_left);
+        // target_top_left.y += PLAYER_SIZE / 2;
+
+        player->animation = (struct Animation){
+            .animation_subject = &(player->loc.screen),
+            .end_loc = coordinate_screen_add_direction(
+                target_top_left, direction, slide_distance),
+            .frame_per_move = 1,
+            .frames_remaining = slide_distance,
+            .move_direction = direction,
+        };
+        return;
+    }
+}
+
 void move_player_if_valid(struct Player *player, enum Direction direction,
                           const struct TerrainMap *terrain_map) {
 
     struct BoundingBox bb = player_make_bb(player);
+
+    player_do_slide(
+        bounding_box_new(player->loc.screen, PLAYER_SIZE - 1, PLAYER_SIZE - 1),
+        player, terrain_map, direction);
+    if (player->is_animating) {
+        return;
+    }
+
     struct WorldCoordinate potential_loc = player->loc;
     player_make_potential_move(&bb, &potential_loc, direction);
 
@@ -114,12 +168,14 @@ void handle_movement(struct Player *player,
                      const struct InputState *inputs) {
     if (player->is_animating) {
         player->is_animating = animtion_next_frame(&player->animation);
+        return;
     }
     enum Direction d;
     if (input_get_pressed_direction(inputs, INPUT_AXIS_VERTICAL, &d)) {
         move_player_if_valid(player, d, terrain_map);
     }
-    if (input_get_pressed_direction(inputs, INPUT_AXIS_HORIZONTAL, &d)) {
+    if (input_get_pressed_direction(inputs, INPUT_AXIS_HORIZONTAL, &d) &&
+        !player->is_animating) {
         move_player_if_valid(player, d, terrain_map);
     }
 
