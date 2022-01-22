@@ -113,7 +113,9 @@ bool check_room_change(struct Player *player) {
 void handle_movement(struct Player *player,
                      const struct TerrainMap *terrain_map,
                      const struct InputState *inputs) {
-
+    if (player->is_animating) {
+        player->is_animating = animtion_next_frame(&player->animation);
+    }
     enum Direction d;
     if (input_get_pressed_direction(inputs, INPUT_AXIS_VERTICAL, &d)) {
         move_player_if_valid(player, d, terrain_map);
