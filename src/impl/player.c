@@ -17,34 +17,40 @@ struct BoundingBox player_make_bb(const struct Player *player) {
     return bb;
 }
 
+void player_make_potential_move(struct BoundingBox *moved,
+                                struct WorldCoordinate *potential,
+                                enum Direction direction) {
+    switch (direction) {
+    case DIRECTION_UP:
+        (*moved).tl.y -= 1;
+        (*potential).screen.y -= 1;
+        break;
+
+    case DIRECTION_DOWN:
+        (*moved).tl.y += 1;
+        (*potential).screen.y += 1;
+        break;
+
+    case DIRECTION_LEFT:
+        (*moved).tl.x -= 1;
+        (*potential).screen.x -= 1;
+        break;
+
+    case DIRECTION_RIGHT:
+        (*moved).tl.x += 1;
+        (*potential).screen.x += 1;
+        break;
+    default:
+        break;
+    }
+}
+
 void move_player_if_valid(struct Player *player, enum Direction direction,
                           const struct TerrainMap *terrain_map) {
 
     struct BoundingBox bb = player_make_bb(player);
     struct WorldCoordinate potential_loc = player->loc;
-    switch (direction) {
-    case DIRECTION_UP:
-        bb.tl.y -= 1;
-        potential_loc.screen.y -= 1;
-        break;
-
-    case DIRECTION_DOWN:
-        bb.tl.y += 1;
-        potential_loc.screen.y += 1;
-        break;
-
-    case DIRECTION_LEFT:
-        bb.tl.x -= 1;
-        potential_loc.screen.x -= 1;
-        break;
-
-    case DIRECTION_RIGHT:
-        bb.tl.x += 1;
-        potential_loc.screen.x += 1;
-        break;
-    default:
-        break;
-    }
+    player_make_potential_move(&bb, &potential_loc, direction);
 
     struct ScreenCoordinate corners[4];
     bounding_box_corners(&bb, corners);

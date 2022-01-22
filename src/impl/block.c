@@ -318,22 +318,8 @@ void make_push_animations(struct Block *b, struct Player *p, enum Direction d,
 
 void block_make_slide_animation(struct Block *b, struct BoundingBox moved,
                                 enum Direction d, const struct TerrainMap *tm) {
-    // struct ScreenCoordinate slide_end = moved.tl;
     uint8_t slide_distance =
-        BLOCK_SIZE; // we already know we're moving at least one block
-    for (;;) {      // this loop is dedicated to Robby
-        moved.tl = coordinate_screen_add_direction(moved.tl, d, BLOCK_SIZE);
-        if (block_is_terrain_slide_target(&moved, tm)) {
-            slide_distance += BLOCK_SIZE;
-        } else {
-            break;
-        }
-    }
-
-    if (block_is_terrain_push_target(&moved, tm)) {
-        slide_distance += BLOCK_SIZE; // finish the push on the other side of
-                                      // ice
-    }
+        terrain_calc_slide_distance(moved, d, tm, block_is_point_pushable);
 
     struct Animation block_animation = {
         .animation_subject = &b->movable.bb.tl,

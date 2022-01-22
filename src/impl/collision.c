@@ -1,4 +1,5 @@
 #include "collision.h"
+#include "configuration.h"
 #include "wasm4.h"
 
 void clear_terrain(struct TerrainMap *t) {
@@ -117,4 +118,60 @@ uint8_t terrain_type(Terrain terrain, enum TerrainLayer layer) {
 
 Terrain terrain_create(enum TerrianType t, enum TerrainLayer l) {
     return (t << (l * 4));
+}
+
+bool terrain_is_slide_target(const struct BoundingBox *target_box,
+                             const struct TerrainMap *tm) {
+    return terrain_is_check_all_target(target_box, tm,
+                                       terrain_is_point_slidable);
+}
+
+bool terrain_is_check_all_target(const struct BoundingBox *target_box,
+                                 const struct TerrainMap *tm,
+                                 TerrainPointCheck check) {
+    struct ScreenCoordinate corners[4];
+    bounding_box_corners(target_box, corners);
+
+    int passable_corners = 0;
+    for (int i = 0; i < 4; i++) {
+        Terrain t = terrain_at_point(tm, corners[i]);
+
+        if (check(t))
+
+        {
+            passable_corners += 1;
+        }
+    }
+
+    return passable_corners == 4;
+}
+
+uint8_t terrain_calc_slide_distance(struct BoundingBox moved, enum Direction d,
+                                    const struct TerrainMap *tm,
+                                    TerrainPointCheck slide_over_check) {
+    // struct ScreenCoordinate slide_end = moved.tl;
+    uint8_t slide_distance =
+        BLOCK_SIZE; // we already know we're moving at least one block
+    for (;;) {      // this loop is dedicated to Robby
+        moved.tl = coordinate_screen_add_direction(moved.tl, d, BLOCK_SIZE);
+        if (terrain_is_slide_target(&moved, tm)) {
+            slide_distance += BLOCK_SIZE;
+        } else {
+            break;
+        }
+    }
+
+    if (terrain_is_check_all_target(&moved, tm, slide_over_check)) {
+        slide_distance += BLOCK_SIZE; // finish the push on the other side of
+                                      // ice
+    }
+
+    return slide_distance;
+}
+
+bool terrain_is_point_slidable(Terrain t) {
+    enum TerrianType cur_layer = terrain_type(t, LAYER_MAIN);
+    enum TerrianType lower_layer = terrain_type(t, LAYER_LOWER);
+
+    return (cur_layer == TERRAIN_INVALID) && (lower_layer == TERRAIN_SLIPPERY);
 }
