@@ -45,6 +45,17 @@ void player_make_potential_move(struct BoundingBox *moved,
     }
 }
 
+bool player_is_point_walkable(Terrain t) {
+    enum TerrianType cur_layer = terrain_type(t, LAYER_MAIN);
+    enum TerrianType lower_layer = terrain_type(t, LAYER_LOWER);
+
+    bool not_wall =
+        (cur_layer != TERRAIN_WALL && lower_layer == TERRAIN_INVALID);
+    bool sunk_block =
+        (cur_layer == TERRAIN_INVALID && lower_layer == TERRAIN_BLOCK);
+    return not_wall || sunk_block;
+}
+
 void move_player_if_valid(struct Player *player, enum Direction direction,
                           const struct TerrainMap *terrain_map) {
 
@@ -52,26 +63,8 @@ void move_player_if_valid(struct Player *player, enum Direction direction,
     struct WorldCoordinate potential_loc = player->loc;
     player_make_potential_move(&bb, &potential_loc, direction);
 
-    struct ScreenCoordinate corners[4];
-    bounding_box_corners(&bb, corners);
-
-    bool can_pass = true;
-    for (int i = 0; i < 4; i++) {
-        Terrain t = terrain_at_point(terrain_map, corners[i]);
-
-        // enum TerrianType cur_layer = terrain_type(t, player->layer);
-        // // enum TerrainLayer layer = terrain_type(t);
-        enum TerrianType cur_layer = terrain_type(t, player->layer);
-        enum TerrianType lower_layer = terrain_type(t, player->layer + 1);
-
-        if (cur_layer == TERRAIN_WALL) {
-            can_pass = false;
-        }
-        if (cur_layer == TERRAIN_INVALID && lower_layer != TERRAIN_BLOCK &&
-            lower_layer != TERRAIN_SLIPPERY) {
-            can_pass = false;
-        }
-    }
+    bool can_pass =
+        terrain_is_check_all_target(&bb, terrain_map, player_is_point_walkable);
 
     if (can_pass) {
         if (potential_loc.screen.y < player->loc.screen.y) {

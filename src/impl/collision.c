@@ -103,7 +103,8 @@ uint8_t terrain_at_point(const struct TerrainMap *t,
                          struct ScreenCoordinate p) {
     struct GridCoordinate g = coordinate_screen_to_grid(&p);
     if (g.x >= 20 || g.y >= 20) {
-        return 0;
+        return terrain_create(TERRAIN_NORMAL, LAYER_MAIN) |
+               terrain_create(TERRAIN_INVALID, LAYER_LOWER);
     }
     rect(g.x * 8, g.y * 8, 8, 8);
     return t->terrain[compute_terrain_index(g.x, g.y)];
