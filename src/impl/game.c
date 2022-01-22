@@ -10,7 +10,7 @@ void init_game() {
     game_state = (struct GameState){
         .valid = true,
         .player = {.layer = 0,
-                   .loc = {.room = {0, 0}, .screen = {35, 70}},
+                   .loc = {.room = {0, 0}, .screen = {35, 100}},
                    .sprite = {.sprite_sheet = player_animation,
                               .sheet_height = player_animationHeight,
                               .sheet_width = player_animationWidth,

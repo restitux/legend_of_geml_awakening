@@ -150,13 +150,14 @@ bool terrain_is_check_all_target(const struct BoundingBox *target_box,
 uint8_t terrain_calc_slide_distance(struct BoundingBox moved, enum Direction d,
                                     const struct TerrainMap *tm,
                                     uint8_t step_size,
+                                    TerrainPointCheck ice_check,
                                     TerrainPointCheck slide_over_check) {
     // struct ScreenCoordinate slide_end = moved.tl;
     uint8_t slide_distance =
         step_size; // we already know we're moving at least one block
     for (;;) {     // this loop is dedicated to Robby
         moved.tl = coordinate_screen_add_direction(moved.tl, d, step_size);
-        if (terrain_is_slide_target(&moved, tm)) {
+        if (terrain_is_check_all_target(&moved, tm, ice_check)) {
             slide_distance += step_size;
         } else {
             break;

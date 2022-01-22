@@ -19,26 +19,26 @@ struct BoundingBox player_make_bb(const struct Player *player) {
 
 void player_make_potential_move(struct BoundingBox *moved,
                                 struct WorldCoordinate *potential,
-                                enum Direction direction) {
+                                enum Direction direction, uint8_t dist) {
     switch (direction) {
     case DIRECTION_UP:
-        (*moved).tl.y -= 1;
-        (*potential).screen.y -= 1;
+        (*moved).tl.y -= dist;
+        (*potential).screen.y -= dist;
         break;
 
     case DIRECTION_DOWN:
-        (*moved).tl.y += 1;
-        (*potential).screen.y += 1;
+        (*moved).tl.y += dist;
+        (*potential).screen.y += dist;
         break;
 
     case DIRECTION_LEFT:
-        (*moved).tl.x -= 1;
-        (*potential).screen.x -= 1;
+        (*moved).tl.x -= dist;
+        (*potential).screen.x -= dist;
         break;
 
     case DIRECTION_RIGHT:
-        (*moved).tl.x += 1;
-        (*potential).screen.x += 1;
+        (*moved).tl.x += dist;
+        (*potential).screen.x += dist;
         break;
     default:
         break;
@@ -53,7 +53,29 @@ bool player_is_point_walkable(Terrain t) {
         (cur_layer != TERRAIN_WALL && lower_layer == TERRAIN_INVALID);
     bool sunk_block =
         (cur_layer == TERRAIN_INVALID && lower_layer == TERRAIN_BLOCK);
+    bool ice_with_block = (cur_layer == TERRAIN_BLOCK);
+    return not_wall || sunk_block || ice_with_block;
+}
+
+bool player_is_point_slideover(Terrain t) {
+    enum TerrianType cur_layer = terrain_type(t, LAYER_MAIN);
+    enum TerrianType lower_layer = terrain_type(t, LAYER_LOWER);
+
+    bool not_wall =
+        (cur_layer != TERRAIN_WALL && lower_layer == TERRAIN_INVALID);
+    bool sunk_block =
+        (cur_layer == TERRAIN_INVALID && lower_layer == TERRAIN_BLOCK);
     return not_wall || sunk_block;
+}
+
+bool player_is_point_slide(Terrain t) {
+    enum TerrianType cur_layer = terrain_type(t, LAYER_MAIN);
+    enum TerrianType lower_layer = terrain_type(t, LAYER_LOWER);
+
+    bool ice =
+        (cur_layer == TERRAIN_INVALID && lower_layer == TERRAIN_SLIPPERY);
+
+    return ice;
 }
 
 void player_do_slide(struct BoundingBox slide_check, struct Player *player,
@@ -76,12 +98,14 @@ void player_do_slide(struct BoundingBox slide_check, struct Player *player,
     }
     slide_check.tl = coordinate_screen_add_direction(slide_check.tl, direction,
                                                      start_move_amount);
-    if (terrain_is_slide_target(&slide_check, terrain_map)) {
+    if (terrain_is_check_all_target(&slide_check, terrain_map,
+                                    player_is_point_slide)) {
+        trace("player is sliding!!");
         // player->loc.screen = slide_check.tl;
         // player->loc.screen.y -= PLAYER_SIZE / 2;
-        uint8_t slide_distance =
-            terrain_calc_slide_distance(slide_check, direction, terrain_map,
-                                        step_size, player_is_point_walkable);
+        uint8_t slide_distance = terrain_calc_slide_distance(
+            slide_check, direction, terrain_map, step_size,
+            terrain_is_point_slidable, player_is_point_slideover);
 
         // coordinate_align_to_grid(&player->loc.screen);
         player->is_animating = true;
@@ -103,7 +127,7 @@ void player_do_slide(struct BoundingBox slide_check, struct Player *player,
 }
 
 void move_player_if_valid(struct Player *player, enum Direction direction,
-                          const struct TerrainMap *terrain_map) {
+                          const struct TerrainMap *terrain_map, uint8_t dist) {
 
     struct BoundingBox bb = player_make_bb(player);
 
@@ -115,7 +139,7 @@ void move_player_if_valid(struct Player *player, enum Direction direction,
     }
 
     struct WorldCoordinate potential_loc = player->loc;
-    player_make_potential_move(&bb, &potential_loc, direction);
+    player_make_potential_move(&bb, &potential_loc, direction, dist);
 
     bool can_pass =
         terrain_is_check_all_target(&bb, terrain_map, player_is_point_walkable);
@@ -163,6 +187,19 @@ bool check_room_change(struct Player *player) {
     return room_change;
 }
 
+void do_on_ice_movement(struct Player *player,
+                        const struct TerrainMap *terrain_map,
+                        const struct InputState *inputs) {
+    enum Direction d;
+    if (input_get_pressed_direction(inputs, INPUT_AXIS_VERTICAL, &d)) {
+        move_player_if_valid(player, d, terrain_map, BLOCK_SIZE);
+    }
+    if (input_get_pressed_direction(inputs, INPUT_AXIS_HORIZONTAL, &d) &&
+        !player->is_animating) {
+        move_player_if_valid(player, d, terrain_map, BLOCK_SIZE);
+    }
+}
+
 void handle_movement(struct Player *player,
                      const struct TerrainMap *terrain_map,
                      const struct InputState *inputs) {
@@ -170,13 +207,18 @@ void handle_movement(struct Player *player,
         player->is_animating = animtion_next_frame(&player->animation);
         return;
     }
+    struct BoundingBox bb = player_make_bb(player);
+    if (terrain_is_slide_target(&bb, terrain_map)) {
+        do_on_ice_movement(player, terrain_map, inputs);
+    }
+
     enum Direction d;
     if (input_get_pressed_direction(inputs, INPUT_AXIS_VERTICAL, &d)) {
-        move_player_if_valid(player, d, terrain_map);
+        move_player_if_valid(player, d, terrain_map, 1);
     }
     if (input_get_pressed_direction(inputs, INPUT_AXIS_HORIZONTAL, &d) &&
         !player->is_animating) {
-        move_player_if_valid(player, d, terrain_map);
+        move_player_if_valid(player, d, terrain_map, 1);
     }
 
     if (check_room_change(player)) {
