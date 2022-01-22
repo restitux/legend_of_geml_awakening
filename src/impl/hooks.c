@@ -76,24 +76,6 @@ void on_update() {
     room_draw_room_special_tiles(game_state.player.loc.room.x,
                                  game_state.player.loc.room.y,
                                  &game_state.overworld->special_map);
-    // for (uint32_t i = 0; i < game_state.currentRoom.blocks.size; i++) {
-    //     struct Block *b = &game_state.currentRoom.blocks.b[i];
-
-    //     enum Direction d;
-    //     if (!is_animating && block_is_push_attempted(&game_state.player, b,
-    //                                                  &game_state.inputs, &d))
-    //                                                  {
-    //         block_push_begin(&game_state.player, b, d, &terrain,
-    //                          &game_state.inputs, &animation);
-    //         is_animating = true;
-    //     }
-    //     if (is_animating) {
-    //         is_animating = block_push_step(&animation, &terrain);
-    //     }
-    //     if (!is_animating) {
-    //         block_update_layer(b, &terrain);
-    //     }
-    // }
 
     block_update_all_blocks(game_state.currentRoom.blocks.b,
                             game_state.currentRoom.blocks.size,

@@ -316,6 +316,37 @@ void make_push_animations(struct Block *b, struct Player *p, enum Direction d,
     p->animation = player_animation;
 }
 
+void block_make_slide_animation(struct Block *b, struct BoundingBox moved,
+                                enum Direction d, const struct TerrainMap *tm) {
+    // struct ScreenCoordinate slide_end = moved.tl;
+    uint8_t slide_distance =
+        BLOCK_SIZE; // we already know we're moving at least one block
+    for (;;) {      // this loop is dedicated to Robby
+        moved.tl = coordinate_screen_add_direction(moved.tl, d, BLOCK_SIZE);
+        if (block_is_terrain_slide_target(&moved, tm)) {
+            slide_distance += BLOCK_SIZE;
+        } else {
+            break;
+        }
+    }
+
+    if (block_is_terrain_push_target(&moved, tm)) {
+        slide_distance += BLOCK_SIZE; // finish the push on the other side of
+                                      // ice
+    }
+
+    struct Animation block_animation = {
+        .animation_subject = &b->movable.bb.tl,
+        .end_loc = coordinate_screen_add_direction(b->movable.bb.tl, d,
+                                                   slide_distance),
+        .frame_per_move = 1,
+        .frames_remaining = slide_distance,
+        .move_direction = d,
+    };
+    b->is_animating = true;
+    b->animation = block_animation;
+}
+
 void block_calculate_iteraction_result(struct Block *b, struct Player *p,
                                        enum Direction d,
                                        const struct TerrainMap *tm) {
@@ -325,7 +356,7 @@ void block_calculate_iteraction_result(struct Block *b, struct Player *p,
     if (block_is_terrain_push_target(&moved, tm)) {
         make_push_animations(b, p, d, moved.tl);
     } else if (block_is_terrain_slide_target(&moved, tm)) {
-        // handle slide
+        block_make_slide_animation(b, moved, d, tm);
     }
 }
 
