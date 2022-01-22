@@ -97,6 +97,28 @@ bool block_push_input_just_pressed(const struct InputState *i,
         break;
     }
 }
+
+struct ScreenCoordinate block_compute_player_snap_location_for_interaction(
+    struct ScreenCoordinate block_loc, enum Direction dir) {
+    if (dir == DIRECTION_UP) {
+        block_loc.y += (BLOCK_PLAYER_SNAP_DIST - 8 - 1);
+    } else if (dir == DIRECTION_DOWN) {
+        block_loc.y -= BLOCK_PLAYER_SNAP_DIST;
+    } else if (dir == DIRECTION_LEFT) {
+        block_loc.x += BLOCK_PLAYER_SNAP_DIST - 1;
+    } else if (dir == DIRECTION_RIGHT) {
+        block_loc.x -= BLOCK_PLAYER_SNAP_DIST;
+    }
+    return block_loc;
+}
+
+void block_player_snap_for_interaction(struct ScreenCoordinate block_loc,
+                                       struct Player *player,
+                                       enum Direction dir) {
+    player->loc.screen =
+        block_compute_player_snap_location_for_interaction(block_loc, dir);
+}
+
 void block_push_snap_player(struct BlockPushAnimation *push) {
     push->player->loc.screen = push->block->movable.bb.tl;
     if (push->dir == DIRECTION_UP) {
@@ -311,4 +333,177 @@ bool block_is_push_attempted(const struct Player *p, const struct Block *b,
 
 struct GridCoordinate block_grid_loc(const struct Block *b) {
     return coordinate_screen_to_grid(&b->movable.bb.tl);
+}
+
+bool is_player_attempting_iteraction(const struct Block *b,
+                                     const struct Player *p,
+                                     const struct InputState *i,
+                                     enum Direction *d) {
+    struct BoundingBox box_bb = b->movable.bb;
+    bounding_box_uniform_shrink(
+        &box_bb, BLOCK_BOUNDING_BOX_BUFFER); // the iteraction bounding box is a
+                                             // bit smaller to make accidental
+                                             // interaction harder
+
+    struct BoundingBox player_bb = player_make_bb(p);
+
+    if (bounding_box_intersect(&box_bb, &player_bb) && p->layer == b->layer) {
+
+        enum Direction vertical;
+        enum Direction horizontal;
+        bool v = input_get_pressed_direction(i, INPUT_AXIS_VERTICAL, &vertical);
+        bool h =
+            input_get_pressed_direction(i, INPUT_AXIS_HORIZONTAL, &horizontal);
+
+        if (v && h) {
+            return false;
+        }
+        if (v) {
+            *d = vertical;
+            return true;
+        }
+        if (h) {
+            *d = horizontal;
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool block_is_input_confirming_iteraction(const struct InputState *i,
+                                          enum Direction d) {
+    return block_push_input_just_pressed(i, d);
+}
+
+bool block_is_point_pushable(Terrain t) {
+    enum TerrianType cur_layer = terrain_type(t, LAYER_MAIN);
+    enum TerrianType lower_layer = terrain_type(t, LAYER_LOWER);
+
+    bool normal_ground = cur_layer == TERRAIN_NORMAL;
+    bool sunk_block =
+        cur_layer == TERRAIN_INVALID && lower_layer == TERRAIN_BLOCK;
+
+    bool pit =
+        (cur_layer == TERRAIN_INVALID) && (lower_layer == TERRAIN_NORMAL);
+
+    return normal_ground || sunk_block || pit;
+}
+
+bool block_is_point_slidable(Terrain t) {
+    enum TerrianType cur_layer = terrain_type(t, LAYER_MAIN);
+    enum TerrianType lower_layer = terrain_type(t, LAYER_LOWER);
+
+    return (cur_layer == TERRAIN_INVALID) && (lower_layer == TERRAIN_SLIPPERY);
+}
+
+bool block_is_terrain_push_target(const struct BoundingBox *target_box,
+                                  const struct TerrainMap *tm) {
+    struct ScreenCoordinate corners[4];
+    bounding_box_corners(target_box, corners);
+
+    int passable_corners = 0;
+    for (int i = 0; i < 4; i++) {
+        Terrain t = terrain_at_point(tm, corners[i]);
+
+        if (block_is_point_pushable(t))
+
+        {
+            passable_corners += 1;
+        }
+    }
+
+    return passable_corners == 4;
+}
+
+bool block_is_terrain_slide_target(const struct BoundingBox *target_box,
+                                   const struct TerrainMap *tm) {
+    struct ScreenCoordinate corners[4];
+    bounding_box_corners(target_box, corners);
+
+    int passable_corners = 0;
+    for (int i = 0; i < 4; i++) {
+        Terrain t = terrain_at_point(tm, corners[i]);
+
+        if (block_is_point_slidable(t))
+
+        {
+            passable_corners += 1;
+        }
+    }
+
+    return passable_corners == 4;
+}
+
+void make_push_animations(struct Block *b, struct Player *p, enum Direction d,
+                          struct ScreenCoordinate final_location) {
+    struct Animation block_animation = {
+        .animation_subject = &b->movable.bb.tl,
+        .end_loc = final_location,
+        .frame_per_move = 2,
+        .frames_remaining = 2 * BLOCK_SIZE,
+        .move_direction = d,
+    };
+
+    struct Animation player_animation = {
+        .animation_subject = &p->loc.screen,
+        .end_loc = block_compute_player_snap_location_for_interaction(
+            final_location, d),
+        .frame_per_move = 2,
+        .frames_remaining = 2 * BLOCK_SIZE,
+        .move_direction = d,
+    };
+
+    b->is_animating = true;
+    b->animation = block_animation;
+
+    p->is_animating = true;
+    p->animation = player_animation;
+}
+
+void block_calculate_iteraction_result(struct Block *b, struct Player *p,
+                                       enum Direction d,
+                                       const struct TerrainMap *tm) {
+    struct BoundingBox moved = b->movable.bb;
+    moved.tl = coordinate_screen_add_direction(moved.tl, d, BLOCK_SIZE);
+
+    if (block_is_terrain_push_target(&moved, tm)) {
+        make_push_animations(b, p, d, moved.tl);
+    } else if (block_is_terrain_slide_target(&moved, tm)) {
+        // handle slide
+    }
+}
+
+void block_perform_player_iteraction(struct Block *b, struct Player *p,
+                                     enum Direction d,
+                                     const struct InputState *i,
+                                     const struct TerrainMap *tm) {
+
+    block_player_snap_for_interaction(b->movable.bb.tl, p, d);
+    if (block_is_input_confirming_iteraction(i, d)) {
+        block_calculate_iteraction_result(b, p, d, tm);
+    }
+}
+
+void block_handle_player_iteraction(struct Block *b, struct Player *p,
+                                    const struct InputState *i,
+                                    const struct TerrainMap *tm) {
+    enum Direction d;
+    if (is_player_attempting_iteraction(b, p, i, &d)) {
+        block_perform_player_iteraction(b, p, d, i, tm);
+    }
+}
+
+void block_update_all_blocks(struct Block *blocks, uint32_t size,
+                             struct Player *p, const struct InputState *input,
+                             const struct TerrainMap *tm) {
+    for (uint32_t i = 0; i < size; i++) {
+        struct Block *b = &blocks[i];
+        if (b->is_animating) {
+            b->is_animating = animtion_next_frame(&b->animation);
+        } else {
+            block_handle_player_iteraction(b, p, input, tm);
+        }
+        block_update_layer(&blocks[i], tm);
+    }
 }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../res/map/tiled.h"
+#include "animate.h"
 #include "input.h"
 #include "sprite.h"
 #include "terrain_map.h"
@@ -19,6 +20,9 @@ struct Player {
 
     uint32_t player_height;
     uint32_t player_width;
+
+    bool is_animating;
+    struct Animation animation;
 };
 
 void handle_movement(struct Player *player,
