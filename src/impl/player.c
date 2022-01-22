@@ -199,10 +199,10 @@ void do_on_ice_movement(struct Player *player,
                         const struct InputState *inputs) {
     bool just_pressed = input_any_dir_just_pressed(inputs);
     enum Direction d;
-    if (input_get_pressed_direction(inputs, INPUT_AXIS_VERTICAL, &d)) {
+    if (input_get_just_pressed_direction(inputs, INPUT_AXIS_VERTICAL, &d)) {
         move_player_if_valid(player, d, terrain_map, BLOCK_SIZE, just_pressed);
     }
-    if (input_get_pressed_direction(inputs, INPUT_AXIS_HORIZONTAL, &d) &&
+    if (input_get_just_pressed_direction(inputs, INPUT_AXIS_HORIZONTAL, &d) &&
         !player->is_animating) {
         move_player_if_valid(player, d, terrain_map, BLOCK_SIZE, just_pressed);
     }
