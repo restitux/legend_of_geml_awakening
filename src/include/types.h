@@ -73,3 +73,5 @@ void debug_bb_draw(const struct BoundingBox *b);
 
 bool bounding_box_contains_point(const struct BoundingBox *b,
                                  struct ScreenCoordinate p);
+
+enum Direction direction_reverse(enum Direction d);

@@ -153,39 +153,6 @@ void block_update_layer(struct Block *b, const struct TerrainMap *terrain_map) {
     movable_update_slide(&b->movable, terrain_map);
 }
 
-bool block_is_push_attempted(const struct Player *p, const struct Block *b,
-                             const struct InputState *i, enum Direction *d) {
-    struct BoundingBox box_bb = b->movable.bb;
-    bounding_box_uniform_shrink(&box_bb, BLOCK_BOUNDING_BOX_BUFFER);
-
-    struct BoundingBox player_bb = player_make_bb(p);
-
-    ONLY_DEBUG(debug_bb_draw(&box_bb));
-    ONLY_DEBUG(debug_bb_draw(&player_bb));
-    if (bounding_box_intersect(&box_bb, &player_bb) && p->layer == b->layer) {
-
-        enum Direction vertical;
-        enum Direction horizontal;
-        bool v = input_get_pressed_direction(i, INPUT_AXIS_VERTICAL, &vertical);
-        bool h =
-            input_get_pressed_direction(i, INPUT_AXIS_HORIZONTAL, &horizontal);
-
-        if (v && h) {
-            return false;
-        }
-        if (v) {
-            *d = vertical;
-            return true;
-        }
-        if (h) {
-            *d = horizontal;
-            return true;
-        }
-    }
-
-    return false;
-}
-
 struct GridCoordinate block_grid_loc(const struct Block *b) {
     return coordinate_screen_to_grid(&b->movable.bb.tl);
 }

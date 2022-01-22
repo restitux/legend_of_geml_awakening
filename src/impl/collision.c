@@ -22,7 +22,7 @@ void terrain_debug_draw(const struct TerrainMap *t) {
             if (main == TERRAIN_WALL) {
                 text("W", x * 8, y * 8);
             }
-            if (lower == TERRAIN_SLIPPERY && main == TERRAIN_INVALID) {
+            if (main == TERRAIN_BLOCK) {
                 text("I", x * 8, y * 8);
             }
             if (main == TERRAIN_INVALID && lower == TERRAIN_BLOCK) {
@@ -81,6 +81,11 @@ void terrain_map_update(struct TerrainMap *t, struct Room *room,
 
         Terrain terrain = terrain_create(TERRAIN_BLOCK, layer);
         struct GridCoordinate block_loc = block_grid_loc(block);
+
+        if (block->is_animating) {
+            block_loc = coordinate_screen_to_grid(&block->animation.end_loc);
+        }
+
         for (int x = block_loc.x; x < block_loc.x + 2; x++) {
             for (int y = block_loc.y; y < block_loc.y + 2; y++) {
                 int terrain_index = compute_terrain_index(x, y);

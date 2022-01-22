@@ -62,7 +62,7 @@ bool player_is_point_slideover(Terrain t) {
     enum TerrianType lower_layer = terrain_type(t, LAYER_LOWER);
 
     bool not_wall =
-        (cur_layer != TERRAIN_WALL && lower_layer == TERRAIN_INVALID);
+        (cur_layer == TERRAIN_NORMAL && lower_layer == TERRAIN_INVALID);
     bool sunk_block =
         (cur_layer == TERRAIN_INVALID && lower_layer == TERRAIN_BLOCK);
     return not_wall || sunk_block;
@@ -99,7 +99,7 @@ void player_do_slide(struct BoundingBox slide_check, struct Player *player,
     slide_check.tl = coordinate_screen_add_direction(slide_check.tl, direction,
                                                      start_move_amount);
     if (terrain_is_check_all_target(&slide_check, terrain_map,
-                                    player_is_point_slide)) {
+                                    terrain_is_point_slidable)) {
         trace("player is sliding!!");
         // player->loc.screen = slide_check.tl;
         // player->loc.screen.y -= PLAYER_SIZE / 2;
@@ -200,11 +200,27 @@ void do_on_ice_movement(struct Player *player,
     }
 }
 
+bool player_point_is_block(Terrain t) {
+    return terrain_type(t, LAYER_MAIN) == TERRAIN_BLOCK;
+}
+
 void handle_movement(struct Player *player,
                      const struct TerrainMap *terrain_map,
                      const struct InputState *inputs) {
     if (player->is_animating) {
         player->is_animating = animtion_next_frame(&player->animation);
+
+        struct BoundingBox target_bb = bounding_box_new(
+            player->animation.end_loc, PLAYER_SIZE - 1, PLAYER_SIZE - 1);
+        if (terrain_is_check_all_target(&target_bb, terrain_map,
+                                        player_point_is_block)) {
+            player->animation.end_loc = coordinate_screen_add_direction(
+                player->animation.end_loc,
+                direction_reverse(player->animation.move_direction),
+                BLOCK_SIZE);
+            player->animation.frames_remaining -= BLOCK_SIZE;
+        }
+
         return;
     }
     struct BoundingBox bb = player_make_bb(player);

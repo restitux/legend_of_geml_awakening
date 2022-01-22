@@ -142,3 +142,18 @@ bool bounding_box_contains_point(const struct BoundingBox *b,
     return (p.x >= b->tl.x) && (p.x <= (b->tl.x + b->width)) &&
            (p.y >= b->tl.y) && (p.y <= (b->tl.y + b->height));
 }
+
+enum Direction direction_reverse(enum Direction d) {
+    switch (d) {
+    case DIRECTION_UP:
+        return DIRECTION_DOWN;
+    case DIRECTION_DOWN:
+        return DIRECTION_UP;
+    case DIRECTION_LEFT:
+        return DIRECTION_RIGHT;
+    case DIRECTION_RIGHT:
+        return DIRECTION_LEFT;
+    default:
+        break;
+    }
+}
