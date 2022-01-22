@@ -347,3 +347,7 @@ void block_update_all_blocks(struct Block *blocks, uint32_t size,
         block_update_layer(&blocks[i], tm);
     }
 }
+
+void block_set_layer(struct Block *blocks, enum TerrainLayer layer) {
+    blocks->layer = layer;
+}

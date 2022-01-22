@@ -80,6 +80,11 @@ void on_update() {
     block_update_all_blocks(game_state.currentRoom.blocks.b,
                             game_state.currentRoom.blocks.size,
                             &game_state.player, &game_state.inputs, &terrain);
+    if (game_state.currentRoom.state == ROOM_ICE) {
+        for (uint32_t i = 0; i < game_state.currentRoom.blocks.size; i++) {
+            block_set_layer(&game_state.currentRoom.blocks.b[i], LAYER_MAIN);
+        }
+    }
 
     block_draw_all_blocks(game_state.currentRoom.blocks.b,
                           game_state.currentRoom.blocks.size);

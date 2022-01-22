@@ -56,3 +56,5 @@ void block_handle_player_iteraction(struct Block *b, struct Player *p,
 void block_update_all_blocks(struct Block *blocks, uint32_t size,
                              struct Player *p, const struct InputState *i,
                              const struct TerrainMap *tm);
+
+void block_set_layer(struct Block *blocks, enum TerrainLayer layer);
