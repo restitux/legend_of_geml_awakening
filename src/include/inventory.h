@@ -8,3 +8,5 @@ void draw_inventory(struct PlayerInventory *inventory);
 bool handle_invetory_interaction(struct GameState *game);
 
 void draw_inventory(struct PlayerInventory *inventory);
+
+void unlock_ability(enum SelectedAbility a);

@@ -397,7 +397,8 @@
  <objectgroup id="8" name="text-triggers">
   <object id="44" x="384" y="368" width="16" height="24">
    <properties>
-    <property name="string" value="You have aquired the Wand of Liquification! Now you can melt ice at will."/>
+    <property name="ability" type="int" value="0"/>
+    <property name="string" value="You have aquired the wand of COLDNESS! You can now turn water to ice! HOLD X,"/>
    </properties>
   </object>
  </objectgroup>

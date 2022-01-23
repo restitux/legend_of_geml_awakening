@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.5" tiledversion="1.7.2" orientation="orthogonal" renderorder="right-down" width="60" height="80" tilewidth="8" tileheight="8" infinite="0" nextlayerid="10" nextobjectid="28">
+<map version="1.5" tiledversion="1.7.2" orientation="orthogonal" renderorder="right-down" width="60" height="80" tilewidth="8" tileheight="8" infinite="0" nextlayerid="11" nextobjectid="29">
  <editorsettings>
   <export target="../tiled experiment/example.json" format="json"/>
  </editorsettings>
@@ -92,6 +92,13 @@
 3221225542,3221225540,3221225539,3221225538,3221225540,3221225539,3221225538,3221225538,3221225540,3221225540,3221225540,3221225539,3221225539,3221225538,3221225540,3221225539,3221225540,3221225539,3221225538,2684354630,3221225542,3221225540,3221225539,3221225538,3221225540,3221225539,3221225538,3221225538,3221225541,3221225540,3221225541,3221225540,3221225539,3221225538,3221225540,3221225539,3221225540,3221225539,3221225538,2684354630,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
+ <objectgroup id="10" name="text-triggers">
+  <object id="28" x="32" y="296" width="16" height="16">
+   <properties>
+    <property name="string" value="dope"/>
+   </properties>
+  </object>
+ </objectgroup>
  <objectgroup id="5" name="entrances">
   <object id="8" x="72" y="184" width="16" height="16">
    <properties>

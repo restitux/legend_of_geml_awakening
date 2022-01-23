@@ -2,6 +2,8 @@
 
 #include "text.h"
 
+#include "inventory.h"
+
 #define TEXT_BOX_X 4
 #define TEXT_BOX_Y 120
 #define TEXT_BOX_WIDTH 152
@@ -28,6 +30,10 @@ void handle_text_triggers(struct TextState *state,
                 y <= t.y + t.height) {
                 state->displaying = true;
                 state->current_text = t;
+
+                if (t.ability_pickup != -1) {
+                    unlock_ability(t.ability_pickup);
+                }
             }
         }
     }

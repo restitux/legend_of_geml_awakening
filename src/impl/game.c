@@ -66,8 +66,8 @@ void init_game() {
             },
         .inventory =
             (struct PlayerInventory){
-                .ice_to_water = true,
-                .lava_to_water = true,
+                .ice_to_water = false,
+                .lava_to_water = false,
             },
         .room_states = default_room_states,
     };

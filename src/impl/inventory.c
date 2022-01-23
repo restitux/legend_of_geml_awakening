@@ -57,3 +57,15 @@ bool handle_invetory_interaction(struct GameState *game) {
 
     return false;
 }
+
+void unlock_ability(enum SelectedAbility a) {
+    switch (a) {
+    case ICE_TO_WATER:
+        game_state.inventory.ice_to_water = true;
+        break;
+    case LAVA_TO_WATER:
+        game_state.inventory.lava_to_water = true;
+    default:
+        break;
+    }
+}
