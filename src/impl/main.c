@@ -15,11 +15,11 @@ void start() {
     initalize_testing_tilemap();
     init_game();
 
-    if (load_save_game()) {
-        trace("game loaded");
-    }
+    // if (load_save_game()) {
+    //     trace("game loaded");
+    // }
 
-    // on_game_launch();
+    on_game_launch();
 }
 
 void update() { on_update(); }
