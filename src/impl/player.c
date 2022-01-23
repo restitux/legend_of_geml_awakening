@@ -212,7 +212,7 @@ bool check_room_change(struct Player *player) {
         player->loc.room.y += 1;
         room_change = true;
     }
-    if (player->loc.screen.y < 1) {
+    if (player->loc.screen.y + BLOCK_SIZE < 1) {
         player->loc.screen.y = 159;
         player->loc.room.y -= 1;
         room_change = true;

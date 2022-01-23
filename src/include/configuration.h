@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stdint.h>
+
 //-------------------------//
 // GAME CONFIGURATION FLAGS//
 //-------------------------//
@@ -19,6 +21,8 @@
     do {                                                                       \
     } while (0)
 #endif
+
+#define SCREEN_COORDINATE_COMPONENT_TYPE int32_t
 
 /*
 --------GRID--------------

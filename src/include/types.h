@@ -3,6 +3,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include "configuration.h"
+
 // represents an x/y screen location for grid aligned objects
 struct GridCoordinate {
     uint8_t x;
@@ -11,8 +13,8 @@ struct GridCoordinate {
 
 // represents an x/y screen location for non-grid aligned objects
 struct ScreenCoordinate {
-    uint32_t x;
-    uint32_t y;
+    SCREEN_COORDINATE_COMPONENT_TYPE x;
+    SCREEN_COORDINATE_COMPONENT_TYPE y;
 };
 
 // represents an x/y room coordinate on the map
