@@ -7,6 +7,7 @@
 #include "configuration.h"
 #include "entrances.h"
 #include "special_tile.h"
+#include "text.h"
 
 #include "collision.h"
 
@@ -104,4 +105,5 @@ void on_update() {
 
     handle_entrances();
     // terrain_debug_draw(&terrain);
+    // render_text(&game_state.text_state);
 }
