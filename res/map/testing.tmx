@@ -134,7 +134,7 @@
   <object id="34" x="392" y="8" width="16" height="16">
    <properties>
     <property name="is_entrance" type="bool" value="true"/>
-    <property name="target_entrance" type="int" value="17"/>
+    <property name="target_entrance" type="int" value="11"/>
     <property name="target_map" value="dungeon_two"/>
    </properties>
   </object>
