@@ -1,6 +1,8 @@
 #ifndef __TEXT_H_
 #define __TEXT_H_
 
+#include "../../res/map/tiled.h"
+
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -14,6 +16,7 @@ struct TextState {
     uint16_t progress;
     uint16_t render_speed;
     uint16_t counter;
+    uint16_t remain_on_screen_time;
     struct TextBox current_text;
 };
 

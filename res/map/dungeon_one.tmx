@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.5" tiledversion="1.7.2" orientation="orthogonal" renderorder="right-down" width="60" height="80" tilewidth="8" tileheight="8" infinite="0" nextlayerid="7" nextobjectid="43">
+<map version="1.5" tiledversion="1.7.2" orientation="orthogonal" renderorder="right-down" width="60" height="80" tilewidth="8" tileheight="8" infinite="0" nextlayerid="9" nextobjectid="45">
  <tileset firstgid="1" source="tiles.tsx"/>
  <tileset firstgid="257" source="../data/bool-layer-tiles.tsx"/>
  <layer id="1" name="static" width="60" height="80">
@@ -358,7 +358,7 @@
     <property name="target_map" value="dungeon_one"/>
    </properties>
   </object>
-  <object id="3" x="456" y="232" width="16" height="16">
+  <object id="43" x="456" y="232" width="16" height="16">
    <properties>
     <property name="is_entrance" type="bool" value="true"/>
     <property name="target_entrance" type="int" value="8"/>
@@ -393,5 +393,12 @@
   <object id="40" template="block-template.tx" x="32" y="272"/>
   <object id="41" template="block-template.tx" x="32" y="256"/>
   <object id="42" template="block-template.tx" x="16" y="272"/>
+ </objectgroup>
+ <objectgroup id="8" name="text-triggers">
+  <object id="44" x="384" y="368" width="16" height="24">
+   <properties>
+    <property name="string" value="You have aquired the Wand of Liquification! Now you can melt ice at will."/>
+   </properties>
+  </object>
  </objectgroup>
 </map>

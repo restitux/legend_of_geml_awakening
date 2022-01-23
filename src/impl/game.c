@@ -32,17 +32,24 @@ void init_game() {
                     },
                 .state = ROOM_WATER,
             },
-        .text_state = (struct TextState){
-            .displaying = false,
-            .render_speed = 10,
-            .current_text =
-                (struct TextBox){
-                    .text = "Hello and welcome to Gamelon. My name is Shitty "
+        .text_state =
+            (struct TextState){
+                .displaying = false,
+                .render_speed = 10,
+                .current_text =
+                    (struct TextBox){
+                        .text =
+                            "Hello and welcome to Gamelon. My name is Shitty "
                             "Wizard",
-                    .length = 54,
-                },
-            .progress = 0,
-            .counter = 0,
+                        .length = 54,
+                    },
+                .progress = 0,
+                .counter = 0,
+                .remain_on_screen_time = 120,
+            },
+        .inventory = (struct PlayerInventory){
+            .ice_to_water = false,
+            .lava_to_water = false,
         }};
 
     default_room_states = (struct DefaultRoomStates){
