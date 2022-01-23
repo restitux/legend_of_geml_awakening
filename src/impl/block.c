@@ -395,13 +395,14 @@ bool is_player_attempting_ice_push(struct Block *b, struct Player *p,
         }
         // }
     }
-    return false;
+    return player_slidable;
 }
 
 void block_handle_player_iteraction(struct Block *b, struct Player *p,
                                     const struct InputState *i,
                                     const struct TerrainMap *tm) {
     enum Direction d;
+
     if (!is_player_attempting_ice_push(b, p, i, tm)) {
         if (is_player_attempting_iteraction(b, p, i, &d)) {
             block_perform_player_iteraction(b, p, d, i, tm);
