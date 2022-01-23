@@ -56,6 +56,18 @@ bool player_is_point_walkable(Terrain t) {
     return not_wall || sunk_block;
 }
 
+bool player_is_point_walkable_or_ice(Terrain t) {
+    enum TerrianType cur_layer = terrain_type(t, LAYER_MAIN);
+    enum TerrianType lower_layer = terrain_type(t, LAYER_LOWER);
+
+    bool not_wall =
+        (cur_layer != TERRAIN_WALL && lower_layer == TERRAIN_INVALID);
+    bool sunk_block = (lower_layer == TERRAIN_BLOCK);
+    bool ice =
+        (cur_layer == TERRAIN_INVALID && lower_layer == TERRAIN_SLIPPERY);
+    return not_wall || sunk_block || ice;
+}
+
 bool player_is_point_slideover(Terrain t) {
     enum TerrianType cur_layer = terrain_type(t, LAYER_MAIN);
     enum TerrianType lower_layer = terrain_type(t, LAYER_LOWER);
@@ -118,9 +130,6 @@ void player_do_slide(struct BoundingBox slide_check, struct Player *player,
         if (direction == DIRECTION_RIGHT) {
             target_top_left.x -= GRID_SIZE;
         }
-        if (direction == DIRECTION_LEFT) {
-            // slide_distance += GRID_SIZE;
-        }
 
         if (slide_distance >= GRID_SIZE) {
             slide_distance -= GRID_SIZE;
@@ -148,11 +157,25 @@ void move_player_if_valid(struct Player *player, enum Direction direction,
         return;
     }
 
+    TerrainPointCheck walkable_check = player_is_point_walkable;
+
+    if (terrain_is_check_all_target(&bb, terrain_map,
+                                    terrain_is_point_slidable)) {
+        struct ScreenCoordinate sample_loc =
+            coordinate_screen_add_direction(bb.tl, direction, 16);
+
+        Terrain t = terrain_at_point(terrain_map, sample_loc);
+        if (player_is_point_walkable(t)) {
+            walkable_check = player_is_point_walkable_or_ice;
+            dist = 16;
+        }
+    }
+
     struct WorldCoordinate potential_loc = player->loc;
     player_make_potential_move(&bb, &potential_loc, direction, dist);
 
     bool can_pass =
-        terrain_is_check_all_target(&bb, terrain_map, player_is_point_walkable);
+        terrain_is_check_all_target(&bb, terrain_map, walkable_check);
 
     if (can_pass) {
         if (potential_loc.screen.y < player->loc.screen.y) {

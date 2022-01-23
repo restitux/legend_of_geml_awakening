@@ -349,7 +349,7 @@ bool determine_direction(struct Block *b, struct Player *p,
     }
     if (input_get_just_pressed_direction(i, INPUT_AXIS_VERTICAL, d)) {
         struct BoundingBox bb;
-        if (*d == DIRECTION_UP) {
+        if (*d == DIRECTION_DOWN) {
             bb = bounding_box_new(b->movable.bb.tl, BLOCK_SIZE, GRID_SIZE);
             bb.tl.y -= GRID_SIZE;
         } else {
