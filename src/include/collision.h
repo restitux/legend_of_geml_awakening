@@ -33,4 +33,8 @@ bool terrain_is_check_all_target(const struct BoundingBox *target_box,
                                  const struct TerrainMap *tm,
                                  TerrainPointCheck check);
 
+int terrain_is_check_corners(const struct BoundingBox *target_box,
+                             const struct TerrainMap *tm,
+                             TerrainPointCheck check);
+
 bool terrain_is_point_slidable(Terrain t);

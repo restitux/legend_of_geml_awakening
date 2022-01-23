@@ -219,6 +219,13 @@ bool block_is_point_slidable(Terrain t) {
     return (cur_layer == TERRAIN_INVALID) && (lower_layer == TERRAIN_SLIPPERY);
 }
 
+bool block_is_point_maybe_slidable(Terrain t) {
+    enum TerrianType cur_layer = terrain_type(t, LAYER_MAIN);
+    enum TerrianType lower_layer = terrain_type(t, LAYER_LOWER);
+
+    return (lower_layer == TERRAIN_SLIPPERY);
+}
+
 bool block_is_terrain_push_target(const struct BoundingBox *target_box,
                                   const struct TerrainMap *tm) {
     struct ScreenCoordinate corners[4];
@@ -325,6 +332,68 @@ void block_perform_player_iteraction(struct Block *b, struct Player *p,
     }
 }
 
+bool determine_direction(struct Block *b, struct Player *p,
+                         const struct InputState *i, enum Direction *d) {
+    struct BoundingBox player_bb = player_make_bb(p);
+    if (input_get_just_pressed_direction(i, INPUT_AXIS_HORIZONTAL, d)) {
+        struct BoundingBox bb;
+        if (*d == DIRECTION_RIGHT) {
+            bb = bounding_box_new(b->movable.bb.tl, GRID_SIZE, BLOCK_SIZE);
+            bb.tl.x -= GRID_SIZE;
+        } else {
+            bb = bounding_box_new(b->movable.bb.tl, GRID_SIZE, BLOCK_SIZE);
+            bb.tl.x += BLOCK_SIZE;
+        }
+        debug_bb_draw(&bb);
+        return bounding_box_intersect(&bb, &player_bb);
+    }
+    if (input_get_just_pressed_direction(i, INPUT_AXIS_VERTICAL, d)) {
+        struct BoundingBox bb;
+        if (*d == DIRECTION_UP) {
+            bb = bounding_box_new(b->movable.bb.tl, BLOCK_SIZE, GRID_SIZE);
+            bb.tl.y -= GRID_SIZE;
+        } else {
+            bb = bounding_box_new(b->movable.bb.tl, BLOCK_SIZE, GRID_SIZE);
+            bb.tl.y += BLOCK_SIZE;
+        }
+        debug_bb_draw(&bb);
+        return bounding_box_intersect(&bb, &player_bb);
+    }
+    return false;
+}
+
+void make_player_ice_push_animation(struct Block *b, struct Player *p,
+                                    const struct TerrainMap *tm,
+                                    enum Direction d) {
+    struct BoundingBox moved = b->movable.bb;
+    moved.tl = coordinate_screen_add_direction(moved.tl, d, BLOCK_SIZE);
+    block_make_slide_animation(b, moved, d, tm);
+    trace("ice push");
+    p->animation = b->animation;
+    p->animation.animation_subject = &(p->loc.screen);
+    // p->animation.end_loc
+}
+
+void is_player_attempting_ice_push(struct Block *b, struct Player *p,
+                                   const struct InputState *i,
+                                   const struct TerrainMap *tm) {
+    struct BoundingBox player_bb = player_make_bb(p);
+    bool player_slidable =
+        terrain_is_check_all_target(&player_bb, tm, terrain_is_point_slidable);
+
+    struct BoundingBox block_bb = b->movable.bb;
+    bool block_slidable = terrain_is_check_all_target(
+        &block_bb, tm, block_is_point_maybe_slidable);
+    tracef("ice push p: %d p: %d", player_slidable, block_slidable);
+    if (player_slidable && block_slidable) {
+        enum Direction d;
+        if (determine_direction(b, p, i, &d)) {
+            make_player_ice_push_animation(b, p, tm, d);
+        }
+        // }
+    }
+}
+
 void block_handle_player_iteraction(struct Block *b, struct Player *p,
                                     const struct InputState *i,
                                     const struct TerrainMap *tm) {
@@ -332,6 +401,7 @@ void block_handle_player_iteraction(struct Block *b, struct Player *p,
     if (is_player_attempting_iteraction(b, p, i, &d)) {
         block_perform_player_iteraction(b, p, d, i, tm);
     }
+    is_player_attempting_ice_push(b, p, i, tm);
 }
 
 void block_update_all_blocks(struct Block *blocks, uint32_t size,

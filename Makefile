@@ -19,7 +19,7 @@ DEBUG = 0
 C_SRC_DIR = "src/impl"
 
 # Compilation flags
-CFLAGS = -W -Wall -Wextra -Werror -Wno-unused -MMD -MP -fno-exceptions
+CFLAGS = -W -Wall -Wextra  -Wno-unused -MMD -MP -fno-exceptions -Werror
 ifeq ($(DEBUG), 1)
 	CFLAGS += -DDEBUG -O0 -g
 else

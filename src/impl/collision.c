@@ -152,6 +152,26 @@ bool terrain_is_check_all_target(const struct BoundingBox *target_box,
     return passable_corners == 4;
 }
 
+int terrain_is_check_corners(const struct BoundingBox *target_box,
+                             const struct TerrainMap *tm,
+                             TerrainPointCheck check) {
+    struct ScreenCoordinate corners[4];
+    bounding_box_corners(target_box, corners);
+
+    int passable_corners = 0;
+    for (int i = 0; i < 4; i++) {
+        Terrain t = terrain_at_point(tm, corners[i]);
+
+        if (check(t))
+
+        {
+            passable_corners += 1;
+        }
+    }
+
+    return passable_corners;
+}
+
 uint8_t terrain_calc_slide_distance(struct BoundingBox moved, enum Direction d,
                                     const struct TerrainMap *tm,
                                     uint8_t step_size, uint8_t slide_past_steps,

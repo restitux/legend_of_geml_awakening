@@ -54,9 +54,6 @@ void on_game_launch() {
     on_room_enter();
 }
 
-bool is_animating = false;
-struct BlockPushAnimation animation;
-
 struct TerrainMap terrain;
 
 void on_update() {

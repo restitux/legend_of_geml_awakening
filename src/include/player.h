@@ -22,6 +22,7 @@ struct Player {
     uint32_t player_width;
 
     bool is_animating;
+    bool is_sliding;
     struct Animation animation;
 };
 

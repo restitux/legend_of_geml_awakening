@@ -53,8 +53,8 @@ bool player_is_point_walkable(Terrain t) {
         (cur_layer != TERRAIN_WALL && lower_layer == TERRAIN_INVALID);
     bool sunk_block =
         (cur_layer == TERRAIN_INVALID && lower_layer == TERRAIN_BLOCK);
-    bool ice_with_block = (cur_layer == TERRAIN_BLOCK);
-    return not_wall || sunk_block || ice_with_block;
+    // bool ice_with_block = (lower_layer == TERRAIN_SLIPPERY);
+    return not_wall || sunk_block;
 }
 
 bool player_is_point_slideover(Terrain t) {
@@ -82,15 +82,7 @@ void player_do_slide(struct BoundingBox slide_check, struct Player *player,
                      bool just_pressed, const struct TerrainMap *terrain_map,
                      enum Direction direction) {
     slide_check = player_make_bb(player);
-    rect(player->loc.screen.x, player->loc.screen.y, PLAYER_SIZE, PLAYER_SIZE);
 
-    if (DIRECTION_LEFT == direction) {
-        slide_check.width -= 8;
-    }
-    if (DIRECTION_RIGHT == direction) {
-        slide_check.width -= 8;
-        slide_check.tl.x += 8;
-    }
     debug_bb_draw(&slide_check);
 
     uint8_t start_move_amount = GRID_SIZE;
@@ -99,43 +91,50 @@ void player_do_slide(struct BoundingBox slide_check, struct Player *player,
     if (DIRECTION_LEFT == direction || DIRECTION_RIGHT == direction) {
         slide_past_steps = 2; // deal with collision box size issues
     }
+    if (DIRECTION_LEFT == direction) {
+        slide_check.width -= GRID_SIZE;
+    }
+    if (DIRECTION_RIGHT == direction) {
+        slide_check.width -= GRID_SIZE;
+        slide_check.tl.x += GRID_SIZE;
+    }
 
     slide_check.tl = coordinate_screen_add_direction(slide_check.tl, direction,
                                                      start_move_amount);
     if (terrain_is_check_all_target(&slide_check, terrain_map,
-                                    terrain_is_point_slidable)) {
-        // coordinate_align_to_grid(&player->loc.screen);
-        if (!just_pressed) {
-            // return;
-        }
+                                    player_is_point_slide)) {
 
         uint8_t slide_distance = terrain_calc_slide_distance(
             slide_check, direction, terrain_map, step_size, slide_past_steps,
             terrain_is_point_slidable, player_is_point_slideover);
 
         player->is_animating = true;
+        player->is_sliding = true;
 
         struct ScreenCoordinate target_top_left = slide_check.tl;
-        target_top_left.y -= (8 - 1);
+        target_top_left.y -= (8);
         // slide_check.tl.y -= 8;
         coordinate_align_to_grid(&target_top_left);
 
         if (direction == DIRECTION_RIGHT) {
-            slide_distance -= 8;
+            target_top_left.x -= GRID_SIZE;
         }
         if (direction == DIRECTION_LEFT) {
-            // target_top_left.x -= GRID_SIZE;
+            // slide_distance += GRID_SIZE;
+        }
+
+        if (slide_distance >= GRID_SIZE) {
+            slide_distance -= GRID_SIZE;
         }
 
         player->animation = (struct Animation){
             .animation_subject = &(player->loc.screen),
             .end_loc = coordinate_screen_add_direction(
-                target_top_left, direction, slide_distance - 8),
+                target_top_left, direction, slide_distance),
             .frame_per_move = 1,
-            .frames_remaining = slide_distance - 8,
+            .frames_remaining = slide_distance,
             .move_direction = direction,
         };
-        return;
     }
 }
 
@@ -203,15 +202,18 @@ bool check_room_change(struct Player *player) {
 void do_on_ice_movement(struct Player *player,
                         const struct TerrainMap *terrain_map,
                         const struct InputState *inputs) {
-    bool just_pressed = input_any_dir_just_pressed(inputs);
-    enum Direction d;
-    if (input_get_just_pressed_direction(inputs, INPUT_AXIS_VERTICAL, &d)) {
-        move_player_if_valid(player, d, terrain_map, BLOCK_SIZE, just_pressed);
-    }
-    if (input_get_just_pressed_direction(inputs, INPUT_AXIS_HORIZONTAL, &d) &&
-        !player->is_animating) {
-        move_player_if_valid(player, d, terrain_map, BLOCK_SIZE, just_pressed);
-    }
+    // bool just_pressed = input_any_dir_just_pressed(inputs);
+    // enum Direction d;
+    // if (input_get_just_pressed_direction(inputs, INPUT_AXIS_VERTICAL, &d)) {
+    //     move_player_if_valid(player, d, terrain_map, BLOCK_SIZE,
+    //     just_pressed);
+    // }
+    // if (input_get_just_pressed_direction(inputs, INPUT_AXIS_HORIZONTAL, &d)
+    // &&
+    //     !player->is_animating) {
+    //     move_player_if_valid(player, d, terrain_map, BLOCK_SIZE,
+    //     just_pressed);
+    // }
 }
 
 bool player_point_is_block(Terrain t) {
@@ -222,17 +224,24 @@ void handle_movement(struct Player *player,
                      const struct TerrainMap *terrain_map,
                      const struct InputState *inputs) {
     if (player->is_animating) {
+        player->last_movement_dir = player->animation.move_direction;
         player->is_animating = animtion_next_frame(&player->animation);
 
         struct BoundingBox target_bb = bounding_box_new(
-            player->animation.end_loc, PLAYER_SIZE - 1, (PLAYER_SIZE - 1) / 2);
-        if (terrain_is_check_all_target(&target_bb, terrain_map,
-                                        player_point_is_block)) {
+            player->animation.end_loc, PLAYER_SIZE - 1, (PLAYER_SIZE - 1));
+        if ((terrain_is_check_corners(&target_bb, terrain_map,
+                                      player_point_is_block) > 2) &&
+            player->is_sliding) {
             player->animation.end_loc = coordinate_screen_add_direction(
                 player->animation.end_loc,
-                direction_reverse(player->animation.move_direction),
-                BLOCK_SIZE);
-            player->animation.frames_remaining -= BLOCK_SIZE;
+                direction_reverse(player->animation.move_direction), GRID_SIZE);
+            if (player->animation.frames_remaining >= GRID_SIZE) {
+                player->animation.frames_remaining -= GRID_SIZE;
+            }
+        }
+
+        if (!player->is_animating && player->is_sliding) {
+            player->is_sliding = false;
         }
 
         return;
@@ -242,9 +251,6 @@ void handle_movement(struct Player *player,
         do_on_ice_movement(player, terrain_map, inputs);
     }
     bool just_pressed = input_any_dir_just_pressed(inputs);
-    if (just_pressed) {
-        trace("just pressed");
-    }
 
     enum Direction d;
     if (input_get_pressed_direction(inputs, INPUT_AXIS_VERTICAL, &d)) {
@@ -262,6 +268,7 @@ void handle_movement(struct Player *player,
 }
 
 void draw_player(const struct Player *player) {
+
     sprite_draw_character(&player->sprite, &player->loc.screen,
                           player->last_movement_dir);
 }

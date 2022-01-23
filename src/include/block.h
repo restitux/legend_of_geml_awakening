@@ -25,19 +25,6 @@ struct Block {
     struct Animation animation;
 };
 
-struct BlockPushAnimation {
-    struct Player *player;
-    struct Block *block;
-
-    struct GridCoordinate target_loc;
-
-    uint8_t pixels_per_frame;
-
-    uint8_t remainingFrames;
-
-    enum Direction dir;
-};
-
 // instantiate a default block at the provided grid coordinates
 void block_new(struct GridCoordinate loc, struct Block *block);
 
