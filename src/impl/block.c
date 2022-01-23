@@ -376,7 +376,7 @@ void make_player_ice_push_animation(struct Block *b, struct Player *p,
     // p->animation.end_loc
 }
 
-void is_player_attempting_ice_push(struct Block *b, struct Player *p,
+bool is_player_attempting_ice_push(struct Block *b, struct Player *p,
                                    const struct InputState *i,
                                    const struct TerrainMap *tm) {
     struct BoundingBox player_bb = player_make_bb(p);
@@ -391,19 +391,22 @@ void is_player_attempting_ice_push(struct Block *b, struct Player *p,
         enum Direction d;
         if (determine_direction(b, p, i, &d)) {
             make_player_ice_push_animation(b, p, tm, d);
+            return true;
         }
         // }
     }
+    return false;
 }
 
 void block_handle_player_iteraction(struct Block *b, struct Player *p,
                                     const struct InputState *i,
                                     const struct TerrainMap *tm) {
     enum Direction d;
-    if (is_player_attempting_iteraction(b, p, i, &d)) {
-        block_perform_player_iteraction(b, p, d, i, tm);
+    if (!is_player_attempting_ice_push(b, p, i, tm)) {
+        if (is_player_attempting_iteraction(b, p, i, &d)) {
+            block_perform_player_iteraction(b, p, d, i, tm);
+        }
     }
-    is_player_attempting_ice_push(b, p, i, tm);
 }
 
 void block_update_all_blocks(struct Block *blocks, uint32_t size,

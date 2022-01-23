@@ -369,7 +369,7 @@
  <objectgroup id="6" name="block-spawns">
   <object id="5" template="block-template.tx" x="208" y="208"/>
   <object id="7" x="256" y="208" width="16" height="16"/>
-  <object id="10" x="192" y="272" width="16" height="16"/>
+  <object id="10" x="192" y="288" width="16" height="16"/>
   <object id="17" template="block-template.tx" x="112" y="288"/>
   <object id="21" template="block-template.tx" x="32" y="368"/>
   <object id="22" template="block-template.tx" x="32" y="384"/>
