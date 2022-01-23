@@ -32,6 +32,10 @@ struct GameState {
     struct InputState inputs;
     struct TextState text_state;
     struct PlayerInventory inventory;
+
+    struct DefaultRoomStates room_states;
+
+    uint16_t world_id;
 };
 
 extern struct GameState game_state;
@@ -41,3 +45,8 @@ void init_game();
 void save_game();
 
 void load_game();
+
+void update_current_room_state(struct GameState *game,
+                               enum RoomState new_state);
+
+void set_default_room_state(struct GameState *game);

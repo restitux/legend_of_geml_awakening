@@ -7,7 +7,23 @@
 #include "wasm4.h"
 
 struct GameState game_state;
-struct DefaultRoomStates default_room_states;
+struct DefaultRoomStates default_room_states = (struct DefaultRoomStates){
+    .id = {TILEMAP_DUNGEON_ONE_ID, TILEMAP_DUNGEON_TWO_ID, TILEMAP_TESTING_ID},
+    .length = {},
+    .state = {(enum RoomState[]){ROOM_WATER, ROOM_WATER, ROOM_WATER, ROOM_WATER,
+                                 ROOM_WATER, ROOM_WATER, ROOM_WATER, ROOM_WATER,
+                                 ROOM_WATER, ROOM_ICE, ROOM_ICE, ROOM_ICE},
+              (enum RoomState[]){ROOM_LAVA, ROOM_LAVA, ROOM_LAVA, ROOM_LAVA,
+                                 ROOM_LAVA, ROOM_LAVA, ROOM_LAVA, ROOM_LAVA,
+                                 ROOM_LAVA, ROOM_LAVA, ROOM_LAVA, ROOM_LAVA,
+                                 ROOM_LAVA, ROOM_LAVA, ROOM_LAVA, ROOM_LAVA,
+                                 ROOM_LAVA, ROOM_LAVA},
+              (enum RoomState[]){ROOM_WATER, ROOM_WATER, ROOM_WATER, ROOM_WATER,
+                                 ROOM_WATER, ROOM_WATER, ROOM_WATER, ROOM_WATER,
+                                 ROOM_WATER, ROOM_WATER, ROOM_WATER,
+                                 ROOM_WATER}},
+};
+
 void init_game() {
     game_state = (struct GameState){
         .valid = true,
@@ -22,7 +38,7 @@ void init_game() {
                    .player_height = 16,
                    .player_width = 16},
         .overworld = &testing_tilemap,
-
+        .world_id = TILEMAP_TESTING_ID,
         .currentRoom =
             {
                 .loc = {.x = 0, .y = 0},
@@ -47,28 +63,12 @@ void init_game() {
                 .counter = 0,
                 .remain_on_screen_time = 120,
             },
-        .inventory = (struct PlayerInventory){
-            .ice_to_water = false,
-            .lava_to_water = false,
-        }};
-
-    default_room_states = (struct DefaultRoomStates){
-        .id = {TILEMAP_DUNGEON_ONE_ID, TILEMAP_DUNGEON_TWO_ID,
-               TILEMAP_TESTING_ID},
-        .length = {},
-        .state = {(enum RoomState[]){ROOM_WATER, ROOM_WATER, ROOM_WATER,
-                                     ROOM_WATER, ROOM_WATER, ROOM_WATER,
-                                     ROOM_WATER, ROOM_WATER, ROOM_WATER,
-                                     ROOM_ICE, ROOM_ICE, ROOM_ICE},
-                  (enum RoomState[]){ROOM_LAVA, ROOM_LAVA, ROOM_LAVA, ROOM_LAVA,
-                                     ROOM_LAVA, ROOM_LAVA, ROOM_LAVA, ROOM_LAVA,
-                                     ROOM_LAVA, ROOM_LAVA, ROOM_LAVA, ROOM_LAVA,
-                                     ROOM_LAVA, ROOM_LAVA, ROOM_LAVA, ROOM_LAVA,
-                                     ROOM_LAVA, ROOM_LAVA},
-                  (enum RoomState[]){ROOM_WATER, ROOM_WATER, ROOM_WATER,
-                                     ROOM_WATER, ROOM_WATER, ROOM_WATER,
-                                     ROOM_WATER, ROOM_WATER, ROOM_WATER,
-                                     ROOM_WATER, ROOM_WATER, ROOM_WATER}},
+        .inventory =
+            (struct PlayerInventory){
+                .ice_to_water = false,
+                .lava_to_water = false,
+            },
+        .room_states = default_room_states,
     };
 }
 
@@ -82,4 +82,37 @@ void load_game() {
     // if (temp.valid) {
     //   game_state = temp;
     // }
+}
+
+int calc_room_id(struct GameState *game) {
+    return game->currentRoom.loc.x +
+           (game->currentRoom.loc.y * (game->overworld->static_map.width / 20));
+}
+
+void update_current_room_state(struct GameState *game,
+                               enum RoomState new_state) {
+
+    game->currentRoom.state = new_state;
+
+    if (game->world_id == TILEMAP_TESTING_ID) { // overworld
+        trace("updating overwold room state");
+        int room_id = calc_room_id(game);
+        game->room_states.state[2][room_id] = new_state;
+    }
+}
+
+void set_default_room_state(struct GameState *game) {
+    int state_array_loc = 0;
+    for (uint8_t i = 0; i < 3; i++) {
+        if (game->room_states.id[i] == game->world_id) {
+            state_array_loc = i;
+        }
+    }
+
+    int room_id = calc_room_id(game);
+
+    enum RoomState new_state =
+        game->room_states.state[state_array_loc][room_id];
+
+    game->currentRoom.state = new_state;
 }

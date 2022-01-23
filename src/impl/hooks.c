@@ -14,6 +14,8 @@
 void on_room_enter() {
     struct Room *new_room = &game_state.currentRoom;
 
+    set_default_room_state(&game_state);
+
     uint32_t index = 0;
 
     for (uint32_t i = 0; i < game_state.overworld->block_spawns.length; i++) {
@@ -69,8 +71,9 @@ void on_update() {
 
     update_input_state(&game_state.inputs);
     if (game_state.inputs.button_x.justPressed) {
-        game_state.currentRoom.state += 1;
-        game_state.currentRoom.state %= 3;
+        enum RoomState new_state = game_state.currentRoom.state + 1;
+        new_state %= 3;
+        update_current_room_state(&game_state, new_state);
     }
 
     handle_movement(&game_state.player, &terrain, &game_state.inputs);
