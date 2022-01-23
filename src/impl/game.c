@@ -21,13 +21,26 @@ void init_game() {
                    .player_width = 16},
         .overworld = &testing_tilemap,
 
-        .currentRoom = {
-            .loc = {.x = 0, .y = 0},
-            .blocks =
-                {
-                    .size = 0,
+        .currentRoom =
+            {
+                .loc = {.x = 0, .y = 0},
+                .blocks =
+                    {
+                        .size = 0,
+                    },
+                .state = ROOM_WATER,
+            },
+        .text_state = (struct TextState){
+            .displaying = false,
+            .render_speed = 10,
+            .current_text =
+                (struct TextBox){
+                    .text = "Hello and welcome to Gamelon. My name is Shitty "
+                            "Wizard",
+                    .length = 54,
                 },
-            .state = ROOM_WATER,
+            .progress = 0,
+            .counter = 0,
         }};
 }
 

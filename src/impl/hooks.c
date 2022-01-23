@@ -7,6 +7,7 @@
 #include "configuration.h"
 #include "entrances.h"
 #include "special_tile.h"
+#include "text.h"
 
 #include "collision.h"
 
@@ -87,8 +88,10 @@ void on_update() {
 
     draw_player(&game_state.player);
 
-    room_draw_room(game_state.player.loc.room.x, game_state.player.loc.room.y,
-                   &game_state.overworld->overlay_map);
+    // Overlay map uses run length encoding strategy
+    room_draw_room_rle(game_state.player.loc.room.x,
+                       game_state.player.loc.room.y,
+                       &game_state.overworld->overlay_map);
     ONLY_DEBUG(room_draw_room_debug_map(game_state.player.loc.room.x,
                                         game_state.player.loc.room.y,
                                         &game_state.overworld->collision_map));
@@ -99,4 +102,5 @@ void on_update() {
 
     handle_entrances();
     // terrain_debug_draw(&terrain);
+    // render_text(&game_state.text_state);
 }

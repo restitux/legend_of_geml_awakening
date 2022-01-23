@@ -63,6 +63,49 @@ void room_draw_room(uint32_t room_x, uint32_t room_y,
     }
 }
 
+void room_draw_room_rle(uint32_t room_x, uint32_t room_y,
+                        const struct TileMap_MapLayer *map) {
+    // find beginning of room
+    const int blocks_per_room = 20 * 20;
+    const int room_index = (room_y * (map->width) / 20) + room_x;
+    const int room_base = room_index * blocks_per_room;
+
+    // iterate through tiles until we find the top right of the room
+    int counter = 0;
+    int index = 0;
+    while (true) {
+        uint8_t tile = map->map[index];
+        uint8_t rotation = map->map_rotations[index];
+        if (tile == 0) {
+            counter += rotation;
+        } else {
+            counter += 1;
+        }
+        if (counter < room_base) {
+            index++;
+        } else {
+            break;
+        }
+    }
+
+    // render room
+    counter = 0;
+    while (counter < blocks_per_room) {
+        int room_x = counter % 20;
+        int room_y = counter / 20;
+        uint8_t tile = map->map[index];
+        uint8_t rotation = map->map_rotations[index];
+        if (tile == 0) {
+            counter += rotation + 1;
+        } else {
+            room_draw_tile(tile, rotation, room_x, room_y,
+                           map->tileset->tileset);
+            counter += 1;
+        }
+        index++;
+    }
+}
+
 bool room_tile_at_screen_coordinates(struct WorldCoordinate *loc,
                                      const struct TileMap_DataLayer *map) {
 
