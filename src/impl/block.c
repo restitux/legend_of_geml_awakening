@@ -156,11 +156,43 @@ void block_update_layer(struct Block *b, const struct TerrainMap *terrain_map) {
 struct GridCoordinate block_grid_loc(const struct Block *b) {
     return coordinate_screen_to_grid(&b->movable.bb.tl);
 }
-
+bool determine_direction(const struct Block *b, const struct Player *p,
+                         const struct InputState *i, enum Direction *d) {
+    if (p->layer != b->layer) {
+        return false;
+    }
+    struct BoundingBox player_bb = player_make_bb(p);
+    if (input_get_pressed_direction(i, INPUT_AXIS_HORIZONTAL, d)) {
+        struct BoundingBox bb;
+        if (*d == DIRECTION_RIGHT) {
+            bb = bounding_box_new(b->movable.bb.tl, GRID_SIZE, BLOCK_SIZE);
+            bb.tl.x -= GRID_SIZE;
+        } else {
+            bb = bounding_box_new(b->movable.bb.tl, GRID_SIZE, BLOCK_SIZE);
+            bb.tl.x += BLOCK_SIZE;
+        }
+        debug_bb_draw(&bb);
+        return bounding_box_intersect(&bb, &player_bb);
+    }
+    if (input_get_pressed_direction(i, INPUT_AXIS_VERTICAL, d)) {
+        struct BoundingBox bb;
+        if (*d == DIRECTION_DOWN) {
+            bb = bounding_box_new(b->movable.bb.tl, BLOCK_SIZE, GRID_SIZE);
+            bb.tl.y -= GRID_SIZE;
+        } else {
+            bb = bounding_box_new(b->movable.bb.tl, BLOCK_SIZE, GRID_SIZE);
+            bb.tl.y += BLOCK_SIZE;
+        }
+        debug_bb_draw(&bb);
+        return bounding_box_intersect(&bb, &player_bb);
+    }
+    return false;
+}
 bool is_player_attempting_iteraction(const struct Block *b,
                                      const struct Player *p,
                                      const struct InputState *i,
                                      enum Direction *d) {
+
     struct BoundingBox box_bb = b->movable.bb;
     bounding_box_uniform_shrink(
         &box_bb, BLOCK_BOUNDING_BOX_BUFFER); // the iteraction bounding box is a
@@ -178,19 +210,19 @@ bool is_player_attempting_iteraction(const struct Block *b,
             input_get_pressed_direction(i, INPUT_AXIS_HORIZONTAL, &horizontal);
 
         if (v && h) {
-            return false;
+            // return false;
         }
         if (v) {
             *d = vertical;
-            return true;
+            // return true;
         }
         if (h) {
             *d = horizontal;
-            return true;
+            // return true;
         }
     }
 
-    return false;
+    return determine_direction(b, p, i, d);
 }
 
 bool block_is_input_confirming_iteraction(const struct InputState *i,
@@ -330,36 +362,6 @@ void block_perform_player_iteraction(struct Block *b, struct Player *p,
     if (block_is_input_confirming_iteraction(i, d)) {
         block_calculate_iteraction_result(b, p, d, tm);
     }
-}
-
-bool determine_direction(struct Block *b, struct Player *p,
-                         const struct InputState *i, enum Direction *d) {
-    struct BoundingBox player_bb = player_make_bb(p);
-    if (input_get_just_pressed_direction(i, INPUT_AXIS_HORIZONTAL, d)) {
-        struct BoundingBox bb;
-        if (*d == DIRECTION_RIGHT) {
-            bb = bounding_box_new(b->movable.bb.tl, GRID_SIZE, BLOCK_SIZE);
-            bb.tl.x -= GRID_SIZE;
-        } else {
-            bb = bounding_box_new(b->movable.bb.tl, GRID_SIZE, BLOCK_SIZE);
-            bb.tl.x += BLOCK_SIZE;
-        }
-        debug_bb_draw(&bb);
-        return bounding_box_intersect(&bb, &player_bb);
-    }
-    if (input_get_just_pressed_direction(i, INPUT_AXIS_VERTICAL, d)) {
-        struct BoundingBox bb;
-        if (*d == DIRECTION_DOWN) {
-            bb = bounding_box_new(b->movable.bb.tl, BLOCK_SIZE, GRID_SIZE);
-            bb.tl.y -= GRID_SIZE;
-        } else {
-            bb = bounding_box_new(b->movable.bb.tl, BLOCK_SIZE, GRID_SIZE);
-            bb.tl.y += BLOCK_SIZE;
-        }
-        debug_bb_draw(&bb);
-        return bounding_box_intersect(&bb, &player_bb);
-    }
-    return false;
 }
 
 void make_player_ice_push_animation(struct Block *b, struct Player *p,
