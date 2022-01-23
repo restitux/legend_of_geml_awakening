@@ -395,10 +395,6 @@
   <object id="42" template="block-template.tx" x="16" y="272"/>
  </objectgroup>
  <objectgroup id="8" name="text-triggers">
-  <object id="44" x="384" y="368" width="16" height="24">
-   <properties>
-    <property name="string" value="You have aquired the Wand of Liquification! Now you can melt ice at will."/>
-   </properties>
-  </object>
+  <object id="44" template="text-template.tx" x="384" y="368"/>
  </objectgroup>
 </map>
