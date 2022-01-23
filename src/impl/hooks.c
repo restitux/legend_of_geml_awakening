@@ -72,8 +72,16 @@ void on_update() {
 
     update_input_state(&game_state.inputs);
 
+    handle_text_triggers(&game_state.text_state,
+                         game_state.overworld->text_triggers,
+                         game_state.player);
+
+    if (game_state.text_state.displaying) {
+        render_text(&game_state.text_state);
+    }
+
     bool inventory_interaction = handle_invetory_interaction(&game_state);
-    if (!inventory_interaction) {
+    if (!inventory_interaction || game_state.text_state.displaying) {
         handle_movement(&game_state.player, &terrain, &game_state.inputs);
 
         block_update_all_blocks(
@@ -103,5 +111,4 @@ void on_update() {
 
     handle_entrances();
     // terrain_debug_draw(&terrain);
-    // render_text(&game_state.text_state);
 }

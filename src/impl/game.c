@@ -51,13 +51,14 @@ void init_game() {
         .text_state =
             (struct TextState){
                 .displaying = false,
-                .render_speed = 10,
+                .render_speed = 2,
                 .current_text =
-                    (struct TextBox){
-                        .text =
+                    (struct TileMap_TextTrigger){
+                        .string =
                             "Hello and welcome to Gamelon. My name is Shitty "
                             "Wizard",
                         .length = 54,
+                        .id = 255,
                     },
                 .progress = 0,
                 .counter = 0,
