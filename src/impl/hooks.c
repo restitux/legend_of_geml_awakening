@@ -59,6 +59,9 @@ struct TerrainMap terrain;
 
 void on_update() {
     set_palette(game_state.currentRoom.state);
+    room_draw_room_special_tiles(game_state.player.loc.room.x,
+                                 game_state.player.loc.room.y,
+                                 &game_state.overworld->special_map);
     room_draw_room(game_state.player.loc.room.x, game_state.player.loc.room.y,
                    &game_state.overworld->static_map);
     terrain_map_update(&terrain, &game_state.currentRoom, game_state.overworld);
@@ -69,10 +72,7 @@ void on_update() {
         game_state.currentRoom.state %= 3;
     }
 
-    room_draw_room_special_tiles(game_state.player.loc.room.x,
-                                 game_state.player.loc.room.y,
-                                 &game_state.overworld->special_map);
-    handle_movement(&game_state.player, &terrain, &game_state.inputs);
+        handle_movement(&game_state.player, &terrain, &game_state.inputs);
 
     block_update_all_blocks(game_state.currentRoom.blocks.b,
                             game_state.currentRoom.blocks.size,
