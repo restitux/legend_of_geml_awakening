@@ -2,16 +2,18 @@
 #include "hooks.h"
 
 #include "../../res/map/dungeon_one.map.h"
+#include "../../res/map/dungeon_two.map.h"
 #include "../../res/map/testing.map.h"
 
 #include "block.h"
 
 void start() {
-  initalize_dungeon_one_tilemap();
-  initalize_testing_tilemap();
-  init_game();
+    initalize_dungeon_one_tilemap();
+    initalize_dungeon_two_tilemap();
+    initalize_testing_tilemap();
+    init_game();
 
-  on_game_launch();
+    on_game_launch();
 }
 
 void update() { on_update(); }
