@@ -241,7 +241,9 @@ bool block_is_point_pushable(Terrain t) {
     bool pit =
         (cur_layer == TERRAIN_INVALID) && (lower_layer == TERRAIN_NORMAL);
 
-    return normal_ground || sunk_block || pit;
+    bool lava = (cur_layer == TERRAIN_INVALID) && (lower_layer == TERRAIN_LAVA);
+
+    return normal_ground || sunk_block || pit || lava;
 }
 
 bool block_is_point_slidable(Terrain t) {
@@ -386,7 +388,6 @@ bool is_player_attempting_ice_push(struct Block *b, struct Player *p,
     struct BoundingBox block_bb = b->movable.bb;
     bool block_slidable = terrain_is_check_all_target(
         &block_bb, tm, block_is_point_maybe_slidable);
-    tracef("ice push p: %d p: %d", player_slidable, block_slidable);
     if (player_slidable && block_slidable) {
         enum Direction d;
         if (determine_direction(b, p, i, &d)) {
@@ -398,9 +399,60 @@ bool is_player_attempting_ice_push(struct Block *b, struct Player *p,
     return player_slidable;
 }
 
+bool is_point_lava(Terrain t) {
+    enum TerrianType cur_layer = terrain_type(t, LAYER_MAIN);
+    enum TerrianType lower_layer = terrain_type(t, LAYER_LOWER);
+
+    bool lava = (lower_layer == TERRAIN_LAVA);
+    return lava;
+}
+
+bool is_point_lava_flowable(Terrain t) {
+    enum TerrianType cur_layer = terrain_type(t, LAYER_MAIN);
+    enum TerrianType lower_layer = terrain_type(t, LAYER_LOWER);
+
+    bool lava = (lower_layer == TERRAIN_LAVA);
+    return lava && (cur_layer == TERRAIN_INVALID);
+}
+
+bool do_lava(struct Block *b, const struct TerrainMap *tm) {
+    if (b->layer == LAYER_LOWER) {
+        return false;
+    }
+    if (terrain_is_check_all_target(&b->movable.bb, tm, is_point_lava)) {
+        enum Direction flow_d = terrain_flow_dir_at_point(tm, b->movable.bb.tl);
+        tracef("flow dir %d", flow_d);
+        struct BoundingBox target_bb = b->movable.bb;
+        target_bb.tl =
+            coordinate_screen_add_direction(target_bb.tl, flow_d, 16);
+
+        if (terrain_is_check_all_target(&target_bb, tm,
+                                        is_point_lava_flowable)) {
+            b->animation = (struct Animation){
+                .end_loc = target_bb.tl,
+                .animation_subject = &(b->movable.bb.tl),
+                .frame_per_move = 1,
+                .frames_remaining = BLOCK_SIZE,
+                .move_direction = flow_d,
+            };
+            b->is_animating = true;
+        } else {
+            b->layer = LAYER_LOWER;
+        }
+
+        return true;
+    }
+    return false;
+}
+
 void block_handle_player_iteraction(struct Block *b, struct Player *p,
                                     const struct InputState *i,
                                     const struct TerrainMap *tm) {
+
+    if (do_lava(b, tm)) {
+        return;
+    }
+
     enum Direction d;
 
     if (!is_player_attempting_ice_push(b, p, i, tm)) {

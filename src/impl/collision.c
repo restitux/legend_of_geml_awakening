@@ -34,6 +34,7 @@ void terrain_debug_draw(const struct TerrainMap *t) {
 
 void copy_tilemap_state(struct TerrainMap *t, struct RoomCoordinate loc,
                         const struct TileMap *map, enum RoomState state) {
+    t->base_map = map;
     uint32_t map_width = map->static_map.width;
     int room_start_x = loc.x * 20;
     int room_start_y = loc.y * 20;
@@ -52,12 +53,17 @@ void copy_tilemap_state(struct TerrainMap *t, struct RoomCoordinate loc,
             uint8_t special_bit = (special_byte >> bit_offset) & 0x1;
 
             if (special_bit) {
-                if (state == ROOM_WATER || state == ROOM_LAVA) {
+                if (state == ROOM_WATER) {
                     t->terrain[terrain_index] = TERRAIN_INVALID;
                 } else if (state == ROOM_ICE) {
                     t->terrain[terrain_index] =
                         terrain_create(TERRAIN_INVALID, LAYER_MAIN) |
                         terrain_create(TERRAIN_SLIPPERY, LAYER_LOWER);
+                } else if (state == ROOM_LAVA) {
+                    t->terrain[terrain_index] =
+                        terrain_create(TERRAIN_INVALID, LAYER_MAIN) |
+                        terrain_create(TERRAIN_LAVA, LAYER_LOWER);
+                    ;
                 }
             }
             if (collision_bit) {
@@ -71,6 +77,7 @@ void copy_tilemap_state(struct TerrainMap *t, struct RoomCoordinate loc,
 
 void terrain_map_update(struct TerrainMap *t, struct Room *room,
                         const struct TileMap *map) {
+    t->room_loc = room->loc;
     clear_terrain(t);
     copy_tilemap_state(t, room->loc, map, room->state);
 
@@ -102,6 +109,42 @@ void terrain_map_update(struct TerrainMap *t, struct Room *room,
             }
         }
     }
+}
+
+#define TILE_LAVA_FLOW_ID 141
+
+#define FLOW_UP 0b0000
+#define FLOW_DOWN 0b1100
+#define FLOW_LEFT 0b0110
+#define FLOW_RIGHT 0b1010
+
+enum Direction terrain_flow_dir_at_point(const struct TerrainMap *t,
+                                         struct ScreenCoordinate p) {
+
+    struct GridCoordinate g = coordinate_screen_to_grid(&p);
+    int x = t->room_loc.x * 20 + g.x;
+    int y = t->room_loc.y * 20 + g.y;
+    int tile_index = x + (y * t->base_map->static_map.width);
+
+    uint8_t tile = t->base_map->static_map.map[tile_index];
+
+    int shift = (tile_index % 2) * 4;
+    uint8_t rotation =
+        (t->base_map->static_map.map_rotations[tile_index / 2] >> shift) & 0x0F;
+
+    if (tile == TILE_LAVA_FLOW_ID) {
+        switch (rotation) {
+        case FLOW_UP:
+            return DIRECTION_UP;
+        case FLOW_DOWN:
+            return DIRECTION_DOWN;
+        case FLOW_LEFT:
+            return DIRECTION_LEFT;
+        case FLOW_RIGHT:
+            return DIRECTION_RIGHT;
+        }
+    }
+    return DIRECTION_UP;
 }
 
 uint8_t terrain_at_point(const struct TerrainMap *t,

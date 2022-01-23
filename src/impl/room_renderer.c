@@ -15,7 +15,9 @@ void room_draw_tile(uint8_t tile_id, uint8_t rotations, uint32_t x, uint32_t y,
     //                       ((sizeof(tile) * 8) - 4));
     //   uint32_t rotations = ((tile & (0xF << ((sizeof(tile) * 8) - 4))) >>
     //                       ((sizeof(tile) * 8) - 4));
-
+    if (tile_id == 141) {
+        return;
+    }
     uint32_t flags = BLIT_2BPP;
 
     bool flipx = rotations & 0b1000;

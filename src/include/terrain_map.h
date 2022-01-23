@@ -1,3 +1,4 @@
+#include "../../res/map/tiled.h"
 #pragma once
 
 typedef uint8_t Terrain;
@@ -19,4 +20,6 @@ enum TerrainLayer {
 
 struct TerrainMap {
     Terrain terrain[400];
+    const struct TileMap *base_map;
+    struct RoomCoordinate room_loc;
 };
