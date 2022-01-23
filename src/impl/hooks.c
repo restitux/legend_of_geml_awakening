@@ -71,11 +71,10 @@ void on_update() {
         game_state.currentRoom.state %= 3;
     }
 
-    handle_movement(&game_state.player, &terrain, &game_state.inputs);
-
     room_draw_room_special_tiles(game_state.player.loc.room.x,
                                  game_state.player.loc.room.y,
                                  &game_state.overworld->special_map);
+    handle_movement(&game_state.player, &terrain, &game_state.inputs);
 
     block_update_all_blocks(game_state.currentRoom.blocks.b,
                             game_state.currentRoom.blocks.size,

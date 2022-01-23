@@ -81,21 +81,14 @@ bool player_is_point_slide(Terrain t) {
 void player_do_slide(struct BoundingBox slide_check, struct Player *player,
                      bool just_pressed, const struct TerrainMap *terrain_map,
                      enum Direction direction) {
-    // slide_check.width = GRID_SIZE - 1;
+    slide_check.tl.x += PLAYER_COLLISION_BUFFER;
+    // slide_check.tl.y += PLAYER_COLLISION_BUFFER;
     coordinate_align_to_grid(&slide_check.tl);
     debug_bb_draw(&slide_check);
-    // slide_check.tl.x = ((slide_check.tl.x / 2) * 2) + (slide_check.tl.x % 2);
-    // slide_check.tl.y = ((slide_check.tl.y / 2) * 2) + +(slide_check.tl.y %
-    // 2);
+
     uint8_t start_move_amount = GRID_SIZE * 2;
     uint8_t step_size = GRID_SIZE * 2;
-    if (direction == DIRECTION_LEFT || direction == DIRECTION_RIGHT ||
-        direction == DIRECTION_UP) {
-        step_size = GRID_SIZE * 2;
-    }
-    if (direction == DIRECTION_LEFT || direction == DIRECTION_RIGHT) {
-        start_move_amount = GRID_SIZE * 2;
-    }
+
     slide_check.tl = coordinate_screen_add_direction(slide_check.tl, direction,
                                                      start_move_amount);
     if (terrain_is_check_all_target(&slide_check, terrain_map,
@@ -105,19 +98,14 @@ void player_do_slide(struct BoundingBox slide_check, struct Player *player,
             return;
         }
 
-        trace("player is sliding!!");
-        // player->loc.screen = slide_check.tl;
-        // player->loc.screen.y -= PLAYER_SIZE / 2;
         uint8_t slide_distance = terrain_calc_slide_distance(
             slide_check, direction, terrain_map, step_size,
             terrain_is_point_slidable, player_is_point_slideover);
 
-        // coordinate_align_to_grid(&player->loc.screen);
         player->is_animating = true;
 
         struct ScreenCoordinate target_top_left = player->loc.screen;
         coordinate_align_to_grid(&target_top_left);
-        // target_top_left.y += PLAYER_SIZE / 2;
 
         player->animation = (struct Animation){
             .animation_subject = &(player->loc.screen),
