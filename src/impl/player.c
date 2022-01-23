@@ -94,8 +94,6 @@ void player_do_slide(struct BoundingBox slide_check, struct Player *player,
                      enum Direction direction) {
     slide_check = player_make_bb(player);
 
-    debug_bb_draw(&slide_check);
-
     uint8_t start_move_amount = GRID_SIZE;
     uint8_t step_size = GRID_SIZE;
     uint8_t slide_past_steps = 1;

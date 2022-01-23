@@ -171,7 +171,6 @@ bool determine_direction(const struct Block *b, const struct Player *p,
             bb = bounding_box_new(b->movable.bb.tl, GRID_SIZE, BLOCK_SIZE);
             bb.tl.x += BLOCK_SIZE;
         }
-        debug_bb_draw(&bb);
         return bounding_box_intersect(&bb, &player_bb);
     }
     if (input_get_pressed_direction(i, INPUT_AXIS_VERTICAL, d)) {
@@ -183,7 +182,6 @@ bool determine_direction(const struct Block *b, const struct Player *p,
             bb = bounding_box_new(b->movable.bb.tl, BLOCK_SIZE, GRID_SIZE);
             bb.tl.y += BLOCK_SIZE;
         }
-        debug_bb_draw(&bb);
         return bounding_box_intersect(&bb, &player_bb);
     }
     return false;

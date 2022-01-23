@@ -154,7 +154,6 @@ uint8_t terrain_at_point(const struct TerrainMap *t,
         return terrain_create(TERRAIN_NORMAL, LAYER_MAIN) |
                terrain_create(TERRAIN_INVALID, LAYER_LOWER);
     }
-    rect(g.x * 8, g.y * 8, 8, 8);
     return t->terrain[compute_terrain_index(g.x, g.y)];
 }
 
