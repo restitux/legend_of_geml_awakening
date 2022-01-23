@@ -83,7 +83,7 @@
   <object id="50" x="552" y="416" width="16" height="24">
    <properties>
     <property name="ability" type="int" value="1"/>
-    <property name="string" value="YOU GOT THE HOT WAND!"/>
+    <property name="string" value="You have aquired the wand of WETNESS! You can now turn water to ice! HOLD X,"/>
    </properties>
   </object>
  </objectgroup>
