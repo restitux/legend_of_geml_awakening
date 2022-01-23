@@ -21,6 +21,7 @@ void handle_entrances() {
                 y <= e.y + e.height) {
                 // do transition
                 game_state.overworld = e.target_map;
+                game_state.world_id = e.target_map->id;
                 for (unsigned int i = 0;
                      i < game_state.overworld->entrances.length; i++) {
                     if (game_state.overworld->entrances.entrances[i].id ==
