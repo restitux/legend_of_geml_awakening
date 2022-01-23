@@ -73,18 +73,6 @@ void init_game() {
     };
 }
 
-void save_game() {
-    // diskw(&game_state, sizeof(struct GameState));
-}
-
-void load_game() {
-    // struct GameState temp;
-    // diskr(&temp, sizeof(struct GameState));
-    // if (temp.valid) {
-    //   game_state = temp;
-    // }
-}
-
 int calc_room_id(struct GameState *game) {
     return game->currentRoom.loc.x +
            (game->currentRoom.loc.y * (game->overworld->static_map.width / 20));
@@ -117,3 +105,26 @@ void set_default_room_state(struct GameState *game) {
 
     game->currentRoom.state = new_state;
 }
+
+// void load_world(struct GameState *game) {
+//     int state_array_loc = 0;
+//     for (uint8_t i = 0; i < 3; i++) {
+//         if (game->room_states.id[i] == game->world_id) {
+//             state_array_loc = i;
+//         }
+//     }
+//     uint16_t id = game->room_states.state[state_array_loc];
+//     switch (id) {
+//     case TILEMAP_TESTING_ID:
+//         game->overworld = &testing_tilemap;
+//         break;
+//     case TILEMAP_TESTING_ID:
+//         game->overworld = &testing_tilemap;
+//         break;
+//     case TILEMAP_TESTING_ID:
+//         game->overworld = &testing_tilemap;
+//         break;
+//     default:
+//         break;
+//     }
+// }

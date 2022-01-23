@@ -11,6 +11,7 @@
 #include "text.h"
 
 #include "collision.h"
+#include "save.h"
 
 void on_room_enter() {
     struct Room *new_room = &game_state.currentRoom;
@@ -39,6 +40,8 @@ void on_room_enter() {
         }
     }
     game_state.currentRoom.blocks.size = index;
+
+    save();
 }
 
 void on_room_exit() {
@@ -46,17 +49,11 @@ void on_room_exit() {
            game_state.currentRoom.blocks.size, game_state.player.loc.room.x,
            game_state.player.loc.room.y);
     game_state.currentRoom.blocks.size = 0;
-    save_game();
 
     game_state.currentRoom.loc = game_state.player.loc.room;
 }
 
-void on_game_launch() {
-
-    load_game();
-
-    on_room_enter();
-}
+void on_game_launch() { on_room_enter(); }
 
 struct TerrainMap terrain;
 
