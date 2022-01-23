@@ -1,4 +1,5 @@
 #include "types.h"
+#include "configuration.h"
 
 #include <wasm4.h>
 
@@ -156,4 +157,9 @@ enum Direction direction_reverse(enum Direction d) {
     default:
         break;
     }
+}
+
+void coordinate_align_to_double_grid(struct ScreenCoordinate *c) {
+    c->x = (c->x / DOUBLE_GRID_SIZE) * DOUBLE_GRID_SIZE;
+    c->y = (c->y / DOUBLE_GRID_SIZE) * DOUBLE_GRID_SIZE;
 }

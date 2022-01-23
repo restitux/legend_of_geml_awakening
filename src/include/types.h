@@ -75,3 +75,5 @@ bool bounding_box_contains_point(const struct BoundingBox *b,
                                  struct ScreenCoordinate p);
 
 enum Direction direction_reverse(enum Direction d);
+
+void coordinate_align_to_double_grid(struct ScreenCoordinate *c);

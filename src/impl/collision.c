@@ -154,7 +154,7 @@ bool terrain_is_check_all_target(const struct BoundingBox *target_box,
 
 uint8_t terrain_calc_slide_distance(struct BoundingBox moved, enum Direction d,
                                     const struct TerrainMap *tm,
-                                    uint8_t step_size,
+                                    uint8_t step_size, uint8_t slide_past_steps,
                                     TerrainPointCheck ice_check,
                                     TerrainPointCheck slide_over_check) {
     // struct ScreenCoordinate slide_end = moved.tl;
@@ -169,9 +169,13 @@ uint8_t terrain_calc_slide_distance(struct BoundingBox moved, enum Direction d,
         }
     }
 
-    if (terrain_is_check_all_target(&moved, tm, slide_over_check)) {
-        slide_distance += step_size; // finish the push on the other side of
-                                     // ice
+    for (uint8_t i = 0; i < slide_past_steps; i++) {
+        if (terrain_is_check_all_target(&moved, tm, slide_over_check)) {
+            slide_distance += step_size; // finish the push on the other side of
+                                         // ice
+        } else {
+            break;
+        }
     }
 
     return slide_distance;

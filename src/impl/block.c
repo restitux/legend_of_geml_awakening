@@ -286,7 +286,7 @@ void make_push_animations(struct Block *b, struct Player *p, enum Direction d,
 void block_make_slide_animation(struct Block *b, struct BoundingBox moved,
                                 enum Direction d, const struct TerrainMap *tm) {
     uint8_t slide_distance = terrain_calc_slide_distance(
-        moved, d, tm, BLOCK_SIZE, terrain_is_point_slidable,
+        moved, d, tm, BLOCK_SIZE, 1, terrain_is_point_slidable,
         block_is_point_pushable);
 
     struct Animation block_animation = {

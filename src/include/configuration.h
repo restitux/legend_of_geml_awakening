@@ -25,6 +25,7 @@
 */
 
 #define GRID_SIZE 8
+#define DOUBLE_GRID_SIZE (8 * 2)
 
 /*
 ---------------------------
