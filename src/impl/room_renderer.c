@@ -77,7 +77,7 @@ void room_draw_room_rle(uint32_t room_x, uint32_t room_y,
         uint8_t tile = map->map[index];
         uint8_t rotation = map->map_rotations[index];
         if (tile == 0) {
-            counter += rotation;
+            counter += rotation + 1;
         } else {
             counter += 1;
         }
