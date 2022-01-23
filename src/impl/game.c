@@ -1,11 +1,13 @@
 #include "game.h"
 #include "../../res/data/player_animation.h"
 #include "../../res/map/dungeon_one.map.h"
+#include "../../res/map/dungeon_two.map.h"
 #include "../../res/map/testing.map.h"
 #include "../../res/map/tiled.h"
 #include "wasm4.h"
 
 struct GameState game_state;
+struct DefaultRoomStates default_room_states;
 void init_game() {
     game_state = (struct GameState){
         .valid = true,
@@ -42,6 +44,25 @@ void init_game() {
             .progress = 0,
             .counter = 0,
         }};
+
+    default_room_states = (struct DefaultRoomStates){
+        .id = {TILEMAP_DUNGEON_ONE_ID, TILEMAP_DUNGEON_TWO_ID,
+               TILEMAP_TESTING_ID},
+        .length = {},
+        .state = {(enum RoomState[]){ROOM_WATER, ROOM_WATER, ROOM_WATER,
+                                     ROOM_WATER, ROOM_WATER, ROOM_WATER,
+                                     ROOM_WATER, ROOM_WATER, ROOM_WATER,
+                                     ROOM_ICE, ROOM_ICE, ROOM_ICE},
+                  (enum RoomState[]){ROOM_LAVA, ROOM_LAVA, ROOM_LAVA, ROOM_LAVA,
+                                     ROOM_LAVA, ROOM_LAVA, ROOM_LAVA, ROOM_LAVA,
+                                     ROOM_LAVA, ROOM_LAVA, ROOM_LAVA, ROOM_LAVA,
+                                     ROOM_LAVA, ROOM_LAVA, ROOM_LAVA, ROOM_LAVA,
+                                     ROOM_LAVA, ROOM_LAVA},
+                  (enum RoomState[]){ROOM_WATER, ROOM_WATER, ROOM_WATER,
+                                     ROOM_WATER, ROOM_WATER, ROOM_WATER,
+                                     ROOM_WATER, ROOM_WATER, ROOM_WATER,
+                                     ROOM_WATER, ROOM_WATER, ROOM_WATER}},
+    };
 }
 
 void save_game() {
