@@ -14,9 +14,16 @@ struct DefaultRoomStates {
     enum RoomState *state[3];
 };
 
+enum SelectedAbility {
+    ICE_TO_WATER = 0,
+    LAVA_TO_WATER = 1,
+};
+
 struct PlayerInventory {
     bool ice_to_water;
     bool lava_to_water;
+
+    int selected_ability;
 };
 
 extern struct DefaultRoomStates default_room_states;

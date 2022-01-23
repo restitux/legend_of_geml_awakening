@@ -6,6 +6,7 @@
 #include "block.h"
 #include "configuration.h"
 #include "entrances.h"
+#include "inventory.h"
 #include "special_tile.h"
 #include "text.h"
 
@@ -70,20 +71,19 @@ void on_update() {
     terrain_map_update(&terrain, &game_state.currentRoom, game_state.overworld);
 
     update_input_state(&game_state.inputs);
-    if (game_state.inputs.button_x.justPressed) {
-        enum RoomState new_state = game_state.currentRoom.state + 1;
-        new_state %= 3;
-        update_current_room_state(&game_state, new_state);
-    }
 
-    handle_movement(&game_state.player, &terrain, &game_state.inputs);
+    bool inventory_interaction = handle_invetory_interaction(&game_state);
+    if (!inventory_interaction) {
+        handle_movement(&game_state.player, &terrain, &game_state.inputs);
 
-    block_update_all_blocks(game_state.currentRoom.blocks.b,
-                            game_state.currentRoom.blocks.size,
-                            &game_state.player, &game_state.inputs, &terrain);
-    if (game_state.currentRoom.state == ROOM_ICE) {
-        for (uint32_t i = 0; i < game_state.currentRoom.blocks.size; i++) {
-            block_set_layer(&game_state.currentRoom.blocks.b[i], LAYER_MAIN);
+        block_update_all_blocks(
+            game_state.currentRoom.blocks.b, game_state.currentRoom.blocks.size,
+            &game_state.player, &game_state.inputs, &terrain);
+        if (game_state.currentRoom.state == ROOM_ICE) {
+            for (uint32_t i = 0; i < game_state.currentRoom.blocks.size; i++) {
+                block_set_layer(&game_state.currentRoom.blocks.b[i],
+                                LAYER_MAIN);
+            }
         }
     }
 
@@ -96,13 +96,10 @@ void on_update() {
     room_draw_room_rle(game_state.player.loc.room.x,
                        game_state.player.loc.room.y,
                        &game_state.overworld->overlay_map);
-    ONLY_DEBUG(room_draw_room_debug_map(game_state.player.loc.room.x,
-                                        game_state.player.loc.room.y,
-                                        &game_state.overworld->collision_map));
 
-    ONLY_DEBUG(room_draw_room_debug_map(game_state.player.loc.room.x,
-                                        game_state.player.loc.room.y,
-                                        &game_state.overworld->special_map));
+    if (inventory_interaction) {
+        draw_inventory(&game_state.inventory);
+    }
 
     handle_entrances();
     // terrain_debug_draw(&terrain);
