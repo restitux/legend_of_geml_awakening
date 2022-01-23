@@ -67,26 +67,28 @@ void room_draw_room_rle(uint32_t room_x, uint32_t room_y,
                         const struct TileMap_MapLayer *map) {
     // find beginning of room
     const int blocks_per_room = 20 * 20;
-    const int room_index = (room_y * map->width) + room_x;
+    const int room_index = (room_y * (map->width) / 20) + room_x;
     const int room_base = room_index * blocks_per_room;
 
     // iterate through tiles until we find the top right of the room
     int counter = 0;
-    int current_index = 0;
-    while (counter < room_base) {
-        uint8_t tile = map->map[current_index];
-        uint8_t rotation = map->map_rotations[current_index];
+    int index = 0;
+    while (true) {
+        uint8_t tile = map->map[index];
+        uint8_t rotation = map->map_rotations[index];
         if (tile == 0) {
             counter += rotation;
         } else {
             counter += 1;
         }
-        current_index++;
+        if (counter < room_base) {
+            index++;
+        } else {
+            break;
+        }
     }
 
     // render room
-    int index = current_index;
-
     counter = 0;
     while (counter < blocks_per_room) {
         int room_x = counter % 20;
