@@ -61,7 +61,7 @@ bool player_is_point_walkable_or_ice(Terrain t) {
     enum TerrianType lower_layer = terrain_type(t, LAYER_LOWER);
 
     bool not_wall =
-        (cur_layer != TERRAIN_WALL && lower_layer == TERRAIN_INVALID);
+        (cur_layer == TERRAIN_NORMAL && lower_layer == TERRAIN_INVALID);
     bool sunk_block = (lower_layer == TERRAIN_BLOCK);
     bool ice =
         (cur_layer == TERRAIN_INVALID && lower_layer == TERRAIN_SLIPPERY);
