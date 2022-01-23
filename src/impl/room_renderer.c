@@ -1,10 +1,18 @@
 #include "room_renderer.h"
+#include "collision.h"
 #include "room.h"
 #include <stdbool.h>
 #include <stdint.h>
 
 #include "../../res/map/tiled.h"
 #include "wasm4.h"
+
+const uint8_t movement[8] = {
+    0b01000000, 0b10000100, 0b00100000, 0b00000010,
+    0b01001000, 0b00000000, 0b01000000, 0b00000100,
+};
+
+uint8_t movement_frame = 0;
 
 void room_draw_tile(uint8_t tile_id, uint8_t rotations, uint32_t x, uint32_t y,
                     const uint8_t *tileset) {
@@ -140,8 +148,39 @@ void room_draw_room_debug_map(uint32_t room_x, uint32_t room_y,
     }
 }
 
+void draw_movement_animation(int x, int y, enum Direction flow_dir) {
+    for (int i = 0; i < 8; i++) {
+        for (int b = 0; b < 8; b++) {
+            int real_index = i;
+            int real_bit = b;
+            int real_frame = movement_frame % 8;
+            switch (flow_dir) {
+            case DIRECTION_UP:
+                real_index = (i + movement_frame) % 8;
+                break;
+            case DIRECTION_DOWN:
+                real_index = (i - movement_frame) % 8;
+                break;
+            case DIRECTION_LEFT:
+                real_bit = (b + real_frame) % 8;
+                break;
+            case DIRECTION_RIGHT:
+                real_bit = (b + (9 - real_frame)) % 8;
+                break;
+            }
+
+            int bit = (movement[real_index] >> real_bit) & 0x1;
+            if (bit) {
+                rect(x + b, y + i, 1, 1);
+            }
+        }
+    }
+}
+
 void room_draw_room_special_tiles(uint32_t room_x, uint32_t room_y,
-                                  const struct TileMap_DataLayer *map) {
+                                  const struct TileMap_DataLayer *map,
+                                  const struct TerrainMap *tm,
+                                  enum RoomState state) {
     int room_start_y = room_y * 20;
     int room_start_x = room_x * 20;
     for (int x = room_start_x; x < room_start_x + 20; x++) {
@@ -158,9 +197,15 @@ void room_draw_room_special_tiles(uint32_t room_x, uint32_t room_y,
                 *DRAW_COLORS = 0x0011;
                 rect(pix_x, pix_y, 8, 8);
                 *DRAW_COLORS = old_draw_colors;
+                if (state == ROOM_LAVA) {
+                    struct ScreenCoordinate s = {pix_x, pix_y};
+                    draw_movement_animation(pix_x, pix_y,
+                                            terrain_flow_dir_at_point(tm, s));
+                }
             }
         }
     }
+    movement_frame += 1;
 }
 
 int room_is_tile_present_at_bb_corners(const struct BoundingBox *bb,

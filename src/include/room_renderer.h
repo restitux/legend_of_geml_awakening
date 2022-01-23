@@ -22,6 +22,7 @@ int room_is_tile_present_at_bb_corners(const struct BoundingBox *bb,
 
 void room_draw_room_debug_map(uint32_t room_x, uint32_t room_y,
                               const struct TileMap_DataLayer *map);
-
 void room_draw_room_special_tiles(uint32_t room_x, uint32_t room_y,
-                                  const struct TileMap_DataLayer *map);
+                                  const struct TileMap_DataLayer *map,
+                                  const struct TerrainMap *tm,
+                                  enum RoomState state);
