@@ -83,6 +83,8 @@ void on_update() {
     bool inventory_interaction = handle_invetory_interaction(&game_state);
     if (!inventory_interaction || game_state.text_state.displaying) {
         handle_movement(&game_state.player, &terrain, &game_state.inputs);
+        terrain_map_update(&terrain, &game_state.currentRoom,
+                           game_state.overworld);
 
         block_update_all_blocks(
             game_state.currentRoom.blocks.b, game_state.currentRoom.blocks.size,
