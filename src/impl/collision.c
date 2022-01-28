@@ -154,6 +154,7 @@ uint8_t terrain_at_point(const struct TerrainMap *t,
         return terrain_create(TERRAIN_NORMAL, LAYER_MAIN) |
                terrain_create(TERRAIN_INVALID, LAYER_LOWER);
     }
+    rect(g.x * 8, g.y * 8, 8, 8);
     return t->terrain[compute_terrain_index(g.x, g.y)];
 }
 
@@ -180,18 +181,21 @@ bool terrain_is_check_all_target(const struct BoundingBox *target_box,
     struct ScreenCoordinate corners[4];
     bounding_box_corners(target_box, corners);
 
-    int passable_corners = 0;
-    for (int i = 0; i < 4; i++) {
-        Terrain t = terrain_at_point(tm, corners[i]);
+    struct GridCoordinate tl_grid = coordinate_screen_to_grid(&target_box->tl);
+    struct GridCoordinate br_grid = tl_grid;
+    br_grid.x += target_box->width / 8;
+    br_grid.y += target_box->height / 8;
 
-        if (check(t))
-
-        {
-            passable_corners += 1;
+    bool check_passed = true;
+    for (uint8_t x = tl_grid.x; x < br_grid.x + 1; x++) {
+        for (uint8_t y = tl_grid.y; y < br_grid.y + 1; y++) {
+            struct GridCoordinate p = {x, y};
+            Terrain t = terrain_at_point(tm, coordinate_grid_to_screen(&p));
+            check_passed &= check(t);
         }
     }
 
-    return passable_corners == 4;
+    return check_passed;
 }
 
 int terrain_is_check_corners(const struct BoundingBox *target_box,
