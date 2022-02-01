@@ -73,12 +73,8 @@ void on_update() {
                          game_state.overworld->text_triggers,
                          game_state.player);
 
-    if (game_state.text_state.displaying) {
-        render_text(&game_state.text_state);
-    }
-
     bool inventory_interaction = handle_invetory_interaction(&game_state);
-    if (!inventory_interaction || game_state.text_state.displaying) {
+    if (!inventory_interaction && !game_state.text_state.displaying) {
         handle_movement(&game_state.player, &terrain, &game_state.inputs);
         terrain_map_update(&terrain, &game_state.currentRoom,
                            game_state.overworld);
@@ -104,6 +100,9 @@ void on_update() {
                        game_state.player.loc.room.y,
                        &game_state.overworld->overlay_map);
 
+    if (game_state.text_state.displaying) {
+        render_text(&game_state.text_state);
+    }
     if (inventory_interaction) {
         draw_inventory(&game_state.inventory);
     }
